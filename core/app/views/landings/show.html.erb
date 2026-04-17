@@ -1,0 +1,64 @@
+<% @page_title = "Home" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Landing page</h1>
+  <p class="text-gray-500">This is the landing page, <code>landings_controller#show</code> and <code>landings/show.html.erb</code>.</p>
+
+  <div class="my-4 flex gap-4 items-center">
+    <span class="text-lg font-bold">You are signed in as <code><%= Current.identity.email %></code>.</span>
+    <%= button_to "Sign Out", session_path(script_name: nil), class: "btn btn-error btn-sm", method: :delete %>
+  </div>
+
+  <div class="mt-4 card bg-base-100 card-sm shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Current User:</h2>
+      <%= debug Current.identity.inspect %>
+    </div>
+  </div>
+
+  <div class="mt-4 card bg-base-100 card-sm shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Current Account:</h2>
+      <%= debug Current.account.inspect %>
+      <div class="flex gap-4 items-center">
+        <span class="text-lg font-bold">Switch to other account:</span>
+        <% Current.identity.accounts.each do |account| %>
+          <%= link_to account.name, root_path(script_name: account.slug_path), class: "btn btn-primary btn-sm", disabled: Current.account.id == account.id %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% url = join_url(code: Current.account.join_code.code, script_name: Current.account.slug_path) %>
+  <div class="mt-4 card bg-base-100 card-sm shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Join Url:</h2>
+      <div class="flex gap-4 items-center">
+      <code>
+        <%= url %>
+      </code>
+      <button class="btn btn-sm btn-outline relative" data-controller="copy-to-clipboard" data-action="copy-to-clipboard#copy" data-copy-to-clipboard-content-value="<%= url %>" data-copy-to-clipboard-success-class="btn-copied">
+        <span class="copy-icon transition-opacity duration-300">
+          <%= image_tag "copy.svg", class: "w-4 h-4" %>
+        </span>
+        <span class="copied-text absolute top-0 left-full text-success opacity-0 transition-opacity duration-300 pointer-events-none">
+          Copied!
+        </span>
+      </button>
+    </div>
+    </div>
+  </div>
+
+  <div class="mt-4 card bg-base-100 card-sm shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Payments:</h2>
+      <%= button_to account_payment_path(plan_key: "first"), class: "btn btn-primary btn-sm", data: { turbo: false, controller: "button-loading" } do %>
+        <span data-button-loading-target="text">Create Payment</span>
+        <span data-button-loading-target="loading" class="hidden">
+          <span class="loading loading-spinner loading-sm"></span>
+          Processing...
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>

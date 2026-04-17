@@ -1,0 +1,14 @@
+.flash {
+  max-width: 600px;
+  display: flex;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  animation: appear-then-fade 3s 300ms both;
+}
+
+@keyframes appear-then-fade {
+  0%,100% { opacity: 0; }
+  5%,60%  { opacity: 1; }
+}

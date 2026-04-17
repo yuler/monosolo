@@ -1,0 +1,42 @@
+<% @page_title = "Verification Code" %>
+
+<div class="h-full flex items-center justify-center bg-linear-to-br p-4">
+  <div class="w-full max-w-md">
+    <div class="card card-border bg-base-100 w-full max-w-md shadow-lg">
+      <div class="card-body">
+        <h2 class="card-title text-xl mb-2">Verification Code</h2>
+        <p class="text-base-content/70 mb-4">Enter the 6-digit code sent to your email</p>
+
+        <%= form_with url: session_magic_link_path, method: :post do |f| %>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Code</legend>
+            <%= f.text_field :code,
+              class: "input input-lg input-primary w-full text-center tracking-[0.5em] font-mono text-2xl",
+              placeholder: "● ● ● ● ● ●",
+              maxlength: 6,
+              autocomplete: "one-time-code",
+              autofocus: true %>
+            <p class="label text-base-content/60">Check your inbox and spam folder</p>
+          </fieldset>
+
+          <div class="card-actions mt-6">
+            <%= f.submit "Verify",
+              class: "btn btn-primary btn-block btn-lg" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if Rails.env.development? && flash[:magic_link_code].present? %>
+      <div class="alert alert-info alert-soft max-w-md mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <p class="font-semibold">Development Mode</p>
+          <p class="font-mono text-lg"><%= flash[:magic_link_code] %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

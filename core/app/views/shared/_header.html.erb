@@ -1,0 +1,100 @@
+<header id="header" class="header w-full sticky top-0 z-50 bg-transparent shadow backdrop-blur-sm">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 btn" data-turbo="false">Skip to main content</a>
+
+  <div class="navbar max-w-7xl mx-auto px-4">
+    <div class="flex-1">
+      <a href="<%= current_page?(root_path) ? home_index_path : root_path %>" class="text-xl font-bold text-primary">
+        <%= image_tag 'logo.png', alt: 'Logo', class: 'h-8 w-8 inline-block align-middle mr-2' %>
+      </a>
+    </div>
+
+    <div class="flex gap-4">
+      <% if current_page?(home_index_path) %>
+        <div class="flex gap-2">
+          <a href="#features" class="btn btn-ghost">Features</a>
+          <a href="#pricing" class="btn btn-ghost">Pricing</a>
+        </div>
+      <% end %>
+
+      <% if Current.identity %>
+        <% if false %>
+        <!-- Notifications Dropdown -->
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-circle">
+            <div class="indicator">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span class="badge badge-xs badge-error indicator-item">5</span>
+            </div>
+          </div>
+          <div tabindex="0" class="dropdown-content bg-base-100 z-1 mt-3 w-80 rounded-box shadow-lg">
+            <div class="p-3 border-b border-base-200">
+              <span class="font-semibold">Notifications</span>
+            </div>
+            <ul class="menu menu-sm p-2 max-h-80 overflow-y-auto">
+              <li>
+                <a href="#" class="flex flex-col items-start gap-1 py-3">
+                  <span class="font-medium">Welcome to the app!</span>
+                  <span class="text-xs text-base-content/60">Just now</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex flex-col items-start gap-1 py-3">
+                  <span class="font-medium">Your account is ready</span>
+                  <span class="text-xs text-base-content/60">2 minutes ago</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex flex-col items-start gap-1 py-3">
+                  <span class="font-medium">Complete your profile</span>
+                  <span class="text-xs text-base-content/60">1 hour ago</span>
+                </a>
+              </li>
+            </ul>
+            <div class="p-2 border-t border-base-200">
+              <a href="#" class="btn btn-ghost btn-sm btn-block">View all notifications</a>
+            </div>
+          </div>
+        </div>
+        <% end %>
+
+        <!-- User Avatar Dropdown -->
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+            <div class="w-10 rounded-full">
+              <div class="bg-primary text-primary-content flex items-center justify-center w-full h-full">
+                <span class="text-lg font-bold"><%= Current.identity.full_name.first.upcase %></span>
+              </div>
+            </div>
+          </div>
+          <ul tabindex="-1" class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+            <li class="menu-title">
+              <span><%= Current.identity.email %></span>
+            </li>
+            <li>
+              <%= link_to my_accounts_path, class: "w-full #{'menu-active' if current_page?(my_accounts_path)}" do %>
+                <%= image_tag 'users.svg', alt: '', class: 'h-4 w-4' %>
+                <span>My Accounts</span>
+              <% end %>
+            </li>
+           
+           <li>
+              <%= button_to sign_out_path, method: :delete, form_class: "flex", class: "link link-hover flex-1 flex items-center justify-start gap-2", data: { turbo: false } do %>
+                <%= image_tag 'log-out.svg', alt: '', class: 'h-4 w-4' %>
+                <span>Sign Out</span>
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      <% elsif !current_page?(sign_in_path) %>
+        <!-- Auth Buttons -->
+        <div class="flex gap-2">
+          <a href="<%= sign_in_path %>" class="btn">Sign In</a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%= yield :header %>
+</header>

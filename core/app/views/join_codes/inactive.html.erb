@@ -1,0 +1,13 @@
+<% @page_title = "Join Code Inactive" %>
+
+<div class="h-full flex items-center justify-center bg-linear-to-br p-4">
+  <div class="card w-96 bg-base-100 shadow-xl">
+    <div class="card-body text-center">
+      <h2 class="card-title justify-center text-2xl">Join Code Inactive</h2>
+
+      <p class="text-base-content/70">Ask someone from <%= @join_code.account.name %> to send you a new link or increase the limit.</p>
+
+      <%= link_to "Back to Home", root_path, class: "btn btn-primary btn-block" %>
+    </div>
+  </div>
+</div>

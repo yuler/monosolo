@@ -1,0 +1,9 @@
+<h1>You've been invited!</h1>
+
+<p>
+  <%= @invited_by.name %> has invited you to join <strong><%= @invitation.account.name %></strong> on <strong><%= ENV.fetch("SITE_NAME") %></strong>
+</p>
+
+<p>
+  <%= link_to "Accept Invitation", @invitation.accept_url %>
+</p>

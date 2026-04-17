@@ -1,0 +1,18 @@
+<% @page_title = "Create a New Account" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Create a New Account</h1>
+
+  <%= form_with model: @account, url: my_accounts_path, class: "space-y-4" do |form| %>
+    <%= render "shared/form_errors", model: @account %>
+    <%= form.label :name, class: "floating-label" do %>
+      <span class="label">Account Name</span>
+      <%= form.text_field :name, placeholder: "Account Name", class: "input input-bordered w-full" %>
+    <% end %>
+    <%= form.label :description, class: "floating-label" do %>
+      <span class="label">Account Description</span>
+      <%= form.text_area :description, placeholder: "Account Description", class: "textarea textarea-bordered w-full" %>
+    <% end %>
+    <%= form.submit "Create Account", class: "btn btn-primary" %>
+  <% end %>
+</div>

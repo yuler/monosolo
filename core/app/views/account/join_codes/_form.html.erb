@@ -1,0 +1,18 @@
+<%= form_with model: join_code, url: account_join_code_path, class: "my-6" do |form| %>
+    <%= render "shared/form_errors", model: join_code %>
+
+    <div class="form-control w-full max-w-xs">
+        <%= form.label :usage_limit, class: "label" do %>
+        <span class="label-text font-semibold">Usage Limit</span>
+        <% end %>
+        <%= form.number_field :usage_limit, class: "input input-bordered w-full max-w-xs", min: join_code.usage_count %>
+        <label class="label">
+        <span class="label-text-alt">Currently used <%= join_code.usage_count %> times</span>
+        </label>
+    </div>
+
+    <div class="flex gap-4 my-6">
+        <%= form.submit "Update Limit", class: "btn btn-primary" %>
+        <%= link_to "Cancel", account_join_code_path, class: "btn btn-ghost" %>
+    </div>
+<% end %>

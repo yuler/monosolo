@@ -1,0 +1,30 @@
+<% @page_title = "Choose Your Account" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Choose Your Account</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Description</th>
+        <th>Invitations</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @accounts.each do |account| %>
+        <tr>
+          <td><%= link_to account.name, root_path(script_name: account.slug_path) %></td>
+          <td><%= account.slug %></td>
+          <td><%= account.description %></td>
+          <td><%= link_to "Invitations", account_invitations_path(script_name: account.slug_path), class: "link" %></td>
+          <td><%= account.created_at %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= link_to "Create a New Account", new_my_account_path, class: "btn btn-primary" %>
+</div>

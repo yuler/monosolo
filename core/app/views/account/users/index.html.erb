@@ -1,0 +1,29 @@
+<% @page_title = "#{Current.account.name} Memberships" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <div class="flex justify-between items-center">
+    <h1><%= Current.account.name %> Memberships</h1>
+    <%= link_to "Invite Member", new_account_invitation_path(Current.account), class: "btn btn-primary" %>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= user.name %></td>
+            <td><%= user.identity&.email || "N/A" %></td>
+            <td><%= user.role.humanize %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

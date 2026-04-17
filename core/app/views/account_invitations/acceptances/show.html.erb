@@ -1,0 +1,9 @@
+<% @page_title = "Accepting..." %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Accepting...</h1>
+
+  <p>Invitation to join <strong><%= @account_invitation.account.name %></strong> has been accepted.</p>
+</div>
+
+<%= auto_submit_form_with method: :put %>

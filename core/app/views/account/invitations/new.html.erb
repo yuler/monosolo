@@ -1,0 +1,30 @@
+<% @page_title = "Invite a New Member" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Invite a New Member</h1>
+  <p>Invite someone to join <strong><%= Current.account.name %></strong>.</p>
+
+  <%= form_with(model: [Current.account, @invitation], url: account_invitations_path, class: "space-y-4") do |form| %>
+    <% if @invitation.errors.any? %>
+      <div class="alert alert-error">
+        <ul>
+          <% @invitation.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-control w-full max-w-xs">
+      <%= form.label :email, class: "label" do %>
+        <span class="label-text">Email Address</span>
+      <% end %>
+      <%= form.email_field :email, required: true, class: "input input-bordered w-full max-w-xs", placeholder: "colleague@example.com" %>
+    </div>
+
+    <div class="form-control mt-6">
+      <%= form.submit "Send Invitation", class: "btn btn-primary" %>
+      <%= link_to "Cancel", account_users_path, class: "btn btn-ghost ml-2" %>
+    </div>
+  <% end %>
+</div>

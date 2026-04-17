@@ -1,0 +1,9 @@
+<% @page_title = "Thank you" %>
+
+<% if @charge.present? && @charge.status == "succeeded" %>
+  <div class="max-w-5xl py-4 prose mx-auto">
+    <h1 class="text-2xl font-bold">Thank you</h1>
+    <p class="text-gray-500">Your payment was successful. You’re now on the <strong><%= @charge.plan_key %></strong> plan.</p>
+    <%= link_to "Done", root_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

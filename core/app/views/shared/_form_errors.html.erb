@@ -1,0 +1,17 @@
+<%# locals: (model:) %>
+
+<% if model&.errors&.any? %>
+  <% if false %>
+  <ul class="mb-4 px-4 py-3 rounded bg-red-100 border border-red-400 text-red-700" role="alert">
+    <% model.errors.attribute_names.each do |attribute| %>
+      <% model.errors.full_messages_for(attribute).each do |message| %>
+        <%= tag.ol message %>
+      <% end %>
+    <% end %>
+  </ul>
+  <% end %>
+  
+  <div role="alert" class="alert alert-error alert-soft">
+    <%= model.errors.full_messages.to_sentence %>
+  </div>
+<% end %>

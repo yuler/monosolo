@@ -1,0 +1,30 @@
+{
+  "name": "@monosolo/core",
+  "private": true,
+  "scripts": {
+    "dev": "./bin/dev",
+    "creem:dev": "./script/creem-dev.sh",
+    "setup": "./bin/setup",
+    "build": "esbuild app/javascript/application.js --bundle --sourcemap=external --format=esm --outdir=app/assets/builds",
+    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify",
+    "clean": "rm -rf app/assets/builds/*",
+    "test": "./bin/rails test",
+    "ci": "./bin/ci",
+    "stimulus:manifest:update": "./bin/rails stimulus:manifest:update",
+    "format": "rubocop --fix",
+    "icon:download": "ruby ./script/icon_download.rb",
+    "app:rename": "ruby ./script/rename.rb",
+    "db:schema:fresh": "ruby ./script/db_schema_fresh.rb"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/turbo-rails": "^8.0.20",
+    "daisyui": "^5.5.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "@tailwindcss/typography": "^0.5.19",
+    "tailwindcss": "^4.1.16",
+    "esbuild": "^0.25.0"
+  }
+}

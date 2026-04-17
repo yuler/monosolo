@@ -1,0 +1,9 @@
+john:
+  name: John
+  identity: john
+  account: john_account
+
+yuler:
+  name: Yuler
+  identity: yuler
+  account: yuler_account

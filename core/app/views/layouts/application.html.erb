@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html data-theme="light">
+  <%= render "shared/head" %>
+
+  <body class="h-screen grid grid-rows-[auto_1fr_auto]">
+    <%= render "shared/header" %>
+
+    <%= render "shared/flash" %>
+    
+    <main id="main">
+      <%= yield %>
+    </main>
+    <%= render "shared/footer" %>
+  </body>
+</html>

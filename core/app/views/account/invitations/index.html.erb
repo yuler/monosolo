@@ -1,0 +1,26 @@
+<% @page_title = "Invitations" %>
+
+<div class="max-w-5xl py-4 prose mx-auto">
+  <h1>Invitations</h1>
+  
+  <%= render "form", model: @account_invitation %>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Invited By</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @invitations.each do |invitation| %>
+        <tr>
+          <td><%= invitation.email %></td>
+          <td><%= invitation.invited_by&.name || "N/A" %></td>
+          <td><%= invitation.created_at %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

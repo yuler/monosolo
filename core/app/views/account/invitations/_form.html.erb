@@ -1,0 +1,13 @@
+<%= form_with model: model, url: account_invitations_path, 
+    class: "space-y-4" do |form| %>
+    <%= render "shared/form_errors", model: model %>
+
+    <div class="flex items-center gap-10">
+        <%= form.label :email, class: "floating-label flex-1" do %>
+            <span class="label">Email Address</span>
+            <%= form.email_field :email, placeholder: "colleague@example.com", class: "input input-bordered w-full" %>
+        <% end %>
+
+        <%= form.submit "Send Invitation", class: "btn btn-primary" %>
+    </div>
+<% end %>

@@ -1,0 +1,77 @@
+<div class="bg-gray-50 py-24 sm:py-32" id="pricing">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-base font-semibold leading-7 text-indigo-600">Pricing</h2>
+      <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Choose the right plan for you</p>
+      <p class="mt-6 text-lg leading-8 text-gray-600">Start free and upgrade as you grow. All plans include a 14-day free trial.</p>
+    </div>
+
+    <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-none lg:grid-cols-3 lg:gap-x-8">
+      <% Account::Payable::Plan.all.each_with_index do |plan, index| %>
+        <div class="flex flex-col justify-between rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 xl:p-10 <%= 'lg:scale-105 lg:z-10' if plan.key.to_s.include?('starter') %>">
+          <div>
+            <% if plan.key.to_s.include?('starter') %>
+              <div class="flex items-center justify-between gap-x-4">
+                <h3 class="text-lg font-semibold leading-8 text-indigo-600"><%= plan.name %></h3>
+                <p class="rounded-full bg-indigo-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-indigo-600">Most popular</p>
+              </div>
+            <% else %>
+              <h3 class="text-lg font-semibold leading-8 text-gray-900"><%= plan.name %></h3>
+            <% end %>
+
+            <p class="mt-6 flex items-baseline gap-x-1">
+              <% if plan.free? %>
+                <span class="text-4xl font-bold tracking-tight text-gray-900">Free</span>
+              <% else %>
+                <span class="text-4xl font-bold tracking-tight text-gray-900"><%= number_to_currency(plan.price / 100.0, precision: 2, strip_insignificant_zeros: false) %></span>
+              <% end %>
+            </p>
+
+            <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-gray-600">
+              <% if plan.key.to_s.include?('free') %>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Up to 3 projects</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Basic analytics</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Community support</li>
+              <% elsif plan.key.to_s.include?('starter') %>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Unlimited projects</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Advanced analytics</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Priority support</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Custom integrations</li>
+              <% else %>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Everything in Starter</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Dedicated account manager</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>SLA guarantee</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>Custom contracts</li>
+                <li class="flex gap-x-3">
+                  <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>White-label options</li>
+              <% end %>
+            </ul>
+          </div>
+
+          <% if plan.free? %>
+            <a href="<%= new_session_path %>" class="mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Get started for free</a>
+          <% else %>
+            <%= button_to account_payment_path(plan_key: plan.key), method: :post, class: "mt-8 w-full btn btn-primary btn-sm", data: { turbo: false, controller: "button-loading" } do %>
+              <span data-button-loading-target="text">Get started</span>
+              <span data-button-loading-target="loading" class="hidden">
+                <span class="loading loading-spinner loading-sm"></span>
+                Processing...
+              </span>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
