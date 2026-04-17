@@ -42,7 +42,7 @@ core/bin/rails db:fixtures:load
 core/bin/rails db:migrate
 # Drop, create, and load schema
 core/bin/rails db:reset
-# Drop, create, async schema to sqlite/pqsel/mysql schema
+# Drop, create, async schema to sqlite schema
 ruby core/script/db_schema_fresh.rb
 ```
 

@@ -30,7 +30,7 @@ The core engine is an opinionated Rails 8.1 template designed for rapid developm
 
 - **Authentication:** Built-in system via `rails generate authentication`.
 - **Frontend:** Asset bundling using `jsbundling-rails`, `cssbundling-rails`, and Bun.
-- **Database:** Defaults to SQLite with an easy switch to Postgres.
+- **Database:** SQLite.
 - **Multi-Tenancy:** URL-based multi-tenancy with `account_slug`.
 - **API:** Controllers with JWT authentication.
 - **Background Jobs:** Database-backed queue via Solid Queue.
