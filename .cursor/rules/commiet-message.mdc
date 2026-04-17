@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+# Commit message Rules
+
+- Commit message must a simple sentence, First word must be a verb.
+- Don't need any scope like: 'docs: xxx', 'feat: xxx', 'fix: xxx', ect.
+- Don't follow commitlint rules, like 'docs: add Antigravity rules for commit messages', should be 'Add Antigravity rules for commit'.
