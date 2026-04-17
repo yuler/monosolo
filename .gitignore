@@ -12,34 +12,30 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Ruby/Rails specific (monorepo paths)
+# The `core` Ruby/Rails specific (monorepo paths)
 core/.bundle
 core/log/*
 core/tmp/*
 !core/log/.keep
 !core/tmp/.keep
-
 # Ignore pidfiles, but keep the directory.
 core/tmp/pids/*
 !core/tmp/pids/
 !core/tmp/pids/.keep
-
 # Ignore storage (uploaded files in development and any SQLite databases).
 core/storage/*
 !core/storage/.keep
 core/tmp/storage/*
 !core/tmp/storage/
 !core/tmp/storage/.keep
-
 core/public/assets
 core/config/*.key
 core/app/assets/builds/*
 !core/app/assets/builds/.keep
 
+# Gemini / Antigravity (shared configs)
+!.gemini/
+!.antigravity/
+
 # Shared
 TODO.md
-
-# Gemini / Superpowers (local dev)
-.gemini/
-.superpowers/
-test_dir/

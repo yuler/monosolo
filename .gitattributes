@@ -7,6 +7,3 @@ core/db/schema.rb linguist-generated
 core/vendor/* linguist-vendored
 core/config/credentials/*.yml.enc diff=rails_credentials
 core/config/credentials.yml.enc diff=rails_credentials
-
-# See https://bun.sh/docs/install/lockfile
-*.lockb diff=lockb
