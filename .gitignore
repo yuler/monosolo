@@ -1,0 +1,45 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+
+# Node.js
+node_modules/
+pnpm-debug.log*
+
+# Environment files
+.env*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ruby/Rails specific (monorepo paths)
+core/.bundle
+core/log/*
+core/tmp/*
+!core/log/.keep
+!core/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+core/tmp/pids/*
+!core/tmp/pids/
+!core/tmp/pids/.keep
+
+# Ignore storage (uploaded files in development and any SQLite databases).
+core/storage/*
+!core/storage/.keep
+core/tmp/storage/*
+!core/tmp/storage/
+!core/tmp/storage/.keep
+
+core/public/assets
+core/config/*.key
+core/app/assets/builds/*
+!core/app/assets/builds/.keep
+
+# Shared
+TODO.md
+
+# Gemini / Superpowers (local dev)
+.gemini/
+.superpowers/
+test_dir/
