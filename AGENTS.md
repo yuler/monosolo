@@ -104,7 +104,7 @@ Database-backed job queue (no Redis):
 - Jobs automatically capture/restore `Current.account`
 - Mission Control::Jobs for monitoring
 
-Key recurring tasks (via `config/recurring.yml`):
+Key recurring tasks (via `core/config/recurring.yml`):
 - Cleanup jobs for expired links, deliveries
 
 ### Chrome MCP (Local Dev)
