@@ -1,4 +1,2 @@
 web: env RUBY_DEBUG_OPEN=true bin/rails server
-js: pnpm run build --watch
-css: pnpm run build:css --watch
-# job: bin/jobs
+css: bin/rails tailwindcss:watch

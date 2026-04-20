@@ -1,6 +1,6 @@
-# monosolo
+# MonoSolo
 
-**Monosolo** ([**Mono**lith](https://signalvnoise.com/svn3/the-majestic-monolith/) + **Solo**) emphasizes using a single repository for your entire codebase, tailored specifically for solo developers and One Person Companies (OPCs).
+**MonoSolo** ([**Mono**lith](https://signalvnoise.com/svn3/the-majestic-monolith/) + **Solo**) emphasizes using a single repository for your entire codebase, tailored specifically for solo developers and One Person Companies (OPCs).
 
 ## Struct
 
@@ -19,7 +19,7 @@
 │   └── ui-kit/          # Design system & shared component library
 ├── scripts/             # Global automation (Setup, CI/CD, Dev-ops)
 ├── package.json         # Root workspace manifest & global task runner
-└── README.md            # Project documentation & Monosolo philosophy
+└── README.md            # Project documentation & MonoSolo philosophy
 ```
 
 ## Core Engine (Rails)
