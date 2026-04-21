@@ -1,0 +1,9 @@
+{
+  "name": "monosolo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "**MonoSolo** ([**Mono**lith](https://signalvnoise.com/svn3/the-majestic-monolith/) + **Solo**) emphasizes using a single repository for your entire codebase, tailored specifically for solo developers and One Person Companies (OPCs).",
+  "scripts": {
+    "core:dev": "cd core && ./bin/dev"
+  }
+}
