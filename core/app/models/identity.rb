@@ -31,6 +31,11 @@ class Identity < ApplicationRecord
 
   # TODO:
   def self.find_by_permissable_access_token(token, method:)
+    # Using signed_id as a temporary secure token to avoid IDOR vulnerability.
+    # In production, this should be replaced by a proper AccessToken model
+    # with per-method scopes (read/write) and revocation.
+    Identity.find_signed(token, purpose: :api_token)
+
     # if (access_token = AccessToken.find_by(token: token)) && access_token.allows?(method)
     #   access_token.identity
     # end

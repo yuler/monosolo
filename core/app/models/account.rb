@@ -8,10 +8,15 @@ class Account < ApplicationRecord
   has_one :join_code, dependent: :destroy
   has_one_attached :logo
 
-  before_create :generate_slug
+  before_validation :generate_slug, on: :create
   after_create :create_join_code
 
   validates :name, presence: true
+  validates :slug, presence: true,
+                   uniqueness: true,
+                   format: { with: AccountSlug::FORMAT },
+                   exclusion: { in: AccountSlug::RESERVED_SLUGS, message: "is reserved" },
+                   length: { in: AccountSlug::LENGTH }
 
   scope :personal, -> { where(personal: true) }
   scope :team, -> { where(personal: false) }
@@ -46,6 +51,8 @@ class Account < ApplicationRecord
 
   private
     def generate_slug
+      return if slug.present?
+
       loop do
         self.slug = Base32.generate(DEFAULT_SLUG_LENGTH)
         break slug unless self.class.exists?(slug: slug)

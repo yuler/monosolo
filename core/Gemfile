@@ -31,7 +31,6 @@ gem "image_processing", "~> 1.2"
 gem "mission_control-jobs"
 
 # API
-gem "jwt"
 gem "jbuilder"
 
 # HTTP Clients
