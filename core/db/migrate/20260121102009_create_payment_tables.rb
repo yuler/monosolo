@@ -9,14 +9,14 @@ class CreatePaymentTables < ActiveRecord::Migration[8.2]
 
       t.json :raw, null: false
       t.string :checkout_id, null: false
-      t.string :currency, default: "USD" 
+      t.string :currency, default: "USD"
       t.integer :amount, null: false
       t.integer :amount_refunded, default: 0
       t.string :status, null: false # pending, succeeded, failed, refunded
 
       t.timestamps
 
-      t.index [:provider, :checkout_id]
+      t.index [ :provider, :checkout_id ]
     end
 
     create_table :account_subscriptions, id: :uuid do |t|
@@ -34,7 +34,7 @@ class CreatePaymentTables < ActiveRecord::Migration[8.2]
 
       t.timestamps
 
-      t.index [:provider, :subscription_id]
+      t.index [ :provider, :subscription_id ]
     end
 
     create_table :account_payment_webhooks, id: :uuid do |t|
@@ -46,7 +46,7 @@ class CreatePaymentTables < ActiveRecord::Migration[8.2]
 
       t.timestamps
 
-      t.index [:provider, :event_type]
+      t.index [ :provider, :event_type ]
     end
   end
 end
