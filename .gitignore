@@ -37,5 +37,8 @@ core/app/assets/builds/*
 !.gemini/
 !.antigravity/
 
+# MiMoCode
+.mimocode/
+
 # Shared
 TODO.md

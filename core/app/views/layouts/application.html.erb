@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html data-theme="light">
+<html>
   <%= render "shared/head" %>
 
-  <body class="h-screen grid grid-rows-[auto_1fr_auto]">
+  <body class="app-shell">
     <%= render "shared/header" %>
 
     <%= render "shared/flash" %>
-    
+
     <main id="main">
       <%= yield %>
     </main>
-    <%= render "shared/footer" %>
+
+    <%= render "shared/footer" unless @hide_footer %>
   </body>
 </html>

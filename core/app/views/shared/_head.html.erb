@@ -5,12 +5,31 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0d181d" media="(prefers-color-scheme: dark)">
+
+  <%# Set the theme before first paint to avoid a flash of the wrong theme.
+      Only an explicit choice is applied; with no stored choice the stylesheet
+      follows the OS preference (via `html:not([data-theme])`). %>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= tag.meta name: "current-user-id", content: Current.user.id if Current.user %>
 
-  <%# Includes all stylesheet files in app/assets/stylesheets %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": Rails.env.production? ? "reload" : "" %>
+  <%# Loaded individually (not @import-aggregated) so Hotwire Spark can
+      hot-reload each stylesheet per-file. `application.css` declares the
+      cascade layers first; the rest participate via their @layer blocks. %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "reset", "base", "theme", "layout", "utilities",
+                          "buttons", "forms", "tables", "components", "prose",
+                          "header", "footer", "flash", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
 
   <%= yield :head %>
@@ -18,7 +37,10 @@
   <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
   <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/icon.png">
+  <link rel="icon" href="/icon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="/icon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 </head>

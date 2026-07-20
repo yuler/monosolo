@@ -1,45 +1,44 @@
 <% @page_title = "Account Statistics" %>
 
-<div class="max-w-7xl mx-auto p-4 space-y-6">
+<div class="page page--xl">
+  <h1 class="txt-x-large font-weight-bold margin-block">Account Statistics</h1>
 
-  <h1 class="text-2xl font-bold py-4"><%= @page_title %></h1>
-
-  <div class="stats stats-horizontal shadow w-full">
+  <div class="stats margin-block">
     <div class="stat">
-      <div class="stat-title">Accounts Created - Total</div>
-      <div class="stat-value text-primary"><%= @accounts_total %></div>
+      <div class="stat__title">Accounts Created - Total</div>
+      <div class="stat__value txt-accent"><%= @accounts_total %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Accounts Created - 7 days</div>
-      <div class="stat-value text-secondary"><%= @accounts_last_7_days %></div>
+      <div class="stat__title">Accounts Created - 7 days</div>
+      <div class="stat__value"><%= @accounts_last_7_days %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Accounts Created - 24 hours</div>
-      <div class="stat-value text-accent"><%= @accounts_last_24_hours %></div>
+      <div class="stat__title">Accounts Created - 24 hours</div>
+      <div class="stat__value"><%= @accounts_last_24_hours %></div>
     </div>
   </div>
 
-  <div class="stats stats-horizontal shadow w-full">
+  <div class="stats margin-block">
     <div class="stat">
-      <div class="stat-title">Identities Created - Total</div>
-      <div class="stat-value text-primary"><%= @identities_total %></div>
+      <div class="stat__title">Identities Created - Total</div>
+      <div class="stat__value txt-accent"><%= @identities_total %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Identities Created - 7 days</div>
-      <div class="stat-value text-secondary"><%= @identities_last_7_days %></div>
+      <div class="stat__title">Identities Created - 7 days</div>
+      <div class="stat__value"><%= @identities_last_7_days %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Identities Created - 24 hours</div>
-      <div class="stat-value text-accent"><%= @identities_last_24_hours %></div>
+      <div class="stat__title">Identities Created - 24 hours</div>
+      <div class="stat__value"><%= @identities_last_24_hours %></div>
     </div>
   </div>
 
   <% if @recent_accounts.any? %>
-    <div class="card bg-base-100 shadow">
-      <div class="card-body">
-        <h2 class="card-title">Recent Accounts</h2>
-        <div class="overflow-x-auto">
-          <table class="table table-zebra">
+    <div class="card margin-block">
+      <div class="card__body">
+        <h2 class="card__title">Recent Accounts</h2>
+        <div class="table-scroll">
+          <table class="table table--zebra">
             <thead>
               <tr>
                 <th>Name</th>

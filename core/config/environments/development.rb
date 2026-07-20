@@ -79,4 +79,6 @@ Rails.application.configure do
 
   # Allow requests tunneled for payable webhooks (Cloudflare tunnel subdomains)
   config.hosts << /.*\.trycloudflare\.com/
+  # Allow local dev access on default Rails port (and IPv4/IPv6 variants)
+  config.hosts << "127.0.0.1" << "localhost" << "0.0.0.0"
 end

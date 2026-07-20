@@ -29,7 +29,7 @@ The core engine is an opinionated Rails 8.1 template designed for rapid developm
 ### ✨ Features
 
 - **Authentication:** Built-in system via `rails generate authentication`.
-- **Frontend:** Asset bundling using `jsbundling-rails`, `cssbundling-rails`, and Bun.
+- **Frontend:** Asset delivery via `importmap-rails` with Propshaft.
 - **Database:** SQLite.
 - **Multi-Tenancy:** URL-based multi-tenancy with `account_slug`.
 - **API:** Controllers with JWT authentication.

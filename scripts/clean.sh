@@ -18,17 +18,32 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-if ! gum confirm "This will remove logs, temp files and local caches. Continue?"; then
-  ok "Aborted."
+LOG_LABEL="core: logs & tmp (rails log:clear tmp:clear)"
+DB_LABEL="core: storage (rm core/storage/*.sqlite3)"
+NODE_LABEL="core: node_modules (rm node_modules)"
+ENV_LABEL="core: .env (rm core/.env)"
+FE_LABEL="core: frontend build (propshaft assets)"
+ALL_LABEL="All of the above"
+
+choices=$(gum choose --no-limit \
+  --selected="$FE_LABEL" \
+  --header="Space to select · Enter to confirm" \
+  "$ALL_LABEL" \
+  "$LOG_LABEL" \
+  "$DB_LABEL" \
+  "$NODE_LABEL" \
+  "$ENV_LABEL" \
+  "$FE_LABEL")
+
+if [ -z "$choices" ]; then
+  ok "Nothing selected. Aborted."
   exit 0
 fi
 
-choices=$(gum choose --no-limit \
-  "Rails logs & tmp (core/log, core/tmp)" \
-  "Rails storage (core/storage/*.sqlite3)" \
-  "Node modules (root + apps)" \
-  "Local .env files" \
-  "All of the above")
+if ! gum confirm "This will remove the selected items. Continue?"; then
+  ok "Aborted."
+  exit 0
+fi
 
 clean_logs() {
   step "Clearing Rails logs and tmp"
@@ -54,16 +69,25 @@ clean_env() {
   ok ".env removed"
 }
 
-echo "$choices" | while IFS= read -r line; do
-  case "$line" in
-    *"logs & tmp"*)   clean_logs ;;
-    *"storage"*)      clean_storage ;;
-    *"Node modules"*) clean_node ;;
-    *".env files"*)   clean_env ;;
-  esac
-done
+clean_frontend() {
+  step "Removing Rails frontend build output"
+  rm -rf core/app/assets/builds/application.css \
+         core/app/assets/builds/.manifest.json \
+         core/public/assets \
+         core/tmp/cache/assets
+  ok "Rails frontend build output cleared"
+}
 
-# "All of the above" without specific picks => clean everything
-if echo "$choices" | grep -q "All of the above" && [ -z "$choices" ]; then :; fi
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  case "$line" in
+    "$ALL_LABEL")   clean_logs; clean_storage; clean_node; clean_env; clean_frontend; exit 0 ;;
+    "$LOG_LABEL")  clean_logs ;;
+    "$DB_LABEL")   clean_storage ;;
+    "$NODE_LABEL") clean_node ;;
+    "$ENV_LABEL")  clean_env ;;
+    "$FE_LABEL")   clean_frontend ;;
+  esac
+done <<< "$choices"
 
 ok "Clean complete!"

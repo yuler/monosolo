@@ -1,11 +1,15 @@
 .flash {
-  max-width: 600px;
-  display: flex;
   position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
+  inset-block-start: 1.25rem;
+  inset-inline-end: 1.25rem;
+  z-index: var(--z-flash);
+  max-inline-size: 600px;
   animation: appear-then-fade 3s 300ms both;
+}
+
+.flash img {
+  block-size: 1.4rem;
+  inline-size: 1.4rem;
 }
 
 @keyframes appear-then-fade {

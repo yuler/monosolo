@@ -18,7 +18,6 @@ gem "sqlite3", ">= 2.8"
 # Assets
 gem "propshaft"
 gem "importmap-rails"
-gem "tailwindcss-rails"
 
 # Hotwire
 gem "turbo-rails"
@@ -64,7 +63,7 @@ end
 
 group :development do
   gem "web-console"
-  gem "hotwire-livereload"
+  gem "hotwire-spark"
   gem "ruby-lsp-rails"
 end
 

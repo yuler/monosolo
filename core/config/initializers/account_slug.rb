@@ -17,12 +17,15 @@ module AccountSlug
     device
     help
     home
+    hotwire-spark
     join
     jobs
     landing
     landings
     letter_opener
     login
+    manifest
+    service-worker
     logout
     magic_link
     my
