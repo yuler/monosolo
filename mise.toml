@@ -1,0 +1,17 @@
+[tools]
+ruby = "3.4.7"
+node = "24.17.0"
+gum = "0.17.0"
+
+[tasks.setup]
+description = "Set up the development environment (gems, deps, db)"
+run = "bash scripts/setup.sh"
+
+[tasks.clean]
+description = "Clean logs, caches and local env files (interactive)"
+run = "bash scripts/clean.sh"
+
+[tasks.dev]
+description = "Start the Rails development server"
+dir = "core"
+run = "bin/dev"

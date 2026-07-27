@@ -1,0 +1,10 @@
+<% @page_title = "Accepting..." %>
+
+<div class="page page--lg">
+  <div class="prose">
+    <h1>Accepting...</h1>
+    <p>Invitation to join <strong><%= @account_invitation.account.name %></strong> has been accepted.</p>
+  </div>
+</div>
+
+<%= auto_submit_form_with method: :put %>

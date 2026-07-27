@@ -1,6 +1,6 @@
-# monosolo
+# MonoSolo
 
-**Monosolo** (**Mono**lith + **Solo**) emphasizes using a single repository for your entire codebase, tailored specifically for solo developers and One Person Companies (OPCs).
+**MonoSolo** ([**Mono**lith](https://signalvnoise.com/svn3/the-majestic-monolith/) + **Solo**) emphasizes using a single repository for your entire codebase, tailored specifically for solo developers and One Person Companies (OPCs).
 
 ## Struct
 
@@ -19,5 +19,31 @@
 │   └── ui-kit/          # Design system & shared component library
 ├── scripts/             # Global automation (Setup, CI/CD, Dev-ops)
 ├── package.json         # Root workspace manifest & global task runner
-└── README.md            # Project documentation & Monosolo philosophy
+└── README.md            # Project documentation & MonoSolo philosophy
 ```
+
+## Core Engine (Rails)
+
+The core engine is an opinionated Rails 8.1 template designed for rapid development.
+
+### ✨ Features
+
+- **Authentication:** Built-in system via `rails generate authentication`.
+- **Frontend:** Asset delivery via `importmap-rails` with Propshaft.
+- **Database:** SQLite.
+- **Multi-Tenancy:** URL-based multi-tenancy with `account_slug`.
+- **API:** Controllers with JWT authentication.
+- **Background Jobs:** Database-backed queue via Solid Queue.
+
+### 🛠️ Getting Started
+
+```bash
+cd core
+cp .env.example .env
+bin/setup
+bin/dev
+```
+
+### 🚀 Deployment
+
+The core engine is containerized and ready for deployment via Docker Compose or Kamal.
