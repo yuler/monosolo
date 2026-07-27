@@ -22,9 +22,12 @@
   }
 
   .field--with-icon {
-    position: relative;
+    .field__control {
+      position: relative;
+    }
 
     .field__icon {
+      color: var(--color-ink);
       inset-block-start: 50%;
       inset-inline-start: 0.9em;
       position: absolute;

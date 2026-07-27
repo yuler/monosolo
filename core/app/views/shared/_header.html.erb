@@ -3,8 +3,10 @@
 
   <div class="header__bar">
     <div class="header__logo">
-      <%= link_to (current_page?(root_path) ? home_index_path : root_path) do %>
-        <%= image_tag 'logo.png', alt: 'monosolo' %>
+      <%= link_to (current_page?(root_path) ? home_index_path : root_path), aria: { label: "monosolo" } do %>
+        <span class="header__logo-mark">
+          <%= render "shared/logo_mark" %>
+        </span>
       <% end %>
     </div>
 
@@ -23,13 +25,6 @@
         </svg>
       </button>
 
-      <% if current_page?(home_index_path) %>
-        <div class="header__actions">
-          <a href="#features" class="btn btn--ghost btn--small">Features</a>
-          <a href="#pricing" class="btn btn--ghost btn--small">Pricing</a>
-        </div>
-      <% end %>
-
       <% if Current.identity %>
         <!-- User Avatar Menu -->
         <div class="menu">
@@ -39,11 +34,11 @@
           <div class="menu__content">
             <div class="menu__title"><%= Current.identity.email %></div>
             <%= link_to my_accounts_path, class: "menu__item #{'is-active' if current_page?(my_accounts_path)}" do %>
-              <%= image_tag 'users.svg', alt: '' %>
+              <%= icon_tag "users" %>
               <span>My Accounts</span>
             <% end %>
             <%= button_to sign_out_path, method: :delete, class: "menu__item", data: { turbo: false } do %>
-              <%= image_tag 'log-out.svg', alt: '' %>
+              <%= icon_tag "log-out" %>
               <span>Sign Out</span>
             <% end %>
           </div>

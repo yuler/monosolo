@@ -38,9 +38,19 @@
   <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="icon" href="/icon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
-  <link rel="icon" href="/icon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+  <link id="favicon-theme" rel="icon" href="/icon-light.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <script>
+    (function () {
+      try {
+        var theme = document.documentElement.getAttribute("data-theme");
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        var link = document.getElementById("favicon-theme");
+        if (link) link.href = theme === "dark" ? "/icon-dark.svg" : "/icon-light.svg";
+      } catch (e) {}
+    })();
+  </script>
 </head>

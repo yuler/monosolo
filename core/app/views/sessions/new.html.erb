@@ -5,7 +5,7 @@
   <div class="auth-shell">
     <div class="auth-story">
       <div class="auth-brand">
-        <%= image_tag "logo.png", alt: "", class: "auth-brand__mark" %>
+        <span class="auth-brand__mark"><%= render "shared/logo_mark" %></span>
         <span>monosolo</span>
       </div>
 
@@ -43,14 +43,16 @@
       <%= form_with url: session_path, class: "form auth-form" do |form| %>
         <div class="field field--with-icon">
           <%= form.label :email, "Email address", class: "field__label" %>
-          <span class="field__icon"><%= image_tag "email.svg", alt: "" %></span>
-          <%= form.email_field :email,
-            required: true,
-            autofocus: true,
-            autocomplete: "username",
-            placeholder: "you@example.com",
-            value: params[:email],
-            class: "input auth-input" %>
+          <div class="field__control">
+            <span class="field__icon"><%= icon_tag "email" %></span>
+            <%= form.email_field :email,
+              required: true,
+              autofocus: true,
+              autocomplete: "username",
+              placeholder: "you@example.com",
+              value: params[:email],
+              class: "input auth-input" %>
+          </div>
         </div>
 
         <%= form.submit "Continue", class: "btn btn--primary btn--large btn--block auth-submit" %>

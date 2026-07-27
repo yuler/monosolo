@@ -23,8 +23,36 @@
     display: inline-flex;
     gap: 0.5em;
     font-weight: 700;
+  }
 
-    img { block-size: 2rem; inline-size: 2rem; }
+  .header__logo-mark {
+    align-items: center;
+    color: var(--color-ink);
+    display: inline-flex;
+    justify-content: center;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+
+    svg {
+      block-size: 2rem;
+      inline-size: 2rem;
+      display: block;
+    }
+  }
+
+  html[data-theme="dark"] .header__logo-mark {
+    background-color: var(--color-black);
+    border-radius: var(--radius);
+    color: var(--color-white);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme]) .header__logo-mark {
+      background-color: var(--color-black);
+      border-radius: var(--radius);
+      color: var(--color-white);
+    }
   }
 
   .header__actions {
@@ -125,7 +153,7 @@
     padding: 0.5em 0.6em;
     inline-size: 100%;
 
-    img { block-size: 1.1em; inline-size: 1.1em; }
+    svg { block-size: 1.1em; inline-size: 1.1em; color: currentColor; }
 
     @media (any-hover: hover) {
       &:hover { background-color: var(--color-shade); }

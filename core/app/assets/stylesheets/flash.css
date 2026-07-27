@@ -7,7 +7,8 @@
   animation: appear-then-fade 3s 300ms both;
 }
 
-.flash img {
+.flash img,
+.flash svg {
   block-size: 1.4rem;
   inline-size: 1.4rem;
 }

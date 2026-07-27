@@ -33,5 +33,11 @@ export default class extends Controller {
   #reflect(theme) {
     if (this.hasLightTarget) this.lightTarget.hidden = theme === "dark"
     if (this.hasDarkTarget) this.darkTarget.hidden = theme !== "dark"
+    this.#syncFavicon(theme)
+  }
+
+  #syncFavicon(theme) {
+    const link = document.getElementById("favicon-theme")
+    if (link) link.href = theme === "dark" ? "/icon-dark.svg" : "/icon-light.svg"
   }
 }
