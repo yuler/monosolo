@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rails/rails.git
-  revision: 5bc739b41989ed7fe51ff8655e9773596b628e47
+  revision: 5f8c3104de3b7ddf6a2371d1f9414282830ed278
   branch: main
   specs:
     actioncable (8.2.0.alpha)
@@ -31,7 +31,7 @@ GIT
       rack-session (>= 1.0.1)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.2)
-      rails-html-sanitizer (~> 1.6)
+      rails-html-sanitizer (~> 1.7)
       useragent (~> 0.16)
     actiontext (8.2.0.alpha)
       action_text-trix (~> 2.1.16)
@@ -46,10 +46,10 @@ GIT
       builder (~> 3.1)
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
-      rails-html-sanitizer (~> 1.6)
+      rails-html-sanitizer (~> 1.7)
     activejob (8.2.0.alpha)
       activesupport (= 8.2.0.alpha)
-      globalid (>= 0.3.6)
+      globalid (>= 1.4.0)
     activemodel (8.2.0.alpha)
       activesupport (= 8.2.0.alpha)
     activerecord (8.2.0.alpha)
@@ -73,6 +73,7 @@ GIT
       logger (>= 1.4.2)
       minitest (>= 5.1)
       psych (>= 4)
+      ractor-dispatch (>= 0.2.0)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
@@ -131,7 +132,7 @@ GEM
       xpath (~> 3.2)
     childprocess (5.1.0)
       logger (~> 1.5)
-    concurrent-ruby (1.3.7)
+    concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
     crass (1.0.7)
     date (3.5.1)
@@ -141,7 +142,7 @@ GEM
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
-    erb (6.0.4)
+    erb (6.0.6)
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
@@ -161,7 +162,7 @@ GEM
     fugit (1.12.1)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
-    globalid (1.3.0)
+    globalid (1.4.0)
       activesupport (>= 6.1)
     hotwire-spark (0.1.13)
       listen
@@ -217,13 +218,13 @@ GEM
     loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    mail (2.9.0)
+    mail (2.9.1)
       logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
       net-smtp
-    marcel (1.1.0)
+    marcel (1.2.1)
     matrix (0.4.3)
     mini_magick (5.3.1)
       logger
@@ -244,7 +245,7 @@ GEM
     msgpack (1.8.3)
     net-http (0.9.1)
       uri (>= 0.11.1)
-    net-imap (0.6.4.1)
+    net-imap (0.6.6)
       date
       net-protocol
     net-pop (0.1.2)
@@ -302,6 +303,7 @@ GEM
       rack (>= 1.3)
     rackup (2.3.1)
       rack (>= 3)
+    ractor-dispatch (0.2.0)
     rails-dom-testing (2.3.0)
       activesupport (>= 5.0.0)
       minitest
