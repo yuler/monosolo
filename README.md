@@ -22,28 +22,19 @@
 └── README.md            # Project documentation & MonoSolo philosophy
 ```
 
-## Core Engine (Rails)
+## Core (Rails)
 
-The core engine is an opinionated Rails 8.1 template designed for rapid development.
+Opinionated Rails 8.1 template for rapid development.
 
-### ✨ Features
+- **Solid:** Solid Queue, Solid Cache, and Solid Cable on SQLite
+- **Multi-tenancy:** URL-based tenancy via middleware that extracts `account_slug` (see [AccountSlug::Extractor](core/config/initializers/account_slug.rb))
+- **API:** JWT-authenticated controllers
 
-- **Authentication:** Built-in system via `rails generate authentication`.
-- **Frontend:** Asset delivery via `importmap-rails` with Propshaft.
-- **Database:** SQLite.
-- **Multi-Tenancy:** URL-based multi-tenancy with `account_slug`.
-- **API:** Controllers with JWT authentication.
-- **Background Jobs:** Database-backed queue via Solid Queue.
-
-### 🛠️ Getting Started
+## 🛠️ Development
 
 ```bash
-cd core
-cp .env.example .env
-bin/setup
-bin/dev
+mise setup
+mise dev
 ```
 
-### 🚀 Deployment
-
-The core engine is containerized and ready for deployment via Docker Compose or Kamal.
+App: http://localhost:3000 — login with `john@example.com`
