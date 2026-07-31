@@ -6,8 +6,6 @@ class Current < ActiveSupport::CurrentAttributes
     super(value)
 
     if value.present?
-      # Solo mode
-      self.account = session.identity.personal_account if account.nil?
       self.identity = session.identity
     end
   end

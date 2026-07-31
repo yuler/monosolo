@@ -1,4 +1,6 @@
 class My::AccountsController < ApplicationController
+  skip_before_action :require_account
+
   def new
     @account = Current.identity.accounts.new
   end
@@ -21,11 +23,11 @@ class My::AccountsController < ApplicationController
 
   def index
     @accounts = Current.identity.accounts
+    @last_account_slug = cookies[:last_account_slug]
 
-    # TODO:
-    # if @accounts.one?
-    #   redirect_to root_url(script_name: @accounts.first.slug_path)
-    # end
+    if @accounts.one?
+      redirect_to root_url(script_name: @accounts.first.slug_path)
+    end
   end
 
   private

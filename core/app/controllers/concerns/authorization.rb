@@ -3,6 +3,7 @@ module Authorization
 
   included do
     before_action :ensure_can_access_account, if: -> { Current.account.present? && authenticated? }
+    after_action :remember_last_account, if: -> { Current.account.present? && authenticated? }
   end
 
   class_methods do
@@ -27,8 +28,15 @@ module Authorization
 
     def ensure_can_access_account
       if Current.user.blank? || !Current.user.active?
-        head :forbidden
+        # 404 (not 403) to avoid confirming account existence to non-members.
+        head :not_found
       end
+    end
+
+    def remember_last_account
+      return unless respond_to?(:cookies, true)
+
+      cookies.permanent[:last_account_slug] = Current.account.slug
     end
 
     def redirect_existing_user

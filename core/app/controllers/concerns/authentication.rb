@@ -67,7 +67,15 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || main_app.root_url
+      return_to = session.delete(:return_to_after_authenticating)
+      return return_to if return_to.present?
+
+      accounts = Current.identity.accounts
+      if accounts.one?
+        main_app.root_url(script_name: accounts.first.slug_path)
+      else
+        main_app.my_accounts_url(script_name: nil)
+      end
     end
 
     def redirect_authenticated_user

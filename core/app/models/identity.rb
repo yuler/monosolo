@@ -12,6 +12,7 @@ class Identity < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   normalizes :email, with: ->(value) { value.strip.downcase.presence }
 
+  after_create :ensure_personal_account
   before_destroy :deactivate_users, prepend: true
 
 
@@ -50,11 +51,17 @@ class Identity < ApplicationRecord
   end
 
   private
+    def ensure_personal_account
+      create_personal_account unless accounts.personal.exists?
+    end
+
     def create_personal_account
+      base = email.to_s.split("@").first
       Account.create_with_owner(
         account: {
           name: "#{full_name}'s Personal Account",
-          personal: true
+          personal: true,
+          slug: Account.unique_slug_for(base)
         },
         owner: {
           name: full_name,

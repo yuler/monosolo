@@ -16,17 +16,18 @@ class Account::Invitation < ApplicationRecord
     )
   end
 
-  def accept
+  def accept!
     if email != Current.identity.email
-      raise <<~message
+      raise <<~message.strip
         Your email does not match the email of the invitation.
         Current logged in user email: #{Current.identity.email},
         Invitation email: #{email}
         Please sign in or sign up with the correct email.
       message
     end
-    # TODO:
-    # account.users.create!(**Current.identity.with_defaults(role: :member, verified_at: Time.current))
+
+    Current.identity.join(account, role: :member, verified_at: Time.current)
+    destroy!
   end
 
   def send_invitation_email

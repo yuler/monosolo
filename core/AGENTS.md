@@ -59,13 +59,15 @@ bin/kamal deploy
 
 ### Multi-Tenancy (URL-Based)
 
+Canonical design: [`docs/core/account.md`](../docs/core/account.md). Vocabulary: [`CONTEXT.md`](CONTEXT.md).
+
 URL path-based multi-tenancy via middleware:
 
-- Each Account (tenant) has a unique `account_slug`
-- URLs are prefixed: `/{account_slug}/~/xxx/...`
-- Middleware ([`AccountSlug::Extractor`](config/initializers/account_slug.rb)) extracts the slug from the URL and sets `Current.account`
-- The slug is moved from `PATH_INFO` to `SCRIPT_NAME`, so Rails is effectively mounted at that path
-- All models include `account_id` for data isolation
+- Personal and team Accounts share one slug namespace; URLs are `/{slug}/...` for both
+- Middleware ([`AccountSlug::Extractor`](config/initializers/account_slug.rb)) mounts via `SCRIPT_NAME`, looks up the Account, sets `Current.account`; missing slug → 404
+- Global routes (no slug) keep `Current.account` nil; do not fall back to personal as tenant truth
+- Authz (login / membership) lives in controllers — unauthenticated → login; non-member → 404
+- All tenant models include `account_id` for data isolation
 - Background jobs automatically serialize and restore account context
 
 This avoids subdomains or separate databases, which keeps local development and testing simpler.

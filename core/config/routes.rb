@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     resources :users
     resource :join_code
     resources :invitations
+    resource :settings, only: %i[ show update ]
     resource :payment
     # TODO: implement subscription operations later
     resource :subscription do
@@ -39,7 +40,7 @@ Rails.application.routes.draw do
 
   resources :account_invitations, param: :token, only: [ :show ] do
     scope module: :account_invitations do
-      # resource :accept, only: [ :show, :update ], controller: :acceptances
+      resource :accept, only: [ :show, :update ], controller: :acceptances
     end
   end
 

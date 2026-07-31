@@ -110,12 +110,18 @@ Invalid slug after resolution → 404 (same spirit as Web middleware). Non-membe
 - `Current` / session — stop personal fallback on global nil-account routes
 - Auth concerns — unauthenticated → login; non-member → 404
 - Settings — slug rename UX + warning; personal undeletable
-- `core/CONTEXT.md` — update language to match this doc
-- `core/docs/accounts.md` — older Jumpstart-oriented notes; defer to this doc for tenancy/URL rules
+- `core/CONTEXT.md` — vocabulary aligned with this doc
+- `core/docs/accounts.md` — overview + pointer here for tenancy/URL rules
+- `core/AGENTS.md` — multi-tenancy section aligned with this doc
 
 ## Open follow-ups (not blocking agreement)
 
 - Exact slug format length / charset (today ~4..16) and RESERVED list ownership (keep in sync with `routes.rb`).
 - Rename rate limits (optional product guard; not required by consensus).
-- Action Cable: resolve account from slug the same way as HTTP.
 - Whether to migrate API off slug to UUID as a later hardening step while keeping path+header resolution rules.
+
+## Implementation notes
+
+- `PATH_INFO_MATCH` requires the slug segment to end at `/` or EOS (`(?=\/|\z)`), so longer first segments like `account_invitations` are never truncated into a fake 16-char slug.
+- Account settings live at `/{slug}/settings` (`Account::SettingsController`); slug rename warns that old URLs are released with no redirect.
+- Invitation accept: `/{global}/account_invitations/:token/accept` joins the invitee (personal already eager-created) and lands on the invited account, setting `last_account_slug`.

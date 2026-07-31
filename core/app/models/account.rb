@@ -1,8 +1,6 @@
 class Account < ApplicationRecord
   include Account::Payable
 
-  DEFAULT_SLUG_LENGTH = 8
-
   has_many :users, dependent: :destroy
   has_many :invitations, dependent: :destroy
   has_one :join_code, dependent: :destroy
@@ -10,6 +8,7 @@ class Account < ApplicationRecord
 
   before_validation :generate_slug, on: :create
   after_create :create_join_code
+  before_destroy :ensure_destroyable
 
   validates :name, presence: true
   validates :slug, presence: true,
@@ -35,6 +34,17 @@ class Account < ApplicationRecord
         end
       end
     end
+
+    def unique_slug_for(base)
+      new.send(:unique_slug, normalize_slug_base(base))
+    end
+
+    def normalize_slug_base(base)
+      candidate = base.to_s.parameterize(separator: "_")
+      candidate = candidate[0, AccountSlug::LENGTH.max].to_s
+      candidate = "user" if candidate.length < AccountSlug::LENGTH.min
+      candidate
+    end
   end
 
   def team?
@@ -42,7 +52,7 @@ class Account < ApplicationRecord
   end
 
   def slug_path
-    team? ? AccountSlug.encode(slug) : nil
+    AccountSlug.encode(slug)
   end
 
   def system_user
@@ -53,9 +63,28 @@ class Account < ApplicationRecord
     def generate_slug
       return if slug.present?
 
+      self.slug = unique_slug(self.class.normalize_slug_base(name))
+    end
+
+    def unique_slug(base)
+      return base unless slug_taken?(base)
+
       loop do
-        self.slug = Base32.generate(DEFAULT_SLUG_LENGTH)
-        break slug unless self.class.exists?(slug: slug)
+        suffix = SecureRandom.random_number(10_000).to_s
+        max_base = AccountSlug::LENGTH.max - suffix.length
+        candidate = "#{base[0, max_base]}#{suffix}"
+        break candidate unless slug_taken?(candidate)
       end
+    end
+
+    def slug_taken?(value)
+      value.in?(AccountSlug::RESERVED_SLUGS) || self.class.exists?(slug: value)
+    end
+
+    def ensure_destroyable
+      return unless personal?
+
+      errors.add(:base, "Personal accounts cannot be deleted")
+      throw :abort
     end
 end

@@ -41,7 +41,7 @@ class JoinCodesController < ApplicationController
     end
 
     def set_join_code
-      @join_code ||= Account::JoinCode.find_by(code: params.expect(:code), account: Current.account)
+      @join_code ||= Account::JoinCode.find_by(code: params.expect(:code))
     end
 
     def ensure_join_code_is_valid

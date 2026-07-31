@@ -76,20 +76,16 @@ module ApiAuthentication
       url_slug = request.env["account_slug"]
 
       if url_slug.present?
-        # An explicit slug was in the URL. The middleware already looked up the
-        # account; if it failed, that's a 404 regardless of whether Current.identity's
-        # session setter auto-populated a personal account fallback.
-        url_account = Account.find_by(slug: url_slug)
+        url_account = Current.account&.slug == url_slug ? Current.account : Account.find_by(slug: url_slug)
         if url_account.nil?
           json_request_account_not_found
         elsif (user = Current.identity.users.find_by(account: url_account))
           Current.account = url_account
           Current.user = user
         else
-          json_request_forbidden
+          json_request_account_not_found
         end
       elsif Current.account && (user = Current.identity.users.find_by(account: Current.account))
-        # No URL slug; Current.account was populated by session= (solo mode fallback)
         Current.user = user
       elsif (personal_account = Current.identity&.personal_account)
         Current.account = personal_account
@@ -101,9 +97,5 @@ module ApiAuthentication
 
     def json_request_account_not_found
       render json: { error: "Account not found" }, status: :not_found
-    end
-
-    def json_request_forbidden
-      render json: { error: "Forbidden" }, status: :forbidden
     end
 end

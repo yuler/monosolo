@@ -7,4 +7,4 @@
   </div>
 </div>
 
-<%= auto_submit_form_with method: :put %>
+<%= auto_submit_form_with url: account_invitation_accept_path(@account_invitation.token), method: :put %>
