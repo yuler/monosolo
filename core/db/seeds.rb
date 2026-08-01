@@ -1,5 +1,3 @@
-# TODO: only in development?
-
 # john — after_create builds personal; then a team account
 john = Identity.create!(email: "john@example.com")
 Account.create_with_owner(
