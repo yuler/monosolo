@@ -24,10 +24,6 @@ class My::AccountsController < ApplicationController
   def index
     @accounts = Current.identity.accounts
     @last_account_slug = cookies[:last_account_slug]
-
-    # if @accounts.one?
-    #   redirect_to root_url(script_name: @accounts.first.slug_path)
-    # end
   end
 
   private

@@ -16,7 +16,7 @@ class My::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Choose Your Account"
   end
 
-  test "index redirects when identity has exactly one account" do
+  test "index shows picker when identity has exactly one account" do
     identity = identities(:john)
     assert_equal 1, identity.accounts.count
 
@@ -24,6 +24,8 @@ class My::AccountsControllerTest < ActionDispatch::IntegrationTest
 
     get my_accounts_url(script_name: nil)
 
-    assert_redirected_to root_url(script_name: accounts(:john_account).slug_path)
+    assert_response :success
+    assert_select "h1", text: "Choose Your Account"
+    assert_select "a", text: "Create a New Account"
   end
 end

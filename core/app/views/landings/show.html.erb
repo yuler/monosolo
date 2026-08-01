@@ -30,20 +30,6 @@
       </div>
     </div>
 
-    <% url = join_url(code: Current.account.join_code.code, script_name: Current.account.slug_path) %>
-    <div class="card margin-block">
-      <div class="card__body">
-        <h2 class="card__title">Join Url:</h2>
-        <div class="flex gap items-center">
-          <code class="txt-mono"><%= url %></code>
-          <button class="btn btn--outline btn--small position-relative" data-controller="copy-to-clipboard" data-action="copy-to-clipboard#copy" data-copy-to-clipboard-content-value="<%= url %>" data-copy-to-clipboard-success-class="btn-copied">
-            <span class="copy-icon"><%= icon_tag "copy" %></span>
-            <span class="copied-text">Copied!</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div class="card margin-block">
       <div class="card__body">
         <h2 class="card__title">Payments:</h2>
