@@ -1,18 +1,21 @@
-# Account — URL tenancy & request context
+# Account
 
-Design consensus for MonoSolo account/tenancy (grilled against Fizzy and common SaaS patterns: GitHub, Vercel, Linear, Cloudflare, Stripe, Slack, Notion).
+Canonical design for MonoSolo account / tenancy (grilled against Fizzy and common SaaS patterns: GitHub, Vercel, Linear, Cloudflare, Stripe, Slack, Notion).
 
 Status: **agreed** — implementation should follow this doc. Older notes that say “personal accounts have no URL slug” are obsolete.
+
+**Account** is the tenant boundary. Membership is via **User** records linking **Identity** ↔ **Account**. Tenant resources carry `account_id` and are used only when `Current.account` is set (slug-scoped or API-resolved requests). Global routes keep `Current.account` nil.
 
 ## Language
 
 | Term | Meaning |
 |------|---------|
 | **Account** | Tenant boundary — personal or team workspace that owns users, data, and billing. Avoid: organization, workspace, team (as domain nouns). Prefer “team account” / “personal account” when the distinction matters. |
-| **Personal account** | An Account owned by a single Identity. Always exists; has a URL slug like any other Account. |
-| **Team account** | An Account shared by multiple users. Same URL shape as personal. |
-| **Account slug** | First path segment identifying an Account (`/{slug}/...`). Shared namespace across personal and team. UI may call the personal slug “username”. |
-| **Identity** | Global login principal (email / session). Not an Account; does not occupy the slug namespace. |
+| **Personal account** | An Account scoped to a single Identity. Always exists, cannot be deleted, and has a URL slug in the shared owner namespace (`/{slug}/...`). The UI may call this slug the user's “username”. Avoid: personal space, user account, slugless solo mode. |
+| **Team account** | An Account shared by multiple users. Same URL shape as personal (`/{slug}/...`). Avoid: organization, workspace. |
+| **Account slug** | The URL path segment that identifies any Account — personal or team — in one shared namespace (e.g. `/acme-corp/users`, `/john/settings`). Avoid: tenant ID, org slug, workspace slug (as the path term); do not imply slugs are team-only. UI may call the personal slug “username”. |
+| **Identity** | Global login principal (email / session). Not an Account; does not occupy the slug namespace. Avoid: User (use Identity for login; User for membership inside an Account). |
+| **User** | Account membership record linking an Identity to an Account (roles, board access, etc.). |
 
 ## Product model (GitHub-style shared namespace)
 
@@ -98,10 +101,26 @@ Invalid slug after resolution → 404 (same spirit as Web middleware). Non-membe
 | Pattern | Examples | We take |
 |---------|----------|---------|
 | Shared owner namespace | GitHub `/{user\|org}` | **Yes** — personal & team Account slugs |
-| Dual track (personal no prefix) | Early Vercel Hobby vs team; prior CONTEXT | **No** |
+| Dual track (personal no prefix) | Early Vercel Hobby vs team; prior dual-track notes | **No** |
 | Opaque id in path | Cloudflare, Stripe, Fizzy numeric id | Not for Web URLs (readable slug); ids still fine internally/API |
 | Subdomain tenant | Slack | **No** (path + SCRIPT_NAME) |
 | SCRIPT_NAME mount | Fizzy / Basecamp | **Yes** for Web |
+
+## Creating account-scoped resources
+
+When generating new resources that should be scoped to an account, include `account:references` in the generator command.
+
+For example, to generate a `Post` model:
+
+```bash
+rails generate model Post title:string body:text account:references
+```
+
+This will:
+
+- Add an `account_id` foreign key to the migration
+- Add the `belongs_to :account` association to the model
+- Ensure the resource is properly scoped to an account
 
 ## Implementation touchpoints (indicative)
 
@@ -110,8 +129,6 @@ Invalid slug after resolution → 404 (same spirit as Web middleware). Non-membe
 - `Current` / session — stop personal fallback on global nil-account routes
 - Auth concerns — unauthenticated → login; non-member → 404
 - Settings — slug rename UX + warning; personal undeletable
-- `core/CONTEXT.md` — vocabulary aligned with this doc
-- `core/docs/accounts.md` — overview + pointer here for tenancy/URL rules
 - `core/AGENTS.md` — multi-tenancy section aligned with this doc
 
 ## Open follow-ups (not blocking agreement)
@@ -125,3 +142,8 @@ Invalid slug after resolution → 404 (same spirit as Web middleware). Non-membe
 - `PATH_INFO_MATCH` requires the slug segment to end at `/` or EOS (`(?=\/|\z)`), so longer first segments like `account_invitations` are never truncated into a fake 16-char slug.
 - Account settings live at `/{slug}/settings` (`Account::SettingsController`); slug rename warns that old URLs are released with no redirect.
 - Invitation accept: `/{global}/account_invitations/:token/accept` joins the invitee (personal already eager-created) and lands on the invited account, setting `last_account_slug`.
+
+## References
+
+- [Jumpstart Rails - Accounts](https://jumpstartrails.com/docs/accounts)
+- [Bullet Train - Teams Should Be an MVP Feature](https://blog.bullettrain.co/teams-should-be-an-mvp-feature/)

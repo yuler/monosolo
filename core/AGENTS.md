@@ -59,7 +59,7 @@ bin/kamal deploy
 
 ### Multi-Tenancy (URL-Based)
 
-Canonical design: [`docs/core/account.md`](../docs/core/account.md). Vocabulary: [`CONTEXT.md`](CONTEXT.md).
+Canonical design & vocabulary: [`docs/core/account.md`](../docs/core/account.md).
 
 URL path-based multi-tenancy via middleware:
 
