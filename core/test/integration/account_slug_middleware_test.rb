@@ -5,6 +5,8 @@ class AccountSlugMiddlewareTest < ActionDispatch::IntegrationTest
     get "/no-such-acct/users"
 
     assert_response :not_found
+    assert_includes response.media_type, "html"
+    assert_match(/doesn'?t exist|not found/i, response.body)
   end
 
   test "known account slug mounts and sets current account for members" do

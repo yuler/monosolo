@@ -25,6 +25,10 @@ class Account < ApplicationRecord
     # Used for eager personal signup and for team accounts from /my/accounts.
     # When the Identity already has a personal account, returns an unsaved Account with errors
     # so controllers can re-render the form.
+    #
+    # Note: one personal Account per Identity is enforced in-app only here — there is no DB
+    # unique constraint yet, so concurrent signups can still race into duplicates until a
+    # partial unique index (or equivalent) is added.
     def create_with_owner(account:, owner:)
       transaction do
         if personal_account_taken?(account[:personal], owner[:identity])

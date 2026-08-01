@@ -35,7 +35,7 @@ module AccountSlug
 
       if env["account_slug"]
         account = Account.find_by(slug: env["account_slug"])
-        return not_found unless account
+        return not_found(env) unless account
 
         Current.with_account(account) do
           @app.call env
@@ -68,8 +68,15 @@ module AccountSlug
         end
       end
 
-      def not_found
-        [ 404, { "Content-Type" => "text/plain; charset=utf-8", "Content-Length" => "9" }, [ "Not Found" ] ]
+      # Same static / negotiated body Rails uses for missing routes (public/404.html).
+      def not_found(env)
+        ActionDispatch::PublicExceptions.new(Rails.public_path).call(
+          env.merge(
+            "PATH_INFO" => "/404",
+            "REQUEST_METHOD" => "GET",
+            "action_dispatch.original_request_method" => env["REQUEST_METHOD"]
+          )
+        )
       end
   end
 
