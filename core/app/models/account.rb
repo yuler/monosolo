@@ -7,15 +7,15 @@ class Account < ApplicationRecord
   has_one_attached :logo
 
   before_validation :generate_slug, on: :create
-  after_create :create_join_code
-  before_destroy :ensure_destroyable
-
   validates :name, presence: true
   validates :slug, presence: true,
                    uniqueness: true,
                    format: { with: AccountSlug::FORMAT },
                    exclusion: { in: AccountSlug::RESERVED_SLUGS, message: "is reserved" },
                    length: { in: AccountSlug::LENGTH }
+
+  after_create :create_join_code
+  before_destroy :ensure_destroyable
 
   scope :personal, -> { where(personal: true) }
   scope :team, -> { where(personal: false) }

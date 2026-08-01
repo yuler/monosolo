@@ -51,6 +51,10 @@ class Sessions::MagicLinksController < ApplicationController
       end
     end
 
+    def after_sign_in_url(magic_link)
+      after_authentication_url
+    end
+
     def email_mismatch
       clear_pending_authentication_token
       alert_message = "Something went wrong. Please try again."
@@ -66,10 +70,6 @@ class Sessions::MagicLinksController < ApplicationController
         format.html { redirect_to session_magic_link_path, flash: { shake: true } }
         format.json { render json: { message: "Try another code." }, status: :unauthorized }
       end
-    end
-
-    def after_sign_in_url(magic_link)
-      after_authentication_url
     end
 
     def rate_limit_exceeded

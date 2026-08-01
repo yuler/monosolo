@@ -49,8 +49,13 @@ module Account::Payable
       end
 
       def resolve_provider(provider)
-        return DEFAULT_PROVIDER if provider.nil? || provider.to_s.strip.empty?
-        valid?(provider) ? provider.to_s.strip.downcase.to_sym : DEFAULT_PROVIDER
+        if provider.nil? || provider.to_s.strip.empty?
+          DEFAULT_PROVIDER
+        elsif valid?(provider)
+          provider.to_s.strip.downcase.to_sym
+        else
+          DEFAULT_PROVIDER
+        end
       end
 
       def provider_class(provider)

@@ -18,7 +18,7 @@ class Account::Invitation < ApplicationRecord
     )
   end
 
-  def accept!
+  def accept
     if email != Current.identity.email
       raise EmailMismatch, <<~message.strip
         Your email does not match the email of the invitation.

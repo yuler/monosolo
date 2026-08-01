@@ -10,9 +10,8 @@ class LandingsController < ApplicationController
 
   private
     def require_account_context_when_authenticated
-      return unless authenticated?
-      return if Current.account.present?
-
-      redirect_to my_accounts_url(script_name: nil)
+      if authenticated? && Current.account.blank?
+        redirect_to my_accounts_url(script_name: nil)
+      end
     end
 end

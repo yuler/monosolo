@@ -28,18 +28,6 @@ class JoinCodesController < ApplicationController
   end
 
   private
-    def set_identity
-      @identity = Identity.find_or_initialize_by(email: params.expect(:email))
-
-      if @identity.new_record?
-        if @identity.invalid?
-          head :unprocessable_entity
-        else
-          @identity.save!
-        end
-      end
-    end
-
     def set_join_code
       @join_code ||= Account::JoinCode.find_by(code: params.expect(:code), account: Current.account)
     end
@@ -49,6 +37,18 @@ class JoinCodesController < ApplicationController
         head :not_found
       elsif !@join_code.active?
         render :inactive, status: :gone
+      end
+    end
+
+    def set_identity
+      @identity = Identity.find_or_initialize_by(email: params.expect(:email))
+
+      if @identity.new_record?
+        if @identity.invalid?
+          head :unprocessable_entity
+        else
+          @identity.save!
+        end
       end
     end
 end
