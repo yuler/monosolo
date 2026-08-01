@@ -35,9 +35,6 @@ Rails.application.routes.draw do
     resource :creem
   end
 
-  get "join/:code", to: "join_codes#new", as: :join
-  post "join/:code", to: "join_codes#create"
-
   resources :account_invitations, param: :token, only: [ :show ] do
     scope module: :account_invitations do
       resource :accept, only: [ :show, :update ], controller: :acceptances

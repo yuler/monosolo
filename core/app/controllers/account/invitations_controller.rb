@@ -1,9 +1,13 @@
 class Account::InvitationsController < ApplicationController
-  before_action :ensure_admin, only: %i[ index create ]
+  before_action :ensure_admin, only: %i[ index new create ]
 
   def index
     @account_invitation = Account::Invitation.new
     @invitations = Current.account.invitations
+  end
+
+  def new
+    @invitation = Current.account.invitations.new
   end
 
   def create
@@ -12,7 +16,9 @@ class Account::InvitationsController < ApplicationController
     if @account_invitation.save
       redirect_to account_invitations_path, notice: "Invitation sent."
     else
-      render :index, status: :unprocessable_entity
+      @invitation = @account_invitation
+      @invitations = Current.account.invitations
+      render :new, status: :unprocessable_entity
     end
   end
 
