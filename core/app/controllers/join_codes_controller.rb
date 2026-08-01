@@ -41,14 +41,11 @@ class JoinCodesController < ApplicationController
     end
 
     def set_join_code
-      @join_code ||= Account::JoinCode.find_by(code: params.expect(:code))
+      @join_code ||= Account::JoinCode.find_by(code: params.expect(:code), account: Current.account)
     end
 
     def ensure_join_code_is_valid
       if @join_code.nil?
-        head :not_found
-      elsif @join_code.account_id != Current.account.id
-        # Join URL script_name must match the code's account.
         head :not_found
       elsif !@join_code.active?
         render :inactive, status: :gone
