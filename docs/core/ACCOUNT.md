@@ -1,149 +1,182 @@
 # Account
 
-Canonical design for MonoSolo account / tenancy (grilled against Fizzy and common SaaS patterns: GitHub, Vercel, Linear, Cloudflare, Stripe, Slack, Notion).
+Canonical account / tenancy design for MonoSolo. Follow this doc for product behavior and agent changes.
 
-Status: **agreed** — implementation should follow this doc. Older notes that say “personal accounts have no URL slug” are obsolete.
+**Account** is the tenant boundary. Membership is a **User** linking **Identity** ↔ **Account**. Tenant data carries `account_id` and is used when `Current.account` is set. Global routes keep `Current.account` nil.
 
-**Account** is the tenant boundary. Membership is via **User** records linking **Identity** ↔ **Account**. Tenant resources carry `account_id` and are used only when `Current.account` is set (slug-scoped or API-resolved requests). Global routes keep `Current.account` nil.
+## At a glance
 
-## Language
+### Mental model
 
-| Term | Meaning |
-|------|---------|
-| **Account** | Tenant boundary — personal or team workspace that owns users, data, and billing. Avoid: organization, workspace, team (as domain nouns). Prefer “team account” / “personal account” when the distinction matters. |
-| **Personal account** | An Account scoped to a single Identity. Always exists, cannot be deleted, and has a URL slug in the shared owner namespace (`/{slug}/...`). The UI may call this slug the user's “username”. Avoid: personal space, user account, slugless solo mode. |
-| **Team account** | An Account shared by multiple users. Same URL shape as personal (`/{slug}/...`). Avoid: organization, workspace. |
-| **Account slug** | The URL path segment that identifies any Account — personal or team — in one shared namespace (e.g. `/acme-corp/users`, `/john/settings`). Avoid: tenant ID, org slug, workspace slug (as the path term); do not imply slugs are team-only. UI may call the personal slug “username”. |
-| **Identity** | Global login principal (email / session). Not an Account; does not occupy the slug namespace. Avoid: User (use Identity for login; User for membership inside an Account). |
-| **User** | Account membership record linking an Identity to an Account (roles, board access, etc.). |
+```mermaid
+erDiagram
+  Identity ||--o{ User : membership
+  Account ||--o{ User : has
+  Account ||--o{ Resource : "owns via account_id"
+  Identity {
+    string email
+  }
+  Account {
+    string slug
+    bool personal
+  }
+  User {
+    string role
+  }
+```
 
-## Product model (GitHub-style shared namespace)
+| Piece        | Role                                                                 |
+| ------------ | -------------------------------------------------------------------- |
+| **Identity** | Global login (email / session). Not a tenant. No slug.               |
+| **Account**  | Tenant — personal or team. Owns the URL slug and data.               |
+| **User**     | Membership inside an Account (roles, access).                        |
+| **Resource** | Any tenant-owned record; always scoped by `account_id`.              |
 
-- URL shape is **C**: `/{slug}/...` for **both** personal and team accounts. Type is distinguished after lookup (`personal?` / `team?`), not by whether a prefix exists.
-- The namespace entity is always **Account**. There is no separate `Identity.username`. The UI label “username” means the personal Account’s `slug`.
-- Personal and team slugs share one uniqueness constraint and the same format / `RESERVED` rules / rename semantics.
+### URL shape
 
-### Slug generation & rename
+Personal and team accounts share one namespace:
 
-- **Initial slug**: derive a username candidate from email local-part or display name; on conflict, append random digits (e.g. `john` → `john8472`). Prefer clean slug when available; do not always force a numeric suffix.
-- **User can change** slug later (personal and team, same rules).
-- **On rename**: old slug is **released immediately**; **no redirects**. Old links may break; the new name can be claimed by someone else right away. Surface this risk in settings copy.
-- **API clients** should not treat slug as a long-lived stable id (see API below).
+```text
+/{slug}/users
+/{slug}/settings
+```
+
+Type is decided after lookup (`personal?` / `team?`), not by a URL prefix. The UI may call a personal slug “username”; the domain term is still **Account slug**.
+
+### Request flow
+
+```mermaid
+flowchart TD
+  A[Request] --> B{First segment is a slug?}
+  B -->|No / reserved| C[Global route]
+  C --> D["Current.account = nil"]
+  B -->|Yes| E[Find Account by slug]
+  E -->|Missing| F[404 in middleware]
+  E -->|Found| G[Current.account set]
+  G --> H{Logged in?}
+  H -->|No| I[Redirect to login]
+  H -->|Yes| J{Member of Account?}
+  J -->|No| K[404]
+  J -->|Yes| L[Set Current.user → proceed]
+```
+
+Middleware only resolves the Account. Login and membership checks live in controllers / concerns.
+
+### After login / invite
+
+```mermaid
+flowchart TD
+  L[Login] --> M{How many accounts?}
+  M -->|One| N[Go there directly]
+  M -->|Many| O[Always show account picker]
+  O --> P[Cookie may preselect last account]
+  P --> Q[User must confirm]
+  R[Accept invite] --> S[Join team Account]
+  S --> T[Land on that team once]
+  T --> U[Update last account]
+```
+
+Accepting an invite also ensures a personal Account exists if somehow missing.
+
+### Golden rules
+
+1. **Account** is the only tenant boundary; tenant models use `account_id`.
+2. Personal and team share one slug namespace and the same `/{slug}/...` URL shape.
+3. Every Identity has exactly one personal Account — eager-created on signup, never deleted.
+4. Global routes keep `Current.account` nil. Last-account cookie is picker hint only — never silent tenant context.
+5. Missing Account or non-member → **404**. Unauthenticated on a slug route → login with `return_to`.
+6. Slug rename releases the old name immediately (no redirects). Prefer stable Account ids for long-lived API clients.
+7. API: path slug wins over `X-Account-Slug`; if neither, fall back to personal.
+
+---
+
+## Reference
+
+### Language
+
+| Term                 | Meaning                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| **Account**          | Tenant boundary — personal or team. Prefer over organization / workspace / team as domain nouns. |
+| **Personal account** | Single-Identity Account. Always exists, undeletable, has a slug (`/{slug}/...`).                 |
+| **Team account**     | Multi-user Account. Same URL shape as personal.                                                  |
+| **Account slug**     | Path segment for any Account in the shared namespace. UI may say “username” for personal.       |
+| **Identity**         | Global login principal. Not an Account; does not occupy the slug namespace.                      |
+| **User**             | Membership record: Identity ↔ Account (+ role / access).                                         |
+
+### Slug
+
+- Format: `4..16` chars, `[a-zA-Z0-9_-]`, unique across personal and team.
+- Reserved prefixes live in `AccountSlug::RESERVED_SLUGS` — keep in sync with `routes.rb`.
+- **Initial**: derive from email local-part or display name; on conflict append digits (`john` → `john8472`). Prefer a clean slug when free.
+- **Rename**: allowed for personal and team. Old slug is released immediately; no redirects; warn in settings.
+- `PATH_INFO_MATCH` requires the slug to end at `/` or EOS so longer segments (e.g. `account_invitations`) are never truncated into a fake slug.
 
 ### Lifecycle
 
-- On registration, **eager-create** a personal account (not lazy on first `personal_account` access).
-- Accepting a team invite **also** creates personal if missing; invite only changes membership and first landing, not whether personal exists.
-- Every Identity **always** has exactly one personal account; it **cannot be deleted** (rename / display tweaks only). Team accounts follow normal leave/delete rules for owners.
+- Registration **eager-creates** the personal Account.
+- Invite accept creates personal if missing; invite only adds team membership and first landing.
+- Personal Account: rename / display only — **cannot delete**.
+- Team Account: normal leave / delete rules for owners.
 
-### Post-login landing
+### Request pipeline
 
-- **One** account → go there directly.
-- **Multiple** accounts → **always** show an account picker (no auto-skip). Cookie/session may remember last account and **preselect / hint** it; the user must confirm.
-- After **accepting an invite**: **force** land on that team once and update “last account”; later logins still follow the rules above.
+**Middleware** (`AccountSlug::Extractor`):
 
-## Request pipeline
+1. If the first path segment looks like a slug and is not reserved → move it to `SCRIPT_NAME`, leave the rest as `PATH_INFO` (route helpers stay unprefixed).
+2. `Account.find_by(slug:)` and wrap in `Current.with_account(account)`.
+3. Slug present but Account missing → **404 in middleware**.
 
-### Middleware (`AccountSlug::Extractor`)
+**Global routes** (no slug): `/login`, account picker, `/my/...`, marketing.
 
-Keep Fizzy-style **SCRIPT_NAME mounting** for Web:
+- `Current.account` stays nil.
+- Do not treat session “last account” as tenant context on these routes.
 
-1. If first path segment looks like a slug and is not reserved → move it to `SCRIPT_NAME`, leave the rest as `PATH_INFO` so route helpers stay unprefixed in the route table.
-2. `Account.find_by(slug:)` and wrap the request in `Current.with_account(account)`.
-3. If slug present but Account **missing** → **404 in middleware** (do not enter the app with a half-set Current).
+**Authorization** (controllers / concerns — not middleware):
 
-Middleware does **not** enforce membership or login.
+| Situation                         | Behavior                                      |
+| --------------------------------- | --------------------------------------------- |
+| Account exists, unauthenticated   | Redirect to login with `return_to`            |
+| Authenticated, not a member       | **404** (same shape as missing; avoid 403 leak) |
+| Authenticated member              | Proceed; set `Current.user`                   |
 
-### Global routes (no slug)
+### API
 
-Examples: `/login`, account picker, `/my/...`, marketing.
+Support both:
 
-- Middleware leaves **`Current.account = nil`**.
-- “Last account” in cookie/session is **only** for picker prefill — it must **not** populate `Current.account` on global routes.
-- Code under global routes must not assume a tenant context.
+1. Path aligned with Web: `/api/v1/{slug}/...`
+2. Header `X-Account-Slug` (or token claim) when the path has no slug
 
-### Authorization (controllers / concerns)
+**Resolution** (path wins):
 
-| Situation | Behavior |
-|-----------|----------|
-| Account exists, **unauthenticated** | Redirect to login with `return_to`. |
-| Authenticated, **not a member** | **404** (same external shape as missing account; avoid existence leaks via 403). |
-| Authenticated member | Proceed; set `Current.user` for that Account. |
+| Path slug | Header  | Result                              |
+| --------- | ------- | ----------------------------------- |
+| Present   | Absent  | Use path                            |
+| Absent    | Present | Use header                          |
+| Present   | Present | **Use path; ignore header**         |
+| Absent    | Absent  | Fall back to **personal** Account   |
 
-Membership checks stay in application authz, not in the middleware.
+Invalid slug → 404. Non-member → 404.
 
-## API
+### Creating account-scoped resources
 
-Support **both**:
-
-1. **Path aligned with Web**: `/api/v1/{slug}/...` (same mount / strip idea as Web, not a special `/accounts/:slug` digression long-term).
-2. **Header** (or token claim) declaring the account when the path has no slug.
-
-**Resolution order** (path wins):
-
-| Path slug | Header | Result |
-|-----------|--------|--------|
-| Present | Absent | Use path |
-| Absent | Present | Use header |
-| Present | Present (any value) | **Use path; ignore header** |
-| Absent | Absent | Fall back to **personal** account |
-
-Invalid slug after resolution → 404 (same spirit as Web middleware). Non-member → 404. Prefer documenting that machine clients should eventually use stable Account **ids** where rename-safety matters; slug in path is for consistency with Web, not permanence.
-
-## Explicit non-goals (relative to current Fizzy-ish code)
-
-- Do **not** treat “no slug ⇒ silently set `Current.account` to personal” as the tenancy source of truth on global routes.
-- Do **not** use session “last account” as request tenant without a slug (or API header) / picker confirmation.
-- Personal accounts are first-class URL owners; they are not “slugless solo mode.”
-
-## Comparison snapshot (why this shape)
-
-| Pattern | Examples | We take |
-|---------|----------|---------|
-| Shared owner namespace | GitHub `/{user\|org}` | **Yes** — personal & team Account slugs |
-| Dual track (personal no prefix) | Early Vercel Hobby vs team; prior dual-track notes | **No** |
-| Opaque id in path | Cloudflare, Stripe, Fizzy numeric id | Not for Web URLs (readable slug); ids still fine internally/API |
-| Subdomain tenant | Slack | **No** (path + SCRIPT_NAME) |
-| SCRIPT_NAME mount | Fizzy / Basecamp | **Yes** for Web |
-
-## Creating account-scoped resources
-
-When generating new resources that should be scoped to an account, include `account:references` in the generator command.
-
-For example, to generate a `Post` model:
+Include `account:references` when generating tenant models:
 
 ```bash
 rails generate model Post title:string body:text account:references
 ```
 
-This will:
+That adds `account_id`, `belongs_to :account`, and proper scoping.
 
-- Add an `account_id` foreign key to the migration
-- Add the `belongs_to :account` association to the model
-- Ensure the resource is properly scoped to an account
+### Implementation touchpoints
 
-## Implementation touchpoints (indicative)
-
-- `core/config/initializers/account_slug.rb` — middleware behavior, 404 on missing Account, API path shape
+- [`core/config/initializers/account_slug.rb`](../../core/config/initializers/account_slug.rb) — middleware, reserved slugs, API path / header
 - `Identity` / signup / invite flows — eager personal; invite first hop
-- `Current` / session — stop personal fallback on global nil-account routes
+- `Current` / session — no personal fallback on global nil-account routes
 - Auth concerns — unauthenticated → login; non-member → 404
-- Settings — slug rename UX + warning; personal undeletable
-- [`DEVELOP.md`](DEVELOP.md) — multi-tenancy section aligned with this doc
+- Account settings — slug rename warning; personal undeletable
+- [`DEVELOP.md`](DEVELOP.md) — multi-tenancy overview aligned with this doc
 
-## Open follow-ups (not blocking agreement)
-
-- Exact slug format length / charset (today ~4..16) and RESERVED list ownership (keep in sync with `routes.rb`).
-- Rename rate limits (optional product guard; not required by consensus).
-- Whether to migrate API off slug to UUID as a later hardening step while keeping path+header resolution rules.
-
-## Implementation notes
-
-- `PATH_INFO_MATCH` requires the slug segment to end at `/` or EOS (`(?=\/|\z)`), so longer first segments like `account_invitations` are never truncated into a fake 16-char slug.
-- Account settings live at `/{slug}/settings` (`Account::SettingsController`); slug rename warns that old URLs are released with no redirect.
-- Invitation accept: `/{global}/account_invitations/:token/accept` joins the invitee (personal already eager-created) and lands on the invited account, setting `last_account_slug`.
-
-## References
+### References
 
 - [Jumpstart Rails - Accounts](https://jumpstartrails.com/docs/accounts)
 - [Bullet Train - Teams Should Be an MVP Feature](https://blog.bullettrain.co/teams-should-be-an-mvp-feature/)

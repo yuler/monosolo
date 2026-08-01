@@ -22,3 +22,4 @@ App: http://localhost:3000 — login with `john@example.com`
 
 - Git commit title format: `emoji [scope] The main change` — example: `✨ [core] Adopt shared account slug tenancy for personal and team`
 - PR title follows the same format as the git commit title.
+- Markdown tables must be auto-aligned (pad columns so pipes line up).
