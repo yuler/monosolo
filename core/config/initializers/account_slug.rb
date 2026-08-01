@@ -38,6 +38,7 @@ module AccountSlug
     support
     test
     up
+    users
     webhooks
   ].freeze
 

@@ -25,9 +25,15 @@ class Identity < ApplicationRecord
       save! if changed?
       reload if persisted?
       with_lock do
-        accounts.personal.first || create_personal_account
+        accounts.personal.first || create_personal_account!
       end
     end
+  end
+
+  # Ensures exactly one personal account exists for this identity.
+  # Raises if creation fails so signup/invite never leave an orphan Identity.
+  def ensure_personal_account
+    accounts.personal.first || create_personal_account!
   end
 
   # TODO:
@@ -51,23 +57,24 @@ class Identity < ApplicationRecord
   end
 
   private
-    def ensure_personal_account
-      create_personal_account unless accounts.personal.exists?
-    end
-
-    def create_personal_account
-      base = email.to_s.split("@").first
-      Account.create_with_owner(
+    def create_personal_account!
+      account = Account.create_with_owner(
         account: {
           name: "#{full_name}'s Personal Account",
           personal: true,
-          slug: Account.unique_slug_for(base)
+          slug: Account.unique_slug_for(email.to_s.split("@").first)
         },
         owner: {
           name: full_name,
           identity: self
         }
       )
+
+      unless account.persisted?
+        raise ActiveRecord::RecordInvalid.new(account)
+      end
+
+      @personal_account = account
     end
 
     def deactivate_users

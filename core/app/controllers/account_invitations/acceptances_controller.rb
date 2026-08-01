@@ -11,7 +11,7 @@ class AccountInvitations::AcceptancesController < ApplicationController
     cookies.permanent[:last_account_slug] = @account_invitation.account.slug
     redirect_to root_url(script_name: @account_invitation.account.slug_path),
       notice: "You've joined #{@account_invitation.account.name}."
-  rescue RuntimeError => error
+  rescue Account::Invitation::EmailMismatch => error
     redirect_to new_session_url(script_name: nil), alert: error.message
   end
 

@@ -61,4 +61,15 @@ class Api::V1::AccountSlugTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal @account.slug, response.parsed_body["slug"]
   end
+
+  test "unknown header slug returns 404" do
+    get "/api/v1/test/private",
+      headers: {
+        "Authorization" => "Bearer #{@token}",
+        "X-Account-Slug" => "no-such-acct"
+      }
+
+    assert_response :not_found
+  end
 end
+

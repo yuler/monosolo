@@ -23,20 +23,29 @@ class Account < ApplicationRecord
   class << self
     def create_with_owner(account:, owner:)
       transaction do
+        identity = owner[:identity] || owner["identity"]
+        wants_personal = ActiveModel::Type::Boolean.new.cast(account[:personal] || account["personal"])
+
+        if wants_personal && identity&.accounts&.personal&.exists?
+          return new(**account).tap do |record|
+            record.errors.add(:base, "Identity already has a personal account")
+          end
+        end
+
         new_account = create(**account)
         unless new_account.persisted?
           return new_account
         end
 
-        new_account.tap do |account|
-          account.users.create!(role: :system, name: "System")
-          account.users.create!(**owner.with_defaults(role: :owner, verified_at: Time.current))
+        new_account.tap do |created|
+          created.users.create!(role: :system, name: "System")
+          created.users.create!(**owner.with_defaults(role: :owner, verified_at: Time.current))
         end
       end
     end
 
     def unique_slug_for(base)
-      new.send(:unique_slug, normalize_slug_base(base))
+      unique_slug(normalize_slug_base(base))
     end
 
     def normalize_slug_base(base)
@@ -44,6 +53,21 @@ class Account < ApplicationRecord
       candidate = candidate[0, AccountSlug::LENGTH.max].to_s
       candidate = "user" if candidate.length < AccountSlug::LENGTH.min
       candidate
+    end
+
+    def unique_slug(base)
+      return base unless slug_taken?(base)
+
+      loop do
+        suffix = SecureRandom.random_number(10_000).to_s
+        max_base = AccountSlug::LENGTH.max - suffix.length
+        candidate = "#{base[0, max_base]}#{suffix}"
+        break candidate unless slug_taken?(candidate)
+      end
+    end
+
+    def slug_taken?(value)
+      value.in?(AccountSlug::RESERVED_SLUGS) || exists?(slug: value)
     end
   end
 
@@ -63,22 +87,7 @@ class Account < ApplicationRecord
     def generate_slug
       return if slug.present?
 
-      self.slug = unique_slug(self.class.normalize_slug_base(name))
-    end
-
-    def unique_slug(base)
-      return base unless slug_taken?(base)
-
-      loop do
-        suffix = SecureRandom.random_number(10_000).to_s
-        max_base = AccountSlug::LENGTH.max - suffix.length
-        candidate = "#{base[0, max_base]}#{suffix}"
-        break candidate unless slug_taken?(candidate)
-      end
-    end
-
-    def slug_taken?(value)
-      value.in?(AccountSlug::RESERVED_SLUGS) || self.class.exists?(slug: value)
+      self.slug = self.class.unique_slug(self.class.normalize_slug_base(name))
     end
 
     def ensure_destroyable

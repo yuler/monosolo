@@ -1,4 +1,6 @@
 class Account::Invitation < ApplicationRecord
+  class EmailMismatch < StandardError; end
+
   belongs_to :account
   belongs_to :invited_by, class_name: "User"
 
@@ -18,7 +20,7 @@ class Account::Invitation < ApplicationRecord
 
   def accept!
     if email != Current.identity.email
-      raise <<~message.strip
+      raise EmailMismatch, <<~message.strip
         Your email does not match the email of the invitation.
         Current logged in user email: #{Current.identity.email},
         Invitation email: #{email}
@@ -26,6 +28,7 @@ class Account::Invitation < ApplicationRecord
       message
     end
 
+    Current.identity.ensure_personal_account
     Current.identity.join(account, role: :member, verified_at: Time.current)
     destroy!
   end
