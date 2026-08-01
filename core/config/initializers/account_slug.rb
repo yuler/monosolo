@@ -5,42 +5,19 @@ module AccountSlug
   # Require the slug segment to end at `/` or EOS so longer prefixes (e.g. account_invitations) never partial-match.
   PATH_INFO_MATCH = /\A(\/#{AccountSlug::PATTERN})(?=\/|\z)/
 
-  # Top-level route prefixes that must never be confused with an account slug.
-  # Keep this in sync with config/routes.rb.
-  RESERVED_SLUGS = %w[
-    account_invitations
-    admin
-    api
-    assets
-    billing
-    cable
-    dev
-    device
-    help
-    home
-    hotwire-spark
-    join
-    jobs
-    landing
-    landings
-    letter_opener
-    login
-    manifest
-    service-worker
-    logout
-    magic_link
-    my
-    rails
-    session
-    settings
-    setup
-    static
-    support
-    test
-    up
-    users
-    webhooks
+  # Must never be confused with an account slug. Two groups:
+  # - FROM_ROUTES: top-level segments in config/routes.rb (+ mounts). Update when adding routes.
+  # - EXTRA: policy / future / infra words reserved even without a matching route today.
+  RESERVED_FROM_ROUTES = %w[
+    account_invitations admin api cable home hotwire-spark invitations join join_code
+    landing letter_opener manifest my payment rails service-worker session settings
+    subscription up users webhooks
   ].freeze
+  RESERVED_EXTRA = %w[
+    assets billing dev device help jobs landings login logout magic_link setup static
+    support test
+  ].freeze
+  RESERVED_SLUGS = (RESERVED_FROM_ROUTES + RESERVED_EXTRA).freeze
 
   ACCOUNT_SLUG_HEADER = "HTTP_X_ACCOUNT_SLUG"
 
