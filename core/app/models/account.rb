@@ -21,54 +21,55 @@ class Account < ApplicationRecord
   scope :team, -> { where(personal: false) }
 
   class << self
+    # Atomically create an Account plus system + owner Users.
+    # Used for eager personal signup and for team accounts from /my/accounts.
+    # When the Identity already has a personal account, returns an unsaved Account with errors
+    # so controllers can re-render the form.
     def create_with_owner(account:, owner:)
       transaction do
-        identity = owner[:identity] || owner["identity"]
-        wants_personal = ActiveModel::Type::Boolean.new.cast(account[:personal] || account["personal"])
-
-        if wants_personal && identity&.accounts&.personal&.exists?
-          return new(**account).tap do |record|
+        if personal_account_taken?(account[:personal], owner[:identity])
+          new(**account).tap do |record|
             record.errors.add(:base, "Identity already has a personal account")
           end
-        end
-
-        new_account = create(**account)
-        unless new_account.persisted?
-          return new_account
-        end
-
-        new_account.tap do |created|
-          created.users.create!(role: :system, name: "System")
-          created.users.create!(**owner.with_defaults(role: :owner, verified_at: Time.current))
+        else
+          new_account = create(**account)
+          if new_account.persisted?
+            new_account.tap do |created|
+              created.users.create!(role: :system, name: "System")
+              created.users.create!(**owner.with_defaults(role: :owner, verified_at: Time.current))
+            end
+          else
+            new_account
+          end
         end
       end
     end
 
+    # Normalize a name/email local-part into a free account slug (append digits on collision).
     def unique_slug_for(base)
-      unique_slug(normalize_slug_base(base))
-    end
+      slug = base.to_s.parameterize(separator: "_")
+      slug = slug[0, AccountSlug::LENGTH.max].to_s
+      slug = "user" if slug.length < AccountSlug::LENGTH.min
 
-    def normalize_slug_base(base)
-      candidate = base.to_s.parameterize(separator: "_")
-      candidate = candidate[0, AccountSlug::LENGTH.max].to_s
-      candidate = "user" if candidate.length < AccountSlug::LENGTH.min
-      candidate
-    end
-
-    def unique_slug(base)
-      return base unless slug_taken?(base)
-
-      loop do
-        suffix = SecureRandom.random_number(10_000).to_s
-        max_base = AccountSlug::LENGTH.max - suffix.length
-        candidate = "#{base[0, max_base]}#{suffix}"
-        break candidate unless slug_taken?(candidate)
+      if slug_taken?(slug)
+        loop do
+          suffix = SecureRandom.random_number(10_000).to_s
+          candidate = "#{slug[0, AccountSlug::LENGTH.max - suffix.length]}#{suffix}"
+          break candidate unless slug_taken?(candidate)
+        end
+      else
+        slug
       end
     end
 
-    def slug_taken?(value)
-      value.in?(AccountSlug::RESERVED_SLUGS) || exists?(slug: value)
-    end
+    private
+      def personal_account_taken?(personal, identity)
+        ActiveModel::Type::Boolean.new.cast(personal) && identity&.accounts&.personal&.exists?
+      end
+
+      def slug_taken?(value)
+        value.in?(AccountSlug::RESERVED_SLUGS) || exists?(slug: value)
+      end
   end
 
   def team?
@@ -87,7 +88,7 @@ class Account < ApplicationRecord
     def generate_slug
       return if slug.present?
 
-      self.slug = self.class.unique_slug(self.class.normalize_slug_base(name))
+      self.slug = self.class.unique_slug_for(name)
     end
 
     def ensure_destroyable

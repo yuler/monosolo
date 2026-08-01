@@ -12,6 +12,8 @@ class Identity < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   normalizes :email, with: ->(value) { value.strip.downcase.presence }
 
+  # Eager-create personal Account on signup so invite/login never see a half-built Identity.
+  # TODO: clean up zombie Identities/Accounts that never complete magic-link sign-in.
   after_create :ensure_personal_account
   before_destroy :deactivate_users, prepend: true
 
