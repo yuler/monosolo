@@ -1,22 +1,28 @@
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/core"
-  insecure-external-code-execution: allow
-  open-pull-requests-limit: 10
-  vendor: false
-  groups:
-    development-dependencies:
-      dependency-type: "development"
-  schedule:
-    interval: weekly
-  cooldown:
-    default-days: 7
-    semver-major-days: 14
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  cooldown:
-    default-days: 7
+  - package-ecosystem: bundler
+    directory: "/core"
+    insecure-external-code-execution: allow
+    open-pull-requests-limit: 5
+    vendor: false
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      bundler:
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
