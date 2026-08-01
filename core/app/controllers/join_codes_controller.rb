@@ -1,7 +1,5 @@
 class JoinCodesController < ApplicationController
   allow_unauthenticated_access
-  # Join links must work for signed-in non-members (membership is created here).
-  allow_unauthorized_access
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { head :too_many_requests }
 
   before_action :set_join_code
@@ -49,8 +47,8 @@ class JoinCodesController < ApplicationController
     def ensure_join_code_is_valid
       if @join_code.nil?
         head :not_found
-      elsif Current.account.present? && @join_code.account_id != Current.account.id
-        # Slug-prefixed join URLs must match the code's account.
+      elsif @join_code.account_id != Current.account.id
+        # Join URL script_name must match the code's account.
         head :not_found
       elsif !@join_code.active?
         render :inactive, status: :gone

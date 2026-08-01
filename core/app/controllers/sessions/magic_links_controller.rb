@@ -1,4 +1,5 @@
 class Sessions::MagicLinksController < ApplicationController
+  disallow_account_scope
   require_unauthenticated_access
   rate_limit to: 10, within: 15.minutes, only: :create, with: :rate_limit_exceeded
   before_action :ensure_that_email_pending_authentication_exists

@@ -1,5 +1,5 @@
 class My::AccountsController < ApplicationController
-  skip_before_action :require_account
+  disallow_account_scope
 
   def new
     @account = Current.identity.accounts.new

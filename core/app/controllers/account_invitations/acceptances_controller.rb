@@ -1,5 +1,5 @@
 class AccountInvitations::AcceptancesController < ApplicationController
-  skip_before_action :require_account
+  disallow_account_scope
   before_action :set_invitation
 
   def show

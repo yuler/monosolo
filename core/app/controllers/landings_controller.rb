@@ -1,5 +1,7 @@
 class LandingsController < ApplicationController
   allow_unauthenticated_access
+  # Account-scoped (/:slug) and global landing both allowed — skip require, do not redirect when account is set.
+  skip_before_action :require_account
   before_action :require_account_context_when_authenticated
 
   def show
