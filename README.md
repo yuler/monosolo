@@ -27,7 +27,7 @@
 Opinionated Rails 8.1 template for rapid development.
 
 - **Solid:** Solid Queue, Solid Cache, and Solid Cable on SQLite
-- **Multi-tenancy:** Shared slug namespace `/{slug}/...` for personal and team accounts (see [docs/core/account.md](docs/core/account.md), [AccountSlug::Extractor](core/config/initializers/account_slug.rb))
+- **Multi-tenancy:** Shared slug namespace `/{slug}/...` for personal and team accounts (see [docs/core/ACCOUNT.md](docs/core/ACCOUNT.md), [AccountSlug::Extractor](core/config/initializers/account_slug.rb))
 - **API:** JWT-authenticated controllers
 
 ## 🛠️ Development

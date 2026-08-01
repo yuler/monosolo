@@ -129,7 +129,7 @@ This will:
 - `Current` / session — stop personal fallback on global nil-account routes
 - Auth concerns — unauthenticated → login; non-member → 404
 - Settings — slug rename UX + warning; personal undeletable
-- `core/AGENTS.md` — multi-tenancy section aligned with this doc
+- [`DEVELOP.md`](DEVELOP.md) — multi-tenancy section aligned with this doc
 
 ## Open follow-ups (not blocking agreement)
 
