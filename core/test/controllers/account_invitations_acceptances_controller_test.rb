@@ -47,4 +47,3 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
     assert_redirected_to root_url(script_name: @account.slug_path)
   end
 end
-

@@ -40,4 +40,3 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to my_accounts_url(script_name: nil)
   end
 end
-

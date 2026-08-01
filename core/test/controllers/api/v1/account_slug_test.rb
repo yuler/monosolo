@@ -72,4 +72,3 @@ class Api::V1::AccountSlugTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 end
-
