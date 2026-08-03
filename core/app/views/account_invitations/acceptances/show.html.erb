@@ -1,10 +1,42 @@
-<% @page_title = "Accepting..." %>
+<% @page_title = "Join #{@account_invitation.account.name}" %>
 
-<div class="page page--lg">
-  <div class="prose">
-    <h1>Accepting...</h1>
-    <p>Invitation to join <strong><%= @account_invitation.account.name %></strong> has been accepted.</p>
+<div class="stage">
+  <div class="page page--sm">
+    <div class="card card--raised">
+      <div class="card__body text-center">
+        <h2 class="card__title">Join <%= @account_invitation.account.name %></h2>
+
+        <% if @account_invitation.account.description.present? %>
+          <p class="txt-muted"><%= @account_invitation.account.description %></p>
+        <% end %>
+
+        <p class="txt-muted">
+          <strong><%= @account_invitation.invited_by.name %></strong>
+          invited <strong><%= @account_invitation.email %></strong>
+        </p>
+
+        <div class="divider">Signed in as <%= Current.identity.email %></div>
+
+        <% if Current.identity.email != @account_invitation.email %>
+          <p class="txt-muted">
+            This invitation was sent to <strong><%= @account_invitation.email %></strong>.
+            Sign in with that email to accept.
+          </p>
+        <% end %>
+
+        <div class="flex gap items-center justify-center">
+          <%= button_to "Accept invitation",
+                account_invitation_accept_path(@account_invitation.token),
+                method: :put,
+                class: "btn btn--primary",
+                disabled: Current.identity.email != @account_invitation.email %>
+
+          <%= button_to "Decline",
+                account_invitation_accept_path(@account_invitation.token),
+                method: :delete,
+                class: "btn btn--ghost" %>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
-<%= auto_submit_form_with url: account_invitation_accept_path(@account_invitation.token), method: :put %>

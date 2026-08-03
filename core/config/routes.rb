@@ -39,7 +39,7 @@ Rails.application.routes.draw do
 
   resources :account_invitations, param: :token, only: [ :show ] do
     scope module: :account_invitations do
-      resource :accept, only: [ :show, :update ], controller: :acceptances
+      resource :accept, only: [ :show, :update, :destroy ], controller: :acceptances
     end
   end
 

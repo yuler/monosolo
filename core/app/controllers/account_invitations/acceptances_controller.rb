@@ -12,7 +12,15 @@ class AccountInvitations::AcceptancesController < ApplicationController
     redirect_to root_url(script_name: @account_invitation.account.slug_path),
       notice: "You've joined #{@account_invitation.account.name}."
   rescue Account::Invitation::EmailMismatch => error
-    redirect_to new_session_url(script_name: nil), alert: error.message
+    redirect_to account_invitation_accept_path(@account_invitation.token), alert: error.message
+  end
+
+  def destroy
+    account_name = @account_invitation.account.name
+    @account_invitation.destroy!
+
+    redirect_to my_accounts_url(script_name: nil),
+      notice: "Declined invitation to #{account_name}."
   end
 
   private

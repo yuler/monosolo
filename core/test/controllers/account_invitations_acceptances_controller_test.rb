@@ -10,6 +10,26 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
     )
   end
 
+  test "show requires authentication" do
+    get account_invitation_accept_path(@invitation.token)
+
+    assert_redirected_to new_session_url(script_name: nil)
+  end
+
+  test "show renders confirmation without joining" do
+    identity = Identity.create!(email: "newbie@example.com")
+    sign_in_as identity
+
+    get account_invitation_accept_path(@invitation.token)
+
+    assert_response :success
+    assert_select "h2", text: "Join #{@account.name}"
+    assert_select "button", text: "Accept invitation"
+    assert_select "button", text: "Decline"
+    assert_not_includes identity.reload.accounts, @account
+    assert Account::Invitation.exists?(@invitation.id)
+  end
+
   test "accepting joins account and lands on that account" do
     identity = Identity.create!(email: "newbie@example.com")
     sign_in_as identity
@@ -22,10 +42,26 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
     assert_nil Account::Invitation.find_by(id: @invitation.id)
   end
 
-  test "show requires authentication" do
-    get account_invitation_accept_path(@invitation.token)
+  test "declining removes invitation without joining" do
+    identity = Identity.create!(email: "newbie@example.com")
+    sign_in_as identity
 
-    assert_redirected_to new_session_url(script_name: nil)
+    delete account_invitation_accept_path(@invitation.token)
+
+    assert_not_includes identity.reload.accounts, @account
+    assert_nil Account::Invitation.find_by(id: @invitation.id)
+    assert_redirected_to my_accounts_url(script_name: nil)
+  end
+
+  test "accepting with mismatched email stays on confirmation" do
+    identity = Identity.create!(email: "other@example.com")
+    sign_in_as identity
+
+    put account_invitation_accept_path(@invitation.token)
+
+    assert_not_includes identity.reload.accounts, @account
+    assert Account::Invitation.exists?(@invitation.id)
+    assert_redirected_to account_invitation_accept_path(@invitation.token)
   end
 
   test "accepting creates personal account when missing" do
