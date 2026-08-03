@@ -52,4 +52,54 @@ class Account::InvitationTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:email], "has already been invited"
   end
+
+  test "accept! joins, records acceptance, keeps invitation" do
+    identity = Identity.create!(email: "newbie@example.com")
+    Current.identity = identity
+
+    assert_difference -> { Account::InvitationAcceptance.count }, 1 do
+      @invitation.accept!
+    end
+
+    assert Account::Invitation.exists?(@invitation.id)
+    assert_includes identity.reload.accounts, @account
+    assert @invitation.reload.accepted?
+  end
+
+  test "decline! records decline without joining" do
+    identity = Identity.create!(email: "newbie@example.com")
+    Current.identity = identity
+
+    assert_difference -> { Account::InvitationDecline.count }, 1 do
+      @invitation.decline!
+    end
+
+    assert Account::Invitation.exists?(@invitation.id)
+    assert_not_includes identity.reload.accounts, @account
+    assert @invitation.reload.declined?
+  end
+
+  test "accept! after decline raises AlreadyResponded" do
+    identity = Identity.create!(email: "newbie@example.com")
+    Current.identity = identity
+    @invitation.decline!
+
+    assert_raises(Account::Invitation::AlreadyResponded) { @invitation.accept! }
+  end
+
+  test "accept! with mismatched email raises EmailMismatch" do
+    identity = Identity.create!(email: "other@example.com")
+    Current.identity = identity
+
+    assert_raises(Account::Invitation::EmailMismatch) { @invitation.accept! }
+    assert_not_includes identity.reload.accounts, @account
+  end
+
+  test "decline! with mismatched email raises EmailMismatch" do
+    identity = Identity.create!(email: "other@example.com")
+    Current.identity = identity
+
+    assert_raises(Account::Invitation::EmailMismatch) { @invitation.decline! }
+    assert Account::Invitation.exists?(@invitation.id)
+  end
 end

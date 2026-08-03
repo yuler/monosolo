@@ -1,5 +1,6 @@
 class Account::Invitation < ApplicationRecord
   class EmailMismatch < StandardError; end
+  class AlreadyResponded < StandardError; end
 
   belongs_to :account
   belongs_to :invited_by, class_name: "User"
@@ -30,18 +31,21 @@ class Account::Invitation < ApplicationRecord
     )
   end
 
-  def accept
-    if email != Current.identity.email
-      raise EmailMismatch, <<~message.strip
-        Your email does not match the email of the invitation.
-        Current logged in user email: #{Current.identity.email},
-        Invitation email: #{email}
-        Please sign in or sign up with the correct email.
-      message
-    end
+  def accept!
+    ensure_email_matches!
+    ensure_pending!
 
-    Current.identity.join(account, role: :member, verified_at: Time.current)
-    destroy!
+    transaction do
+      Current.identity.join(account, role: :member, verified_at: Time.current)
+      user = Current.identity.users.find_by!(account: account)
+      create_acceptance!(identity: Current.identity, user: user)
+    end
+  end
+
+  def decline!
+    ensure_email_matches!
+    ensure_pending!
+    create_decline!(identity: Current.identity)
   end
 
   def pending?
@@ -59,4 +63,20 @@ class Account::Invitation < ApplicationRecord
   def send_invitation_email
     AccountMailer.invite(self).deliver_later
   end
+
+  private
+    def ensure_email_matches!
+      if email != Current.identity.email
+        raise EmailMismatch, <<~message.strip
+          Your email does not match the email of the invitation.
+          Current logged in user email: #{Current.identity.email},
+          Invitation email: #{email}
+          Please sign in or sign up with the correct email.
+        message
+      end
+    end
+
+    def ensure_pending!
+      raise AlreadyResponded, "Invitation already responded" unless pending?
+    end
 end
