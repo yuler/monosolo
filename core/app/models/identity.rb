@@ -12,9 +12,8 @@ class Identity < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   normalizes :email, with: ->(value) { value.strip.downcase.presence }
 
-  # Eager-create personal Account on signup so invite/login never see a half-built Identity.
-  # TODO: clean up zombie Identities/Accounts that never complete magic-link sign-in.
-  after_create :ensure_personal_account
+  # Every Identity has exactly one personal Account — created here, never repaired later.
+  after_create :create_personal_account
   before_destroy :deactivate_users, prepend: true
 
   # TODO:
@@ -34,19 +33,7 @@ class Identity < ApplicationRecord
   end
 
   def personal_account
-    @personal_account ||= accounts.personal.first || begin
-      save! if changed?
-      reload if persisted?
-      with_lock do
-        accounts.personal.first || create_personal_account
-      end
-    end
-  end
-
-  # Ensures exactly one personal account exists for this identity.
-  # Raises if creation fails so signup/invite never leave an orphan Identity.
-  def ensure_personal_account
-    accounts.personal.first || create_personal_account
+    @personal_account ||= accounts.personal.first!
   end
 
   def send_magic_link(**attributes)

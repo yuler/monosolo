@@ -31,7 +31,6 @@ class Account::Invitation < ApplicationRecord
       message
     end
 
-    Current.identity.ensure_personal_account
     Current.identity.join(account, role: :member, verified_at: Time.current)
     destroy!
   end

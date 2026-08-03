@@ -76,7 +76,7 @@ flowchart TD
   T --> U[Update last account]
 ```
 
-Accepting an invite also ensures a personal Account exists if somehow missing.
+Accepting an invite only adds team membership; the personal Account already exists from signup.
 
 ### Golden rules
 
@@ -114,7 +114,7 @@ Accepting an invite also ensures a personal Account exists if somehow missing.
 ### Lifecycle
 
 - Registration **eager-creates** the personal Account.
-- Invite accept creates personal if missing; invite only adds team membership and first landing.
+- Invite accept only adds team membership and first landing.
 - Personal Account: rename / display only — **cannot delete**.
 - Team Account: normal leave / delete rules for owners.
 

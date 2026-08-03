@@ -123,25 +123,6 @@ class Account::InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_invitation_path(@invitation.token)
   end
 
-  test "accepting creates personal account when missing" do
-    identity = nil
-    Identity.skip_callback(:create, :after, :ensure_personal_account)
-    begin
-      identity = Identity.create!(email: "newbie@example.com")
-    ensure
-      Identity.set_callback(:create, :after, :ensure_personal_account)
-    end
-
-    assert_empty identity.accounts.personal
-    sign_in_as identity
-
-    put account_invitation_path(@invitation.token, script_name: @account.slug_path)
-
-    assert_includes identity.reload.accounts, @account
-    assert identity.accounts.personal.exists?
-    assert_redirected_to root_url(script_name: @account.slug_path)
-  end
-
   test "invitation for another account slug returns 404" do
     sign_in_as identities(:yuler)
 

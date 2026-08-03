@@ -95,11 +95,10 @@ module ApiAuthentication
         else
           json_request_account_not_found
         end
-      elsif (personal_account = Current.identity.personal_account)
+      else
+        personal_account = Current.identity.personal_account
         Current.account = personal_account
         Current.user = Current.identity.users.find_by(account: personal_account)
-      else
-        json_request_account_not_found
       end
     end
 
