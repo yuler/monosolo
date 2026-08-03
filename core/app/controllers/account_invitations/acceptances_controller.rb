@@ -1,8 +1,15 @@
 class AccountInvitations::AcceptancesController < ApplicationController
   disallow_account_scope
+  allow_unauthenticated_access only: :show
   before_action :set_invitation
 
   def show
+    if Current.identity.blank?
+      session[:return_to_after_authenticating] = account_invitation_accept_url(
+        @account_invitation.token,
+        script_name: nil
+      )
+    end
   end
 
   def update

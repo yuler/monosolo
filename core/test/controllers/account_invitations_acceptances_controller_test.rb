@@ -10,13 +10,19 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
     )
   end
 
-  test "show requires authentication" do
+  test "show prompts guests to sign in and remembers return path" do
     get account_invitation_accept_path(@invitation.token)
 
-    assert_redirected_to new_session_url(script_name: nil)
+    assert_response :success
+    assert_select "h2", text: "Join #{@account.name}"
+    assert_select "a", text: "Sign in to continue"
+    assert_select "button", text: "Accept invitation", count: 0
+    assert_select "button", text: "Decline", count: 0
+    assert_equal account_invitation_accept_url(@invitation.token, script_name: nil),
+      session[:return_to_after_authenticating]
   end
 
-  test "show renders confirmation without joining" do
+  test "show renders confirmation with current email when signed in" do
     identity = Identity.create!(email: "newbie@example.com")
     sign_in_as identity
 
@@ -24,9 +30,19 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
 
     assert_response :success
     assert_select "h2", text: "Join #{@account.name}"
+    assert_match(/Signed in as #{Regexp.escape(identity.email)}/, response.body)
     assert_select "button", text: "Accept invitation"
     assert_select "button", text: "Decline"
     assert_not_includes identity.reload.accounts, @account
+    assert Account::Invitation.exists?(@invitation.id)
+  end
+
+  test "accept and decline stay auth-protected for guests" do
+    put account_invitation_accept_path(@invitation.token)
+    assert_redirected_to new_session_url(script_name: nil)
+
+    delete account_invitation_accept_path(@invitation.token)
+    assert_redirected_to new_session_url(script_name: nil)
     assert Account::Invitation.exists?(@invitation.id)
   end
 

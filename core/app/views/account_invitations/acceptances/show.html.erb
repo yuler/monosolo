@@ -15,27 +15,44 @@
           invited <strong><%= @account_invitation.email %></strong>
         </p>
 
-        <div class="divider">Signed in as <%= Current.identity.email %></div>
+        <% if authenticated? %>
+          <div class="divider">Signed in as <%= Current.identity.email %></div>
 
-        <% if Current.identity.email != @account_invitation.email %>
+          <% email_matches = Current.identity.email == @account_invitation.email %>
+
+          <% unless email_matches %>
+            <p class="txt-muted">
+              This invitation was sent to <strong><%= @account_invitation.email %></strong>.
+              Sign in with that email to accept or decline.
+            </p>
+          <% end %>
+
+          <div class="flex gap items-center justify-center">
+            <%= button_to "Accept invitation",
+                  account_invitation_accept_path(@account_invitation.token),
+                  method: :put,
+                  class: "btn btn--primary",
+                  disabled: !email_matches %>
+
+            <%= button_to "Decline",
+                  account_invitation_accept_path(@account_invitation.token),
+                  method: :delete,
+                  class: "btn btn--ghost",
+                  disabled: !email_matches %>
+          </div>
+        <% else %>
+          <div class="divider">Sign in required</div>
+
           <p class="txt-muted">
-            This invitation was sent to <strong><%= @account_invitation.email %></strong>.
-            Sign in with that email to accept.
+            Sign in as <strong><%= @account_invitation.email %></strong> to accept or decline this invitation.
           </p>
+
+          <div class="flex gap items-center justify-center">
+            <%= link_to "Sign in to continue",
+                  new_session_path(script_name: nil, email: @account_invitation.email),
+                  class: "btn btn--primary" %>
+          </div>
         <% end %>
-
-        <div class="flex gap items-center justify-center">
-          <%= button_to "Accept invitation",
-                account_invitation_accept_path(@account_invitation.token),
-                method: :put,
-                class: "btn btn--primary",
-                disabled: Current.identity.email != @account_invitation.email %>
-
-          <%= button_to "Decline",
-                account_invitation_accept_path(@account_invitation.token),
-                method: :delete,
-                class: "btn btn--ghost" %>
-        </div>
       </div>
     </div>
   </div>
