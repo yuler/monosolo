@@ -2,14 +2,14 @@ module AccountSlug
   PATTERN = /([a-zA-Z0-9_-]{4,16})/
   FORMAT = /\A[a-z0-9\-_]+\z/i
   LENGTH = 4..16
-  # Require the slug segment to end at `/` or EOS so longer prefixes (e.g. account_invitations) never partial-match.
+  # Require the slug segment to end at `/` or EOS so longer prefixes (e.g. invitations) never partial-match.
   PATH_INFO_MATCH = /\A(\/#{AccountSlug::PATTERN})(?=\/|\z)/
 
   # Must never be confused with an account slug. Two groups:
   # - FROM_ROUTES: top-level segments in config/routes.rb (+ mounts). Update when adding routes.
   # - EXTRA: policy / future / infra words reserved even without a matching route today.
   RESERVED_FROM_ROUTES = %w[
-    account_invitations admin api cable home hotwire-spark invitations join_code
+    admin api cable home hotwire-spark invitations join_code join_codes
     landing letter_opener manifest my payment rails service-worker session settings
     subscription up users webhooks
   ].freeze

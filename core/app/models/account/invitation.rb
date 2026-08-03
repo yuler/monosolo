@@ -12,9 +12,12 @@ class Account::Invitation < ApplicationRecord
   after_create :send_invitation_email
 
   def accept_url
-    Rails.application.routes.url_helpers.account_invitation_accept_url(
+    Rails.application.routes.url_helpers.account_invitation_url(
       token,
-      Rails.application.config.action_mailer.default_url_options
+      {
+        script_name: account.slug_path,
+        **Rails.application.config.action_mailer.default_url_options
+      }
     )
   end
 

@@ -17,10 +17,11 @@ Rails.application.routes.draw do
 
   scope module: :account, as: :account do
     resources :users
+    get  "join_codes/:code", to: "join_codes#show", as: :join_codes
+    post "join_codes/:code", to: "join_codes#create"
     resource :join_code, only: %i[ edit update destroy ]
-    get  "join_code/:code", to: "join_codes#new", as: :join
-    post "join_code/:code", to: "join_codes#create", as: nil
-    resources :invitations
+    resources :invitations, only: %i[ index new create ]
+    resources :invitations, param: :token, only: %i[ show update destroy ]
     resource :settings, only: %i[ show update ]
     resource :payment
     # TODO: implement subscription operations later
@@ -35,12 +36,6 @@ Rails.application.routes.draw do
 
   namespace :webhooks do
     resource :creem
-  end
-
-  resources :account_invitations, param: :token, only: [ :show ] do
-    scope module: :account_invitations do
-      resource :accept, only: [ :show, :update, :destroy ], controller: :acceptances
-    end
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

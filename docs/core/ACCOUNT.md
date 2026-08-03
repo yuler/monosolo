@@ -109,7 +109,7 @@ Accepting an invite also ensures a personal Account exists if somehow missing.
 - Reserved prefixes live in `AccountSlug::RESERVED_SLUGS` — keep in sync with `routes.rb`.
 - **Initial**: derive from email local-part or display name and always append 4 random digits (`john` → `john8472`).
 - **Rename**: allowed for personal and team. Old slug is not redirected; it is held for 30 days so others cannot claim it; warn in settings.
-- `PATH_INFO_MATCH` requires the slug to end at `/` or EOS so longer segments (e.g. `account_invitations`) are never truncated into a fake slug.
+- `PATH_INFO_MATCH` requires the slug to end at `/` or EOS so longer segments (e.g. `invitations`) are never truncated into a fake slug.
 
 ### Lifecycle
 

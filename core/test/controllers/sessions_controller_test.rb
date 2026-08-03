@@ -39,4 +39,29 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to my_accounts_url(script_name: nil)
   end
+
+  test "logout with return_to sends user to login for that path" do
+    sign_in_as identities(:john)
+    return_to = account_invitation_path("invite-token", script_name: "/john_account")
+
+    delete session_url(script_name: nil), params: {
+      return_to: return_to,
+      email: "newbie@example.com"
+    }
+
+    assert_redirected_to new_session_path(script_name: nil, email: "newbie@example.com")
+    assert_equal return_to, session[:return_to_after_authenticating]
+  end
+
+  test "logout ignores absolute return_to urls" do
+    sign_in_as identities(:john)
+
+    delete session_url(script_name: nil), params: {
+      return_to: "https://evil.example/phish",
+      email: "newbie@example.com"
+    }
+
+    assert_redirected_to root_path
+    assert_nil session[:return_to_after_authenticating]
+  end
 end

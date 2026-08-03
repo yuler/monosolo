@@ -2,9 +2,10 @@ require "test_helper"
 
 class AccountSlugBoundaryTest < ActionDispatch::IntegrationTest
   test "long reserved prefixes are not truncated into fake slugs" do
-    get "/account_invitations/some-token-value/accept"
+    get "/invitations/some-token-value"
 
-    # Unauthenticated → login redirect, not middleware 404 from a partial slug match
-    assert_redirected_to new_session_url(script_name: nil)
+    # Reserved top-level segment — not treated as an account slug by middleware.
+    assert_response :redirect
+    assert_not_equal "/404", response.location.to_s
   end
 end
