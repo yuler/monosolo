@@ -1,0 +1,30 @@
+<% @page_title = "Join #{@join_code.account.name}" %>
+
+<div class="stage">
+  <div class="page page--sm">
+    <div class="card card--raised">
+      <div class="card__body text-center">
+        <h2 class="card__title">Join <%= @join_code.account.name %></h2>
+
+        <% if @join_code.account.description.present? %>
+          <p class="txt-muted"><%= @join_code.account.description %></p>
+        <% end %>
+
+        <div class="divider">You've been invited</div>
+
+        <%= form_with url: account_join_path(code: params[:code]), method: :post, class: "form" do |form| %>
+          <div class="field field--with-icon">
+            <div class="field__control">
+              <span class="field__icon"><%= icon_tag "email" %></span>
+              <%= form.email_field :email, value: Current.identity&.email, autofocus: true, autocomplete: "username", placeholder: "Your email", class: "input" %>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--block">
+            <span>Continue</span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

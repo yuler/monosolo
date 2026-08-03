@@ -17,7 +17,9 @@ Rails.application.routes.draw do
 
   scope module: :account, as: :account do
     resources :users
-    resource :join_code
+    resource :join_code, only: %i[ edit update destroy ]
+    get  "join_code/:code", to: "join_codes#new", as: :join
+    post "join_code/:code", to: "join_codes#create", as: nil
     resources :invitations
     resource :settings, only: %i[ show update ]
     resource :payment
