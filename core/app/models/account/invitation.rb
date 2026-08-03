@@ -4,10 +4,19 @@ class Account::Invitation < ApplicationRecord
   belongs_to :account
   belongs_to :invited_by, class_name: "User"
 
+  has_one :acceptance, class_name: "Account::InvitationAcceptance", foreign_key: :invitation_id, dependent: :destroy
+  has_one :decline, class_name: "Account::InvitationDecline", foreign_key: :invitation_id, dependent: :destroy
+
   has_secure_token
 
   validates :email, presence: true
-  validates :email, uniqueness: { scope: :account_id, message: "has already been invited" }
+  validates :email, uniqueness: {
+    scope: :account_id,
+    message: "has already been invited",
+    conditions: -> {
+      where.missing(:acceptance, :decline)
+    }
+  }
 
   after_create :send_invitation_email
 
@@ -33,6 +42,18 @@ class Account::Invitation < ApplicationRecord
 
     Current.identity.join(account, role: :member, verified_at: Time.current)
     destroy!
+  end
+
+  def pending?
+    acceptance.nil? && decline.nil?
+  end
+
+  def accepted?
+    acceptance.present?
+  end
+
+  def declined?
+    decline.present?
   end
 
   def send_invitation_email
