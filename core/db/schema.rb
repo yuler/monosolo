@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
+ActiveRecord::Schema[8.2].define(version: 2026_08_03_050000) do
   create_table "account_charges", id: :uuid, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.integer "amount", null: false
@@ -29,6 +29,26 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.index ["subscription_id"], name: "index_account_charges_on_subscription_id"
   end
 
+  create_table "account_invitation_acceptances", id: :uuid, force: :cascade do |t|
+    t.uuid "invitation_id", null: false
+    t.uuid "identity_id", null: false
+    t.uuid "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["identity_id"], name: "index_account_invitation_acceptances_on_identity_id"
+    t.index ["invitation_id"], name: "index_account_invitation_acceptances_on_invitation_id", unique: true
+    t.index ["user_id"], name: "index_account_invitation_acceptances_on_user_id"
+  end
+
+  create_table "account_invitation_declines", id: :uuid, force: :cascade do |t|
+    t.uuid "invitation_id", null: false
+    t.uuid "identity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["identity_id"], name: "index_account_invitation_declines_on_identity_id"
+    t.index ["invitation_id"], name: "index_account_invitation_declines_on_invitation_id", unique: true
+  end
+
   create_table "account_invitations", id: :uuid, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.datetime "created_at", null: false
@@ -37,7 +57,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.string "role"
     t.string "token", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id", "email"], name: "index_account_invitations_on_account_id_and_email", unique: true
+    t.index ["account_id", "email"], name: "index_account_invitations_on_account_id_and_email"
     t.index ["account_id"], name: "index_account_invitations_on_account_id"
     t.index ["invited_by_id"], name: "index_account_invitations_on_invited_by_id"
     t.index ["token"], name: "index_account_invitations_on_token", unique: true
@@ -64,6 +84,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_account_payment_webhooks_on_account_id"
     t.index ["provider", "event_type"], name: "index_account_payment_webhooks_on_provider_and_event_type"
+  end
+
+  create_table "account_slug_holds", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "slug", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_account_slug_holds_on_account_id"
+    t.index ["expires_at"], name: "index_account_slug_holds_on_expires_at"
+    t.index ["slug"], name: "index_account_slug_holds_on_slug"
   end
 
   create_table "account_subscriptions", id: :uuid, force: :cascade do |t|
@@ -181,4 +212,11 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.index ["account_id", "role"], name: "index_users_on_account_id_and_role"
     t.index ["identity_id"], name: "index_users_on_identity_id"
   end
+
+  add_foreign_key "account_invitation_acceptances", "account_invitations", column: "invitation_id"
+  add_foreign_key "account_invitation_acceptances", "identities"
+  add_foreign_key "account_invitation_acceptances", "users"
+  add_foreign_key "account_invitation_declines", "account_invitations", column: "invitation_id"
+  add_foreign_key "account_invitation_declines", "identities"
+  add_foreign_key "account_slug_holds", "accounts"
 end

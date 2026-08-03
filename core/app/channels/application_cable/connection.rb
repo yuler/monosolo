@@ -10,8 +10,11 @@ module ApplicationCable
       def set_current_user
         if session = find_session_by_cookie
           account = Account.find_by(slug: request.env["account_slug"])
-          Current.account = account
-          self.current_user = session.identity.users.find_by!(account: account) if account
+
+          if account && (user = session.identity.users.find_by(account: account))&.active?
+            Current.account = account
+            self.current_user = user
+          end
         end
       end
 

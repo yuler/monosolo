@@ -3,6 +3,11 @@
 <div class="page page--lg">
   <div class="prose">
     <h1>Choose Your Account</h1>
+    <% if @last_account_slug.present? %>
+      <p>Last used: <strong><%= @last_account_slug %></strong> — pick an account to continue.</p>
+    <% else %>
+      <p>Pick an account to continue.</p>
+    <% end %>
   </div>
 
   <div class="table-scroll margin-block">
@@ -12,17 +17,27 @@
           <th>Name</th>
           <th>Slug</th>
           <th>Description</th>
+          <th>Settings</th>
           <th>Invitations</th>
           <th>Created At</th>
         </tr>
       </thead>
       <tbody>
         <% @accounts.each do |account| %>
-          <tr>
-            <td><%= link_to account.name, root_path(script_name: account.slug_path) %></td>
+          <tr class="<%= "is-last-used" if account.slug == @last_account_slug %>">
+            <td><%= link_to account.name, root_path(script_name: account.slug_path) %><%= " (last used)" if account.slug == @last_account_slug %></td>
             <td><%= account.slug %></td>
             <td><%= account.description %></td>
-            <td><%= link_to "Invitations", account_invitations_path(script_name: account.slug_path), class: "txt-link" %></td>
+            <td>
+              <% if @admin_account_ids.include?(account.id) %>
+                <%= link_to "Settings", account_settings_path(script_name: account.slug_path), class: "txt-link" %>
+              <% end %>
+            </td>
+            <td>
+              <% if @admin_account_ids.include?(account.id) %>
+                <%= link_to "Invitations", account_invitations_path(script_name: account.slug_path), class: "txt-link" %>
+              <% end %>
+            </td>
             <td><%= account.created_at %></td>
           </tr>
         <% end %>

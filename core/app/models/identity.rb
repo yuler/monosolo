@@ -12,22 +12,9 @@ class Identity < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   normalizes :email, with: ->(value) { value.strip.downcase.presence }
 
+  # Every Identity has exactly one personal Account — created here, never repaired later.
+  after_create :create_personal_account
   before_destroy :deactivate_users, prepend: true
-
-
-  def full_name
-    email.split("@").first.humanize
-  end
-
-  def personal_account
-    @personal_account ||= accounts.personal.first || begin
-      save! if changed?
-      reload if persisted?
-      with_lock do
-        accounts.personal.first || create_personal_account
-      end
-    end
-  end
 
   # TODO:
   def self.find_by_permissable_access_token(token, method:)
@@ -41,6 +28,14 @@ class Identity < ApplicationRecord
     # end
   end
 
+  def full_name
+    email.split("@").first.humanize
+  end
+
+  def personal_account
+    @personal_account ||= accounts.personal.first!
+  end
+
   def send_magic_link(**attributes)
     attributes[:purpose] = attributes.delete(:for) if attributes.key?(:for)
 
@@ -51,16 +46,23 @@ class Identity < ApplicationRecord
 
   private
     def create_personal_account
-      Account.create_with_owner(
+      account = Account.create_with_owner(
         account: {
           name: "#{full_name}'s Personal Account",
-          personal: true
+          personal: true,
+          slug: Account.unique_slug_for(email.to_s.split("@").first)
         },
         owner: {
           name: full_name,
           identity: self
         }
       )
+
+      unless account.persisted?
+        raise ActiveRecord::RecordInvalid.new(account)
+      end
+
+      @personal_account = account
     end
 
     def deactivate_users

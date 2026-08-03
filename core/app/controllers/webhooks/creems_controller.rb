@@ -1,4 +1,5 @@
 class Webhooks::CreemsController < ApplicationController
+  disallow_account_scope
   allow_unauthenticated_access
   skip_forgery_protection
 

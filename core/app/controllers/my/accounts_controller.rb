@@ -1,4 +1,6 @@
 class My::AccountsController < ApplicationController
+  disallow_account_scope
+
   def new
     @account = Current.identity.accounts.new
   end
@@ -21,11 +23,8 @@ class My::AccountsController < ApplicationController
 
   def index
     @accounts = Current.identity.accounts
-
-    # TODO:
-    # if @accounts.one?
-    #   redirect_to root_url(script_name: @accounts.first.slug_path)
-    # end
+    @admin_account_ids = Current.identity.users.admin.pluck(:account_id)
+    @last_account_slug = cookies[:last_account_slug]
   end
 
   private

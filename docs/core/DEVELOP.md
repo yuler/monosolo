@@ -1,4 +1,4 @@
-# AGENTS.md
+# Develop
 
 Guidelines and commands for agents working in the Rails 8.1 `core` app.
 
@@ -59,13 +59,15 @@ bin/kamal deploy
 
 ### Multi-Tenancy (URL-Based)
 
+Canonical design & vocabulary: [`ACCOUNT.md`](ACCOUNT.md).
+
 URL path-based multi-tenancy via middleware:
 
-- Each Account (tenant) has a unique `account_slug`
-- URLs are prefixed: `/{account_slug}/~/xxx/...`
-- Middleware ([`AccountSlug::Extractor`](config/initializers/account_slug.rb)) extracts the slug from the URL and sets `Current.account`
-- The slug is moved from `PATH_INFO` to `SCRIPT_NAME`, so Rails is effectively mounted at that path
-- All models include `account_id` for data isolation
+- Personal and team Accounts share one slug namespace; URLs are `/{slug}/...` for both
+- Middleware ([`AccountSlug::Extractor`](../../core/config/initializers/account_slug.rb)) mounts via `SCRIPT_NAME`, looks up the Account, sets `Current.account`; missing slug → 404
+- Global routes (no slug) keep `Current.account` nil; do not fall back to personal as tenant truth
+- Authz (login / membership) lives in controllers — unauthenticated → login; non-member → 404
+- All tenant models include `account_id` for data isolation
 - Background jobs automatically serialize and restore account context
 
 This avoids subdomains or separate databases, which keeps local development and testing simpler.
@@ -112,7 +114,7 @@ Database-backed job queue (no Redis):
 - Jobs automatically capture/restore `Current.account`
 - Mission Control::Jobs for monitoring
 
-Key recurring tasks (via [`config/recurring.yml`](config/recurring.yml)):
+Key recurring tasks (via [`config/recurring.yml`](../../core/config/recurring.yml)):
 
 - Cleanup jobs for expired links, deliveries
 
@@ -125,4 +127,4 @@ Use Chrome MCP tools against the running dev app for UI testing and debugging.
 
 ## Code Style Guidelines
 
-See [STYLE.md](STYLE.md).
+See [`STYLE.md`](STYLE.md).

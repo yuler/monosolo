@@ -1,5 +1,6 @@
-You've been invited!
+You're invited to join <%= @account.name %>
 
-<%= @invited_by.name %> has invited you to join <%= @invitation.account.name %> on <%= ENV.fetch("SITE_NAME") %>
+<%= @invited_by.name %> invited you to join <%= @account.name %> on <%= ENV.fetch("SITE_NAME") %>.
 
-Accept Invitation: <%= @invitation.accept_url %>
+Open the invitation to accept or decline:
+<%= @invitation.accept_url %>

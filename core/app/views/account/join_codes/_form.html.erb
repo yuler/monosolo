@@ -1,4 +1,4 @@
-<%= form_with model: join_code, url: account_join_code_path, class: "form" do |form| %>
+<%= form_with model: join_code, url: account_join_code_path, method: :patch, class: "form" do |form| %>
   <%= render "shared/form_errors", model: join_code %>
 
   <div class="field">
@@ -11,6 +11,6 @@
 
   <div class="flex gap">
     <%= form.submit "Update Limit", class: "btn btn--primary" %>
-    <%= link_to "Cancel", account_join_code_path, class: "btn btn--ghost" %>
+    <%= link_to "Cancel", edit_account_join_code_path, class: "btn btn--ghost" %>
   </div>
 <% end %>

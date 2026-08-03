@@ -2,8 +2,10 @@ module ApiAuthentication
   extend ActiveSupport::Concern
 
   included do
+    # Auth before account lookup so unknown vs known slugs both 401 when unauthenticated.
     before_action :require_authentication
     before_action :require_account
+    before_action :ensure_account_user
     helper_method :authenticated?
 
     etag { Current.identity.id if authenticated? }
@@ -14,6 +16,12 @@ module ApiAuthentication
   class_methods do
     def skip_account_scope(**options)
       skip_before_action :require_account, **options
+      skip_before_action :ensure_account_user, **options
+    end
+
+    def disallow_account_scope(**options)
+      skip_account_scope(**options)
+      before_action :reject_account_scoped_request, **options
     end
 
     def require_unauthenticated_access(**options)
@@ -72,38 +80,35 @@ module ApiAuthentication
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
 
+    # Slug/header already resolved by middleware into Current.account when present.
+    # Unscoped requests are allowed through so ensure_account_user can fall back to personal.
     def require_account
-      url_slug = request.env["account_slug"]
+      return if request.env["account_slug"].blank?
 
-      if url_slug.present?
-        # An explicit slug was in the URL. The middleware already looked up the
-        # account; if it failed, that's a 404 regardless of whether Current.identity's
-        # session setter auto-populated a personal account fallback.
-        url_account = Account.find_by(slug: url_slug)
-        if url_account.nil?
-          json_request_account_not_found
-        elsif (user = Current.identity.users.find_by(account: url_account))
-          Current.account = url_account
+      json_request_account_not_found if Current.account.nil?
+    end
+
+    def ensure_account_user
+      if Current.account.present?
+        if (user = Current.identity.users.find_by(account: Current.account))
           Current.user = user
         else
-          json_request_forbidden
+          json_request_account_not_found
         end
-      elsif Current.account && (user = Current.identity.users.find_by(account: Current.account))
-        # No URL slug; Current.account was populated by session= (solo mode fallback)
-        Current.user = user
-      elsif (personal_account = Current.identity&.personal_account)
+      else
+        personal_account = Current.identity.personal_account
         Current.account = personal_account
         Current.user = Current.identity.users.find_by(account: personal_account)
-      else
-        json_request_account_not_found
+      end
+    end
+
+    def reject_account_scoped_request
+      if Current.account.present? || request.env["account_slug"].present?
+        render json: { error: "Account scope not allowed" }, status: :not_found
       end
     end
 
     def json_request_account_not_found
       render json: { error: "Account not found" }, status: :not_found
-    end
-
-    def json_request_forbidden
-      render json: { error: "Forbidden" }, status: :forbidden
     end
 end

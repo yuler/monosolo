@@ -12,6 +12,7 @@
       <thead>
         <tr>
           <th>Email</th>
+          <th>Status</th>
           <th>Invited By</th>
           <th>Created At</th>
         </tr>
@@ -20,6 +21,7 @@
         <% @invitations.each do |invitation| %>
           <tr>
             <td><%= invitation.email %></td>
+            <td><span class="badge"><%= invitation.status.to_s.humanize %></span></td>
             <td><%= invitation.invited_by&.name || "N/A" %></td>
             <td><%= invitation.created_at %></td>
           </tr>
