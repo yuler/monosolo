@@ -1,7 +1,7 @@
 # Invitation acceptance & decline records
 
 Date: 2026-08-03  
-Status: draft (awaiting review)  
+Status: accepted  
 Branch context: `core/account-slug`
 
 ## Goal

@@ -71,12 +71,17 @@ flowchart TD
   M -->|Many| O[Always show account picker]
   O --> P[Cookie may preselect last account]
   P --> Q[User must confirm]
-  R[Accept invite] --> S[Join team Account]
-  S --> T[Land on that team once]
-  T --> U[Update last account]
+  R[Open invite link] --> S{Signed in as invitee?}
+  S -->|No| T[Login with return_to]
+  S -->|Yes| U{Pending?}
+  U -->|Yes| V[Accept or Decline]
+  V -->|Accept| W[Join team + create InvitationAcceptance]
+  V -->|Decline| X[Create InvitationDecline only]
+  U -->|No| Y[Show outcome — link read-only]
+  W --> Z[Land on team once; update last account]
 ```
 
-Accepting an invite only adds team membership; the personal Account already exists from signup.
+Invite links live at `/{slug}/invitations/:token`. Accepting adds team membership and creates an `Account::InvitationAcceptance` record; declining creates `Account::InvitationDecline`. The **Invitation row is kept** — state comes from those response records, not `accepted_at` / `declined_at` columns. At most one response per invitation (acceptance **or** decline). After a response the link is read-only. Email uniqueness on invitations is **pending-only**, so a declined address can be invited again. The personal Account already exists from signup; invite accept only adds team membership.
 
 ### Golden rules
 
@@ -114,7 +119,10 @@ Accepting an invite only adds team membership; the personal Account already exis
 ### Lifecycle
 
 - Registration **eager-creates** the personal Account.
-- Invite accept only adds team membership and first landing.
+- **Invitations**: `/{slug}/invitations/:token` (show). Accept via `POST .../acceptance`; decline via `POST .../decline`. Both create dedicated response records and **retain** the invitation row.
+- **Invitation state**: `pending?` / `accepted?` / `declined?` derived from `Account::InvitationAcceptance` or `Account::InvitationDecline` (timestamps on those records). One response per invitation — never both.
+- **Re-invite**: email uniqueness scoped to pending invitations only; declined emails can receive a new invite.
+- Invite accept adds team membership and first landing; decline does not join.
 - Personal Account: rename / display only — **cannot delete**.
 - Team Account: normal leave / delete rules for owners.
 
