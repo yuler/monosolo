@@ -23,6 +23,7 @@ class My::AccountsController < ApplicationController
 
   def index
     @accounts = Current.identity.accounts
+    @admin_account_ids = Current.identity.users.admin.pluck(:account_id)
     @last_account_slug = cookies[:last_account_slug]
   end
 

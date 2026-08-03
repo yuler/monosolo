@@ -38,11 +38,23 @@ class Api::V1::AccountSlugTest < ActionDispatch::IntegrationTest
     assert_equal @account.slug, response.parsed_body["slug"]
   end
 
-  test "unknown path slug returns 404" do
+  test "unknown path slug returns 404 when authenticated" do
     get "/api/v1/no-such-acct/test/private",
       headers: { "Authorization" => "Bearer #{@token}" }
 
     assert_response :not_found
+  end
+
+  test "unknown path slug returns 401 when unauthenticated" do
+    get "/api/v1/no-such-acct/test/private"
+
+    assert_response :unauthorized
+  end
+
+  test "known path slug returns 401 when unauthenticated" do
+    get "/api/v1/#{@account.slug}/test/private"
+
+    assert_response :unauthorized
   end
 
   test "non-member path slug returns 404" do

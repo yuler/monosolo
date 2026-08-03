@@ -3,7 +3,7 @@ module Authorization
 
   included do
     before_action :ensure_can_access_account, if: -> { Current.account.present? && authenticated? }
-    after_action :remember_last_account, if: -> { Current.account.present? && authenticated? }
+    after_action :remember_last_account, if: -> { Current.user&.active? }
   end
 
   class_methods do
@@ -34,9 +34,9 @@ module Authorization
     end
 
     def remember_last_account
-      return unless respond_to?(:cookies, true)
-
-      cookies.permanent[:last_account_slug] = Current.account.slug
+      if respond_to?(:cookies, true) && Current.account.present?
+        cookies.permanent[:last_account_slug] = Current.account.slug
+      end
     end
 
     def redirect_existing_user

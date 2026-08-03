@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
+ActiveRecord::Schema[8.2].define(version: 2026_08_03_020000) do
   create_table "account_charges", id: :uuid, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.integer "amount", null: false
@@ -64,6 +64,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_account_payment_webhooks_on_account_id"
     t.index ["provider", "event_type"], name: "index_account_payment_webhooks_on_provider_and_event_type"
+  end
+
+  create_table "account_slug_holds", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "slug", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_account_slug_holds_on_account_id"
+    t.index ["expires_at"], name: "index_account_slug_holds_on_expires_at"
+    t.index ["slug"], name: "index_account_slug_holds_on_slug"
   end
 
   create_table "account_subscriptions", id: :uuid, force: :cascade do |t|
@@ -181,4 +192,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_01_21_102009) do
     t.index ["account_id", "role"], name: "index_users_on_account_id_and_role"
     t.index ["identity_id"], name: "index_users_on_identity_id"
   end
+
+  add_foreign_key "account_slug_holds", "accounts"
 end

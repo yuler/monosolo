@@ -11,20 +11,21 @@ class Account::JoinCodesController < ApplicationController
   end
 
   def create
-    @join_code.redeem_if { |account| @identity.join(account) }
-    user = User.active.find_by!(account: @join_code.account, identity: @identity)
-    user.verify
+    join_path = account_join_url(code: @join_code.code, script_name: @join_code.account.slug_path)
 
-    return_to_landing_url = landing_url(script_name: @join_code.account.slug_path)
-
-    if @identity == Current.identity
-      redirect_to return_to_landing_url
-    else
+    # Membership only after the submitter proves the email (signed in as that identity).
+    if @identity != Current.identity
       terminate_session if Current.identity
 
       redirect_to_session_magic_link \
         @identity.send_magic_link,
-        return_to: return_to_landing_url
+        return_to: join_path
+    else
+      @join_code.redeem_if { |account| @identity.join(account) }
+      user = User.active.find_by!(account: @join_code.account, identity: @identity)
+      user.verify
+
+      redirect_to landing_url(script_name: @join_code.account.slug_path)
     end
   end
 

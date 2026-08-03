@@ -53,6 +53,16 @@ class AccountInvitationsAcceptancesControllerTest < ActionDispatch::IntegrationT
     assert_redirected_to my_accounts_url(script_name: nil)
   end
 
+  test "declining with mismatched email keeps invitation" do
+    identity = Identity.create!(email: "other@example.com")
+    sign_in_as identity
+
+    delete account_invitation_accept_path(@invitation.token)
+
+    assert Account::Invitation.exists?(@invitation.id)
+    assert_redirected_to account_invitation_accept_path(@invitation.token)
+  end
+
   test "accepting with mismatched email stays on confirmation" do
     identity = Identity.create!(email: "other@example.com")
     sign_in_as identity

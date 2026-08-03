@@ -2,8 +2,9 @@ module ApiAuthentication
   extend ActiveSupport::Concern
 
   included do
-    before_action :require_account # Checking account must happen first
+    # Auth before account lookup so unknown vs known slugs both 401 when unauthenticated.
     before_action :require_authentication
+    before_action :require_account
     before_action :ensure_account_user
     helper_method :authenticated?
 

@@ -34,6 +34,35 @@ class Account::JoinCodesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to landing_url(script_name: @team.slug_path)
   end
 
+  test "unauthenticated redeem sends magic link without joining" do
+    email = "newbie@example.com"
+
+    assert_difference -> { MagicLink.count }, 1 do
+      assert_no_difference -> { @team.users.count } do
+        post account_join_path(code: @code, script_name: @team.slug_path), params: { email: email }
+      end
+    end
+
+    identity = Identity.find_by!(email: email)
+    assert_not_includes identity.accounts, @team
+    assert_redirected_to session_magic_link_url(script_name: nil)
+  end
+
+  test "signed-in user cannot enroll a different email via join code" do
+    sign_in_as identities(:yuler)
+    email = "victim@example.com"
+
+    assert_difference -> { MagicLink.count }, 1 do
+      assert_no_difference -> { @team.users.count } do
+        post account_join_path(code: @code, script_name: @team.slug_path), params: { email: email }
+      end
+    end
+
+    identity = Identity.find_by!(email: email)
+    assert_not_includes identity.accounts, @team
+    assert_redirected_to session_magic_link_url(script_name: nil)
+  end
+
   test "unauthenticated visitor can open account-scoped join page" do
     get account_join_path(code: @code, script_name: @team.slug_path)
 

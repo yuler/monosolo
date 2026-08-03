@@ -16,15 +16,30 @@ class AccountInvitations::AcceptancesController < ApplicationController
   end
 
   def destroy
+    ensure_invitation_email_matches!
+
     account_name = @account_invitation.account.name
     @account_invitation.destroy!
 
     redirect_to my_accounts_url(script_name: nil),
       notice: "Declined invitation to #{account_name}."
+  rescue Account::Invitation::EmailMismatch => error
+    redirect_to account_invitation_accept_path(@account_invitation.token), alert: error.message
   end
 
   private
     def set_invitation
       @account_invitation = Account::Invitation.find_by!(token: params[:account_invitation_token])
+    end
+
+    def ensure_invitation_email_matches!
+      if @account_invitation.email != Current.identity.email
+        raise Account::Invitation::EmailMismatch, <<~message.strip
+          Your email does not match the email of the invitation.
+          Current logged in user email: #{Current.identity.email},
+          Invitation email: #{@account_invitation.email}
+          Please sign in or sign up with the correct email.
+        message
+      end
     end
 end

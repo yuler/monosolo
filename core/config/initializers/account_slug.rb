@@ -35,11 +35,7 @@ module AccountSlug
 
       if env["account_slug"]
         account = Account.find_by(slug: env["account_slug"])
-        return not_found(env) unless account
-
-        Current.with_account(account) do
-          @app.call env
-        end
+        dispatch_account_slug(request, env, account)
       else
         Current.without_account do
           @app.call env
@@ -48,6 +44,34 @@ module AccountSlug
     end
 
     private
+      def dispatch_account_slug(request, env, account)
+        if account
+          Current.with_account(account) { @app.call env }
+        elsif api_request?(request)
+          # Defer missing-slug 404 until after API auth so unknown vs known
+          # unauthenticated requests both return 401.
+          Current.without_account { @app.call env }
+        elsif signed_in?(request)
+          not_found(env)
+        else
+          # Match known-slug unauthenticated response (302 → login) to avoid
+          # revealing whether the slug exists.
+          redirect_to_login
+        end
+      end
+
+      def api_request?(request)
+        request.path_info.start_with?("/api") || request.script_name.to_s.start_with?("/api")
+      end
+
+      def signed_in?(request)
+        Session.find_signed(request.cookie_jar.signed[:session_id]).present?
+      end
+
+      def redirect_to_login
+        [ 302, { "Location" => "/session/new", "Content-Type" => "text/html" }, [ "Redirecting..." ] ]
+      end
+
       def extract_account_slug!(request, env)
         # API: /api/vN/:slug/... → strip slug; path takes priority over header
         if request.path_info =~ %r{\A(/api/v\d+)/(#{AccountSlug::PATTERN})(?=/|\z)} && !$2.in?(RESERVED_SLUGS)

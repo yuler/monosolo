@@ -28,8 +28,16 @@
             <td><%= link_to account.name, root_path(script_name: account.slug_path) %><%= " (last used)" if account.slug == @last_account_slug %></td>
             <td><%= account.slug %></td>
             <td><%= account.description %></td>
-            <td><%= link_to "Settings", account_settings_path(script_name: account.slug_path), class: "txt-link" %></td>
-            <td><%= link_to "Invitations", account_invitations_path(script_name: account.slug_path), class: "txt-link" %></td>
+            <td>
+              <% if @admin_account_ids.include?(account.id) %>
+                <%= link_to "Settings", account_settings_path(script_name: account.slug_path), class: "txt-link" %>
+              <% end %>
+            </td>
+            <td>
+              <% if @admin_account_ids.include?(account.id) %>
+                <%= link_to "Invitations", account_invitations_path(script_name: account.slug_path), class: "txt-link" %>
+              <% end %>
+            </td>
             <td><%= account.created_at %></td>
           </tr>
         <% end %>

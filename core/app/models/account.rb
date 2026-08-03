@@ -1,8 +1,11 @@
 class Account < ApplicationRecord
+  SLUG_RANDOM_DIGITS = 4
+
   include Account::Payable
 
   has_many :users, dependent: :destroy
   has_many :invitations, dependent: :destroy
+  has_many :slug_holds, class_name: "Account::SlugHold", dependent: :delete_all
   has_one :join_code, dependent: :destroy
   has_one_attached :logo
 
@@ -13,8 +16,10 @@ class Account < ApplicationRecord
                    format: { with: AccountSlug::FORMAT },
                    exclusion: { in: AccountSlug::RESERVED_SLUGS, message: "is reserved" },
                    length: { in: AccountSlug::LENGTH }
+  validate :slug_must_be_available
 
   after_create :create_join_code
+  after_update :hold_previous_slug, if: :saved_change_to_slug?
   before_destroy :ensure_destroyable
 
   scope :personal, -> { where(personal: true) }
@@ -49,30 +54,26 @@ class Account < ApplicationRecord
       end
     end
 
-    # Normalize a name/email local-part into a free account slug (append digits on collision).
+    # Normalize a name/email local-part into a free account slug with a random digit suffix.
     def unique_slug_for(base)
       slug = base.to_s.parameterize(separator: "_")
-      slug = slug[0, AccountSlug::LENGTH.max].to_s
-      slug = "user" if slug.length < AccountSlug::LENGTH.min
+      slug = slug[0, AccountSlug::LENGTH.max - SLUG_RANDOM_DIGITS].to_s
+      slug = "account" if slug.blank?
 
-      if slug_taken?(slug)
-        loop do
-          suffix = SecureRandom.random_number(10_000).to_s
-          candidate = "#{slug[0, AccountSlug::LENGTH.max - suffix.length]}#{suffix}"
-          break candidate unless slug_taken?(candidate)
-        end
-      else
-        slug
+      loop do
+        suffix = format("%0#{SLUG_RANDOM_DIGITS}d", SecureRandom.random_number(10**SLUG_RANDOM_DIGITS))
+        candidate = "#{slug}#{suffix}"
+        break candidate unless slug_taken?(candidate)
       end
+    end
+
+    def slug_taken?(value)
+      value.in?(AccountSlug::RESERVED_SLUGS) || exists?(slug: value) || Account::SlugHold.active.exists?(slug: value)
     end
 
     private
       def personal_account_taken?(personal, identity)
         ActiveModel::Type::Boolean.new.cast(personal) && identity&.accounts&.personal&.exists?
-      end
-
-      def slug_taken?(value)
-        value.in?(AccountSlug::RESERVED_SLUGS) || exists?(slug: value)
       end
   end
 
@@ -93,6 +94,18 @@ class Account < ApplicationRecord
       return if slug.present?
 
       self.slug = self.class.unique_slug_for(name)
+    end
+
+    def slug_must_be_available
+      if slug.present? && Account::SlugHold.active.where(slug: slug).where.not(account_id: id).exists?
+        errors.add(:slug, "is unavailable")
+      end
+    end
+
+    def hold_previous_slug
+      previous_slug, current_slug = saved_change_to_slug
+      Account::SlugHold.hold!(previous_slug, account: self) if previous_slug.present?
+      slug_holds.active.where(slug: current_slug).delete_all if current_slug.present?
     end
 
     def ensure_destroyable

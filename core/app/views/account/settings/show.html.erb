@@ -9,7 +9,7 @@
       <% else %>
         The account slug appears in every URL for this team.
       <% end %>
-      Changing it releases the old name immediately — old links will no longer work and are not redirected.
+      Changing it frees the old URL immediately (no redirect). The old slug stays reserved for 30 days so others cannot claim it.
     </p>
   </div>
 
@@ -26,7 +26,7 @@
     <div class="field">
       <%= form.label :slug, (@account.personal? ? "Username" : "Slug"), class: "field__label" %>
       <%= form.text_field :slug, class: "input", required: true, pattern: "[a-zA-Z0-9_\\-]{4,16}", maxlength: 16 %>
-      <p class="field__hint">4–16 characters: letters, numbers, hyphens, underscores. Old slug is released immediately with no redirect.</p>
+      <p class="field__hint">4–16 characters: letters, numbers, hyphens, underscores. Old slug is held for 30 days and is not redirected.</p>
     </div>
 
     <div class="field">
