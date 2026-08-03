@@ -17,8 +17,8 @@ Rails.application.routes.draw do
 
   scope module: :account, as: :account do
     resources :users
-    get  "join_codes/:code", to: "join_codes#show", as: :join_codes
-    post "join_codes/:code", to: "join_codes#create"
+    get  "join/:code", to: "join#show", as: :join
+    post "join/:code", to: "join#create", as: nil
     resource :join_code, only: %i[ edit update destroy ]
     resources :invitations, only: %i[ index new create ]
     resources :invitations, param: :token, only: %i[ show update destroy ]

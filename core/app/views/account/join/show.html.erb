@@ -22,7 +22,7 @@
           <% else %>
             <div class="flex gap items-center justify-center">
               <%= button_to "Join account",
-                    account_join_codes_path(params[:code]),
+                    account_join_path(params[:code]),
                     method: :post,
                     class: "btn btn--primary" %>
             </div>
