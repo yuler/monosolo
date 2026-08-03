@@ -15,3 +15,15 @@ run = "bash scripts/clean.sh"
 description = "Start the Rails development server"
 dir = "core"
 run = "bin/dev"
+
+[tasks."core:db:reset"]
+description = "Reset the core database (development)"
+dir = "core"
+env = { RAILS_ENV = "development" }
+run = "bin/rails db:reset"
+
+[tasks."core:db:seed"]
+description = "Seed the core database (development)"
+dir = "core"
+env = { RAILS_ENV = "development" }
+run = "bin/rails db:seed"
