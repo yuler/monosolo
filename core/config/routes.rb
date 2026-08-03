@@ -21,7 +21,10 @@ Rails.application.routes.draw do
     post "join/:code", to: "join#create", as: nil
     resource :join_code, only: %i[ edit update destroy ]
     resources :invitations, only: %i[ index new create ]
-    resources :invitations, param: :token, only: %i[ show update destroy ]
+    resources :invitations, param: :token, only: %i[ show ] do
+      resource :acceptance, only: %i[ create ], controller: "invitation_acceptances"
+      resource :decline, only: %i[ create ], controller: "invitation_declines"
+    end
     resource :settings, only: %i[ show update ]
     resource :payment
     # TODO: implement subscription operations later
