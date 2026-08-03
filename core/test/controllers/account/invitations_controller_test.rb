@@ -79,6 +79,31 @@ class Account::InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/declined/i, response.body)
   end
 
+  test "index shows pending accepted and declined statuses" do
+    accepted = Account::Invitation.create!(
+      account: @account,
+      email: "accepted@example.com",
+      invited_by: users(:john)
+    )
+    declined = Account::Invitation.create!(
+      account: @account,
+      email: "declined@example.com",
+      invited_by: users(:john)
+    )
+    identity = Identity.create!(email: "accepted@example.com")
+    identity.join(@account, role: :member, verified_at: Time.current)
+    accepted.create_acceptance!(identity: identity, user: identity.users.find_by!(account: @account))
+    declined.create_decline!(identity: Identity.create!(email: "declined@example.com"))
+
+    sign_in_as identities(:john), account: @account
+    get account_invitations_path(script_name: @account.slug_path)
+
+    assert_response :success
+    assert_match(/Pending/, response.body)
+    assert_match(/Accepted/, response.body)
+    assert_match(/Declined/, response.body)
+  end
+
   test "new invitation form" do
     sign_in_as identities(:john), account: @account
 

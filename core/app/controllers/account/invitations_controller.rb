@@ -6,7 +6,7 @@ class Account::InvitationsController < ApplicationController
 
   def index
     @account_invitation = Account::Invitation.new
-    @invitations = Current.account.invitations
+    @invitations = Current.account.invitations.includes(:acceptance, :decline, :invited_by)
   end
 
   def new

@@ -60,6 +60,16 @@ class Account::Invitation < ApplicationRecord
     decline.present?
   end
 
+  def status
+    if accepted?
+      :accepted
+    elsif declined?
+      :declined
+    else
+      :pending
+    end
+  end
+
   def send_invitation_email
     AccountMailer.invite(self).deliver_later
   end

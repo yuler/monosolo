@@ -17,14 +17,16 @@ Rails.application.routes.draw do
 
   scope module: :account, as: :account do
     resources :users
-    get  "join/:code", to: "join#show", as: :join
-    post "join/:code", to: "join#create", as: nil
-    resource :join_code, only: %i[ edit update destroy ]
-    resources :invitations, only: %i[ index new create ]
-    resources :invitations, param: :token, only: %i[ show ] do
+
+    resources :invitations, param: :token, only: %i[ index new create show ] do
       resource :acceptance, only: %i[ create ], controller: "invitation_acceptances"
       resource :decline, only: %i[ create ], controller: "invitation_declines"
     end
+
+    get  "join/:code", to: "join#show", as: :join
+    post "join/:code", to: "join#create"
+    resource :join_code, only: %i[ edit update destroy ]
+
     resource :settings, only: %i[ show update ]
     resource :payment
     # TODO: implement subscription operations later
