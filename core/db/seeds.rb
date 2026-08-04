@@ -1,22 +1,30 @@
-# Identities — after_create builds a personal account
-yuler = Identity.find_or_initialize_by(email: "yuler@example.com")
-yuler.staff = true
-yuler.save!
+# Seeds are for local development only — never run against staging or production.
+unless Rails.env.development?
+  puts "WARN: Seeding is just for development!"
+else
+  def find_or_create_identity(email, staff: false)
+    Identity.find_or_initialize_by(email: email).tap do |identity|
+      identity.staff = staff if staff
+      identity.save!
+    end
+  end
 
-john = Identity.find_or_initialize_by(email: "john@example.com")
-john.save!
+  def create_account(name:, owner:, description: nil, owner_name: nil)
+    return if owner.accounts.where(personal: false, name: name).exists?
 
-# Accounts — additional team accounts
-unless yuler.accounts.where(personal: false, name: "Yuler's first Account").exists?
-  Account.create_with_owner(
-    account: { name: "Yuler's first Account", description: "Yuler's first account" },
-    owner: { name: "Yuler Doe", identity: yuler }
-  )
-end
+    Account.create_with_owner(
+      account: { name: name, description: description || name },
+      owner: { name: owner_name || owner.full_name, identity: owner }
+    )
+  end
 
-unless john.accounts.where(personal: false, name: "John's first Account").exists?
-  Account.create_with_owner(
-    account: { name: "John's first Account", description: "John's first account" },
-    owner: { name: "John Doe", identity: john }
+  # Main seed workflow
+  yuler = find_or_create_identity("yuler@example.com", staff: true)
+
+  create_account(
+    name: "Yuler Company",
+    description: "Yuler's company",
+    owner: yuler,
+    owner_name: "Yuler Doe"
   )
 end

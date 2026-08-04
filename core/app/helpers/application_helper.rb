@@ -6,7 +6,7 @@ module ApplicationHelper
     tag.title [ @page_title, account_name, "monosolo" ].compact.join(" | ")
   end
 
-  def nav_active?(path)
+  def menu_item_active?(path)
     request.path.start_with?(path)
   end
 end
