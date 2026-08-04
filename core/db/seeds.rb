@@ -3,10 +3,10 @@ unless Rails.env.development?
   puts "WARN: Seeding is just for development!"
 else
   def find_or_create_identity(email, staff: false)
-    Identity.find_or_initialize_by(email: email).tap do |identity|
-      identity.staff = staff if staff
-      identity.save!
-    end
+    identity = Identity.find_or_initialize_by(email: email)
+    identity.staff = staff if staff
+    identity.save!
+    identity
   end
 
   def create_account(name:, owner:, description: nil, owner_name: nil)
@@ -20,11 +20,12 @@ else
 
   # Main seed workflow
   yuler = find_or_create_identity("yuler@example.com", staff: true)
-
   create_account(
     name: "Yuler Company",
     description: "Yuler's company",
     owner: yuler,
     owner_name: "Yuler Doe"
   )
+
+  puts "OK: Seeded yuler identity and Yuler Company account (development only)."
 end

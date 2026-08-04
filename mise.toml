@@ -13,17 +13,9 @@ run = "bash scripts/clean.sh"
 
 [tasks.dev]
 description = "Start the Rails development server"
-dir = "core"
-run = "bin/dev"
+run = "bash scripts/dev.sh"
 
-[tasks."core:db:reset"]
-description = "Reset the core database (development)"
-dir = "core"
+[tasks.core]
+description = "Run common core rails commands (interactive)"
 env = { RAILS_ENV = "development" }
-run = "bin/rails db:reset"
-
-[tasks."core:db:seed"]
-description = "Seed the core database (development)"
-dir = "core"
-env = { RAILS_ENV = "development" }
-run = "bin/rails db:seed"
+run = "bash scripts/core.sh"
