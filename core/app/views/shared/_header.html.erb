@@ -33,7 +33,7 @@
           </button>
           <div class="menu__content">
             <div class="menu__title"><%= Current.identity.email %></div>
-            <% accounts_active = request.path.start_with?(my_accounts_path) %>
+            <% accounts_active = nav_active?(my_accounts_path) %>
             <%= link_to my_accounts_path, class: class_names("menu__item", "is-active": accounts_active), aria: ({ current: "page" } if accounts_active) do %>
               <%= icon_tag "users" %>
               <span>My Accounts</span>
@@ -41,7 +41,7 @@
 
             <% if Rails.env.development? %>
               <div class="menu__group">Dev</div>
-              <% letters_active = request.path.start_with?(letter_opener_web_path) %>
+              <% letters_active = nav_active?(letter_opener_web_path) %>
               <%= link_to letter_opener_web_path, class: class_names("menu__item", "is-active": letters_active), aria: ({ current: "page" } if letters_active) do %>
                 <span>Letters</span>
               <% end %>
@@ -49,11 +49,11 @@
 
             <% if Current.identity.staff? %>
               <div class="menu__group">Admin</div>
-              <% jobs_active = request.path.start_with?(admin_mission_control_jobs_path) %>
+              <% jobs_active = nav_active?(admin_mission_control_jobs_path) %>
               <%= link_to admin_mission_control_jobs_path, class: class_names("menu__item", "is-active": jobs_active), aria: ({ current: "page" } if jobs_active) do %>
                 <span>Jobs</span>
               <% end %>
-              <% stats_active = request.path.start_with?(admin_stats_path) %>
+              <% stats_active = nav_active?(admin_stats_path) %>
               <%= link_to admin_stats_path, class: class_names("menu__item", "is-active": stats_active), aria: ({ current: "page" } if stats_active) do %>
                 <span>Stats</span>
               <% end %>
