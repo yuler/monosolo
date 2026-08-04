@@ -13,5 +13,9 @@ run = "bash scripts/clean.sh"
 
 [tasks.dev]
 description = "Start the Rails development server"
-dir = "core"
-run = "bin/dev"
+run = "bash scripts/dev.sh"
+
+[tasks.core]
+description = "Run common core rails commands (interactive)"
+env = { RAILS_ENV = "development" }
+run = "bash scripts/core.sh"
