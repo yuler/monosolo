@@ -1,1 +1,1 @@
-web: env RUBY_DEBUG_OPEN=true bin/rails server
+core: env RUBY_DEBUG_OPEN=true bin/rails server -p ${CORE_PORT:-3000}

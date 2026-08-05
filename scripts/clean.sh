@@ -21,7 +21,7 @@ cd "$ROOT_DIR"
 LOG_LABEL="core: logs & tmp (rails log:clear tmp:clear)"
 DB_LABEL="core: storage (rm core/storage/*.sqlite3)"
 NODE_LABEL="core: node_modules (rm node_modules)"
-ENV_LABEL="core: .env (rm core/.env)"
+ENV_LABEL="root: .env (rm .env)"
 FE_LABEL="core: frontend build (propshaft assets)"
 ALL_LABEL="All of the above"
 
@@ -65,7 +65,7 @@ clean_node() {
 
 clean_env() {
   step "Removing local .env files"
-  rm -f core/.env
+  rm -f .env
   ok ".env removed"
 }
 

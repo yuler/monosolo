@@ -1,0 +1,2 @@
+core: cd core && bin/dev
+web:  cd apps/web && pnpm run dev -- --port ${WEB_PORT:-5173}

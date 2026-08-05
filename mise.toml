@@ -3,6 +3,9 @@ ruby = "3.4.7"
 node = "24.17.0"
 gum = "0.17.0"
 
+[env]
+_.file = ".env"
+
 [tasks.setup]
 description = "Set up the development environment (gems, deps, db)"
 run = "bash scripts/setup.sh"
@@ -19,3 +22,4 @@ run = "bash scripts/dev.sh"
 description = "Run common core rails commands (interactive)"
 env = { RAILS_ENV = "development" }
 run = "bash scripts/core.sh"
+
