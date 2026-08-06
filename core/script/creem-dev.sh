@@ -1,4 +1,6 @@
-echo "Using Cloudflare tunnel URL: http://localhost:3000"
+CORE_PORT="${CORE_PORT:-3001}"
+
+echo "Using Cloudflare tunnel URL: http://localhost:${CORE_PORT}"
 echo ""
 echo ""
 echo "=================================================="
@@ -7,4 +9,4 @@ echo "=================================================="
 echo ""
 echo ""
 
-cloudflared tunnel --url http://localhost:3000
+cloudflared tunnel --url "http://localhost:${CORE_PORT}"

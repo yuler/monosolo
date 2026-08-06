@@ -17,8 +17,8 @@ Development URLs (login with `john@example.com`):
 
 | URL                                 | Notes                                     |
 | ----------------------------------- | ----------------------------------------- |
-| http://core.monosolo.localhost:3000 | Preferred local subdomain (`*.localhost`) |
-| http://localhost:3000               | Same process, plain loopback              |
+| http://core.monosolo.localhost:3001 | Preferred local subdomain (`*.localhost`) |
+| http://localhost:3001               | Same process, plain loopback              |
 
 From the monorepo root prefer `mise setup` / `mise dev` (runs [`scripts/dev.sh`](../../scripts/dev.sh): prints subdomain URLs, then `overmind start -f Procfile.dev`).
 
@@ -26,10 +26,10 @@ From the monorepo root prefer `mise setup` / `mise dev` (runs [`scripts/dev.sh`]
 
 Modern OS/browsers resolve `*.localhost` to `127.0.0.1` — no `/etc/hosts` entry required.
 
-| App  | Subdomain                                   | Port env                         |
-| ---- | ------------------------------------------- | -------------------------------- |
-| core | http://core.monosolo.localhost:${CORE_PORT} | `CORE_PORT` (default `3000`)     |
-| web  | http://web.monosolo.localhost:${WEB_PORT}   | `WEB_PORT` (default `5173`)      |
+| App  | Subdomain                                   | Port env                     |
+| ---- | ------------------------------------------- | ---------------------------- |
+| web  | http://web.monosolo.localhost:${WEB_PORT}   | `WEB_PORT` (default `3000`)  |
+| core | http://core.monosolo.localhost:${CORE_PORT} | `CORE_PORT` (default `3001`) |
 
 Host authorization in development allows any `*.localhost` host (optional port) via `config.hosts` in [`config/environments/development.rb`](../../core/config/environments/development.rb). This is for local hostname convenience only — multi-tenancy remains path-based (`/{slug}/...`), not subdomain-based.
 
@@ -136,7 +136,7 @@ Key recurring tasks (via [`config/recurring.yml`](../../core/config/recurring.ym
 
 ### Chrome MCP (Local Dev)
 
-App URL: http://core.monosolo.localhost:3000 (or http://localhost:3000)  
+App URL: http://core.monosolo.localhost:3001 (or http://localhost:3001)  
 Login: `john@example.com` (passwordless magic link — check Rails console for the link)
 
 Use Chrome MCP tools against the running dev app for UI testing and debugging.

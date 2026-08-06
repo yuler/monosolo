@@ -58,7 +58,7 @@ function Home() {
 						</p>
 						<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
 							<a
-								href="http://localhost:3000/sign_in"
+								href="http://core.monosolo.localhost:3001/sign_in"
 								className={cn(buttonVariants({ size: "lg" }))}
 							>
 								Get started
@@ -121,7 +121,7 @@ function Home() {
 						</CardHeader>
 						<CardContent>
 							<a
-								href="http://localhost:3000/sign_in"
+								href="http://core.monosolo.localhost:3001/sign_in"
 								className={cn(buttonVariants({ variant: "secondary" }))}
 							>
 								Open app

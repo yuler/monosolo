@@ -25,8 +25,8 @@ if [ -f .env ]; then
   set +a
 fi
 
-CORE_PORT="${CORE_PORT:-3000}"
-WEB_PORT="${WEB_PORT:-5173}"
+CORE_PORT="${CORE_PORT:-3001}"
+WEB_PORT="${WEB_PORT:-3000}"
 
 CORE_URL="http://core.monosolo.localhost:${CORE_PORT}"
 WEB_URL="http://web.monosolo.localhost:${WEB_PORT}"

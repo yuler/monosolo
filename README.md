@@ -40,8 +40,8 @@ mise dev
 
 | App  | Subdomain URL                       | Plain localhost       |
 | ---- | ----------------------------------- | --------------------- |
-| core | http://core.monosolo.localhost:3000 | http://localhost:3000 |
-| web  | http://web.monosolo.localhost:5173  | http://localhost:5173 |
+| web  | http://web.monosolo.localhost:3000  | http://localhost:3000 |
+| core | http://core.monosolo.localhost:3001 | http://localhost:3001 |
 
 Ports come from root `.env` (`CORE_PORT`, `WEB_PORT`). Rails allows any `*.localhost` host in development; Vite allows `.localhost` via `allowedHosts`.
 

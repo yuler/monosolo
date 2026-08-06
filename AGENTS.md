@@ -19,8 +19,8 @@ mise dev
 
 `mise dev` → `scripts/dev.sh` prints subdomain URLs, then starts [`Procfile.dev`](Procfile.dev) via overmind:
 
-- Core: http://core.monosolo.localhost:3000 (also http://localhost:3000)
-- Web: http://web.monosolo.localhost:5173 (also http://localhost:5173)
+- Core: http://core.monosolo.localhost:3001 (also http://localhost:3001)
+- Web: http://web.monosolo.localhost:3000 (also http://localhost:3000)
 
 `*.localhost` resolves to `127.0.0.1` (no hosts file). Login: `john@example.com`
 

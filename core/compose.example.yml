@@ -6,7 +6,7 @@ x-rails-env:
   # `rails secret` or `openssl rand -hex 64` generate a random secret key
   &rails_env
   SECRET_KEY_BASE: ${SECRET_KEY_BASE:-e84aa0d3f501eaeb64b6c4ddbb6ba2d27f25bf980b3f855e9b525dc80fd65fbdfdf46bdee5c0de6cf51642f332e030ef1afc17f0788af447a16cacb789b6e868}
-  CORE_PORT: ${CORE_PORT:-3000}
+  CORE_PORT: ${CORE_PORT:-3001}
 
 services:
   core:
@@ -14,7 +14,7 @@ services:
     volumes:
       - rails-storage:/rails/storage
     ports:
-      - ${CORE_PORT:-3000}:3000
+      - ${CORE_PORT:-3001}:3000
     restart: unless-stopped
     env_file:
       - .env

@@ -23,7 +23,7 @@ export function SiteHeader() {
 				<div className="flex items-center gap-2">
 					<ThemeToggle />
 					<a
-						href="http://localhost:3000/sign_in"
+						href="http://core.monosolo.localhost:3001/sign_in"
 						className={cn(buttonVariants())}
 					>
 						Sign in

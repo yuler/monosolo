@@ -17,4 +17,4 @@ fi
 export RUBY_DEBUG_OPEN="${RUBY_DEBUG_OPEN:-true}"
 export RUBY_DEBUG_LAZY="${RUBY_DEBUG_LAZY:-true}"
 
-exec bin/rails server -p "${CORE_PORT:-3000}" "$@"
+exec bin/rails server -p "${CORE_PORT:-3001}" "$@"
