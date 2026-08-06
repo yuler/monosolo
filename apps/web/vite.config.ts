@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       port: Number(env.WEB_PORT) || 5173,
     },
     plugins: [
-      devtools(),
+      devtools({ removeDevtoolsOnBuild: true }),
       tailwindcss(),
       tanstackRouter({ target: 'react', autoCodeSplitting: true }),
       viteReact(),
