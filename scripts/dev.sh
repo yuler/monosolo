@@ -1,19 +1,55 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Colorized logging helpers that use gum when available, otherwise plain echo.
 log()   { gum style --foreground 212 "✦ $*"; }
 ok()    { gum style --foreground 78  "✔ $*"; }
 warn()  { gum style --foreground 227 "⚠ $*"; }
 step()  { gum style --foreground 99  "▶ $*"; }
 
-if ! command -v gum >/dev/null 2>&1; then
-  warn "gum not found; falling back to plain output"
-  log()  { echo "✦ $*"; }
-  ok()   { echo "✔ $*"; }
-  warn() { echo "⚠ $*"; }
-  step() { echo "▶ $*"; }
-fi
+# PIDs listening on any of the given TCP ports (unique, space-separated).
+listening_pids() {
+  local port
+  {
+    for port in "$@"; do
+      lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null || true
+    done
+  } | sort -u | tr '\n' ' '
+}
+
+stop_overmind() {
+  if [ -S .overmind.sock ]; then
+    overmind quit 2>/dev/null || overmind kill 2>/dev/null || true
+    rm -f .overmind.sock
+  fi
+  # Overmind's tmux session defaults to the app directory basename
+  tmux kill-session -t "$(basename "$PWD")" 2>/dev/null || true
+}
+
+ensure_ports_free() {
+  local pids
+  pids="$(listening_pids "$@")"
+  [ -n "${pids// /}" ] || return 0
+
+  warn "Port(s) in use: $*"
+  local port
+  for port in "$@"; do
+    lsof -nP -iTCP:"$port" -sTCP:LISTEN 2>/dev/null || true
+  done
+  echo
+
+  gum confirm "Force kill and restart?" || { warn "Aborting."; exit 1; }
+
+  # Quit overmind first so it does not respawn children we kill
+  stop_overmind
+  # shellcheck disable=SC2086
+  kill -9 $pids 2>/dev/null || true
+  sleep 0.3
+  pids="$(listening_pids "$@")"
+  # shellcheck disable=SC2086
+  [ -n "${pids// /}" ] && kill -9 $pids 2>/dev/null || true
+
+  ok "Ports cleared — continuing startup"
+}
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
@@ -37,9 +73,12 @@ ok "web   ${WEB_URL}"
 log "Also: http://localhost:${CORE_PORT}  ·  http://localhost:${WEB_PORT}"
 echo
 
-# Let the debug gem allow remote connections, but avoid loading until `debugger` is called
+step "Checking ports ${WEB_PORT} (web) and ${CORE_PORT} (core)…"
+ensure_ports_free "$WEB_PORT" "$CORE_PORT"
+
 export RUBY_DEBUG_OPEN="${RUBY_DEBUG_OPEN:-true}"
 export RUBY_DEBUG_LAZY="${RUBY_DEBUG_LAZY:-true}"
 
 step "Starting via overmind (Procfile.dev)…"
-exec overmind start -f Procfile.dev "$@"
+# -N: we set ports ourselves via CORE_PORT / WEB_PORT
+exec overmind start -f Procfile.dev -N "$@"
