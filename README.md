@@ -36,4 +36,13 @@ mise setup
 mise dev
 ```
 
-App: http://localhost:3000 — login with `john@example.com`
+`mise dev` prints local subdomain URLs on start, then runs [`Procfile.dev`](Procfile.dev) via overmind (`*.localhost` resolves to `127.0.0.1` — no `/etc/hosts` needed):
+
+| App  | Subdomain URL                       | Plain localhost       |
+| ---- | ----------------------------------- | --------------------- |
+| core | http://core.monosolo.localhost:3000 | http://localhost:3000 |
+| web  | http://web.monosolo.localhost:5173  | http://localhost:5173 |
+
+Ports come from root `.env` (`CORE_PORT`, `WEB_PORT`). Rails allows any `*.localhost` host in development; Vite allows `.localhost` via `allowedHosts`.
+
+Login: `john@example.com`

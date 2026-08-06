@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
 		},
 		server: {
 			port: Number(env.WEB_PORT) || 5173,
+			// Allow http://web.monosolo.localhost:<port> (and any *.localhost)
+			allowedHosts: [".localhost"],
 		},
 		plugins: [
 			devtools({ removeDevtoolsOnBuild: true }),

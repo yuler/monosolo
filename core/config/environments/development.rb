@@ -84,4 +84,7 @@ Rails.application.configure do
   config.hosts << /.*\.trycloudflare\.com/
   # Allow local dev access on default Rails port (and IPv4/IPv6 variants)
   config.hosts << "127.0.0.1" << "localhost" << "0.0.0.0"
+  # Allow any *.localhost subdomain (optional port) for custom local domains
+  config.hosts << /(.+\.)?localhost(:\d+)?/
 end
+

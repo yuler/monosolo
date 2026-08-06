@@ -14,13 +14,20 @@ Primary web application for MonoSolo, built with [TanStack Router](https://tanst
 From the monorepo root:
 
 ```bash
-mise dev        # starts core (Rails) and web (Vite) together
+mise dev        # prints subdomain URLs, then overmind + Procfile.dev
 ```
+
+| URL                                | Notes                     |
+| ---------------------------------- | ------------------------- |
+| http://web.monosolo.localhost:5173 | Preferred local subdomain |
+| http://localhost:5173              | Plain loopback            |
+
+`*.localhost` → `127.0.0.1` (no hosts file). Vite allows `.localhost` via `server.allowedHosts` in `vite.config.ts`. Port: `WEB_PORT` in root `.env`.
 
 Or standalone:
 
 ```bash
-pnpm dev        # http://localhost:5173
+pnpm dev        # http://web.monosolo.localhost:5173
 ```
 
 ## Routes

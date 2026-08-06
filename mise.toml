@@ -3,6 +3,8 @@ ruby = "3.4.7"
 node = "24.17.0"
 pnpm = "10.14.0"
 gum = "0.17.0"
+overmind = "2.5.1"
+tmux = "3.7b"
 
 [env]
 _.file = ".env"
@@ -33,7 +35,7 @@ run = "pnpm run build"
 
 [tasks.dev]
 description = "Start core and web development servers"
-run = [{ tasks = ["core:dev", "web:dev"] }]
+run = "bash scripts/dev.sh"
 
 [tasks.core]
 description = "Run common core rails commands (interactive)"
