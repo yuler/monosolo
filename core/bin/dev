@@ -1,13 +1,9 @@
 #!/usr/bin/env sh
-
-if ! gem list foreman -i --silent; then
-  echo "Installing foreman..."
-  gem install foreman
-fi
+set -e
 
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called
-export RUBY_DEBUG_OPEN="true"
-export RUBY_DEBUG_LAZY="true"
+export RUBY_DEBUG_OPEN="${RUBY_DEBUG_OPEN:-true}"
+export RUBY_DEBUG_LAZY="${RUBY_DEBUG_LAZY:-true}"
 
-exec foreman start -f Procfile.dev "$@"
+exec bin/rails server -p "${CORE_PORT:-3000}" "$@"

@@ -9,13 +9,13 @@ Guidelines and commands for agents working in the Rails 8.1 `core` app.
 ```bash
 # Initial setup (installs deps)
 bin/setup
-# Start development server
+# Start development server (from core/)
 bin/dev
 ```
 
 Development URL: http://localhost:3000 — login with `john@example.com`
 
-From the monorepo root you can also run `mise setup` / `mise dev`.
+From the monorepo root prefer `mise setup` / `mise dev` (starts core + web together).
 
 ### Testing
 
