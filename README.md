@@ -8,8 +8,7 @@
 .
 ├── core/                # Rails backend (API, Background Jobs & Core Logic)
 ├── apps/                # Client applications (Consumer-facing)
-│   ├── www/             # Astro (Marketing, Documentation & SEO-optimized site)
-│   ├── web/             # Nuxt (Primary web application / SaaS product)
+│   ├── web/             # TanStack Router (Primary web application / SaaS product)
 │   ├── admin/           # Vite + Vue3 (Internal dashboard & B2B management)
 │   ├── mobile/          # Mobile application (Capacitor/React Native)
 │   └── desktop/         # Desktop application (Tauri/Electron)

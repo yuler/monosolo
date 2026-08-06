@@ -36,15 +36,15 @@ else
   warn "pnpm missing, skipping"
 fi
 
-cd core
 if [ ! -f .env ]; then
   step "Creating .env from .env.example"
   cp .env.example .env
-  ok "Created core/.env"
+  ok "Created .env"
 else
-  ok "core/.env already exists"
+  ok ".env already exists"
 fi
 
+cd core
 step "Preparing database"
 gum spin --title "rails db:prepare…" -- ./bin/rails db:prepare
 
@@ -53,4 +53,4 @@ if gum confirm "Reset database (rails db:reset)?"; then
 fi
 
 cd "$ROOT_DIR"
-ok "Setup complete! Run 'mise run dev' or 'cd core && bin/dev' to start."
+ok "Setup complete! Run 'mise run dev' to start."

@@ -1,4 +1,5 @@
-# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+# Editors
+.vscode
 
 # Node.js
 node_modules/
@@ -33,10 +34,21 @@ core/config/*.key
 core/app/assets/builds/*
 !core/app/assets/builds/.keep
 
+# apps/web (TanStack Router / Vite)
+apps/web/dist
+apps/web/dist-ssr
+apps/web/*.local
+apps/web/.nitro
+apps/web/.tanstack
+apps/web/.wrangler
+apps/web/.output
+apps/web/.vinxi
+apps/web/__unconfig*
+apps/web/todos.json
+
 # Gemini / Antigravity (shared configs)
 !.gemini/
 !.antigravity/
-
 # MiMoCode
 .mimocode/
 

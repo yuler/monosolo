@@ -5,7 +5,8 @@ Guidelines for coding agents in this MonoSolo monorepo.
 ## Layout
 
 - [`core/`](core/) — Rails 8.1 backend → [`docs/core/DEVELOP.md`](docs/core/DEVELOP.md), [`docs/core/STYLE.md`](docs/core/STYLE.md), [`docs/core/ACCOUNT.md`](docs/core/ACCOUNT.md)
-- `apps/` — client apps (www, web, admin, mobile, desktop)
+- [`apps/web/`](apps/web/) — TanStack Router → [`.agents/web.md`](.agents/web.md)
+- `apps/` — other client apps (admin, mobile, desktop)
 - `packages/` — shared TypeScript packages
 - `scripts/` — monorepo setup / automation
 

@@ -1,16 +1,20 @@
 #!/usr/bin/env sh
+set -e
 
-if ! gem list foreman -i --silent; then
-  echo "Installing foreman..."
-  gem install foreman
+# mise loads root .env via mise.toml; when running standalone, source it here.
+if [ -z "${MISE_TASK:-}" ]; then
+  ROOT_ENV="$(cd "$(dirname "$0")/../.." && pwd)/.env"
+  if [ -f "$ROOT_ENV" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "$ROOT_ENV"
+    set +a
+  fi
 fi
-
-# Default to port 3000 if not specified
-export PORT="${PORT:-3000}"
 
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called
-export RUBY_DEBUG_OPEN="true"
-export RUBY_DEBUG_LAZY="true"
+export RUBY_DEBUG_OPEN="${RUBY_DEBUG_OPEN:-true}"
+export RUBY_DEBUG_LAZY="${RUBY_DEBUG_LAZY:-true}"
 
-exec foreman start -f Procfile.dev "$@"
+exec bin/rails server -p "${CORE_PORT:-3000}" "$@"
