@@ -16,7 +16,12 @@ export default defineConfig(({ mode }) => {
 
 	return {
 		envDir: monorepoRoot,
-		resolve: { tsconfigPaths: true },
+		resolve: {
+			tsconfigPaths: true,
+			alias: {
+				"@": path.resolve(fileURLToPath(new URL(".", import.meta.url)), "src"),
+			},
+		},
 		server: {
 			port: Number(env.WEB_PORT) || 5173,
 		},
