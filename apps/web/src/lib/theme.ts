@@ -1,10 +1,15 @@
 const STORAGE_KEY = "theme";
 
 export type Theme = "light" | "dark";
+export type ThemePreference = Theme | "system";
 
 export function getStoredTheme(): Theme | null {
 	const value = localStorage.getItem(STORAGE_KEY);
 	return value === "light" || value === "dark" ? value : null;
+}
+
+export function getThemePreference(): ThemePreference {
+	return getStoredTheme() ?? "system";
 }
 
 export function getSystemTheme(): Theme {
@@ -25,6 +30,15 @@ export function applyTheme(theme: Theme) {
 export function setTheme(theme: Theme) {
 	localStorage.setItem(STORAGE_KEY, theme);
 	applyTheme(theme);
+}
+
+export function setThemePreference(preference: ThemePreference) {
+	if (preference === "system") {
+		localStorage.removeItem(STORAGE_KEY);
+		applyTheme(getSystemTheme());
+		return;
+	}
+	setTheme(preference);
 }
 
 export function toggleTheme(): Theme {

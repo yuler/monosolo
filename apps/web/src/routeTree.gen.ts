@@ -10,33 +10,119 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as Account_slugRouteImport } from './routes/$account_slug'
+import { Route as SignRouteImport } from './routes/sign'
+import { Route as Account_slugIndexRouteImport } from './routes/$account_slug/index'
+import { Route as Account_slugJobsRouteImport } from './routes/$account_slug/jobs'
+import { Route as Account_slugStatsRouteImport } from './routes/$account_slug/stats'
+import { Route as SignIndexRouteImport } from './routes/sign/index'
+import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Account_slugRoute = Account_slugRouteImport.update({
+  id: '/$account_slug',
+  path: '/$account_slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignRoute = SignRouteImport.update({
+  id: '/sign',
+  path: '/sign',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Account_slugIndexRoute = Account_slugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => Account_slugRoute,
+} as any)
+const Account_slugJobsRoute = Account_slugJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => Account_slugRoute,
+} as any)
+const Account_slugStatsRoute = Account_slugStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => Account_slugRoute,
+} as any)
+const SignIndexRoute = SignIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SignRoute,
+} as any)
+const SignVerifyRoute = SignVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => SignRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$account_slug': typeof Account_slugRouteWithChildren
+  '/sign': typeof SignRouteWithChildren
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/$account_slug/': typeof Account_slugIndexRoute
+  '/sign/': typeof SignIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/$account_slug': typeof Account_slugIndexRoute
+  '/sign': typeof SignIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$account_slug': typeof Account_slugRouteWithChildren
+  '/sign': typeof SignRouteWithChildren
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/$account_slug/': typeof Account_slugIndexRoute
+  '/sign/': typeof SignIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$account_slug'
+    | '/sign'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
+    | '/sign/verify'
+    | '/$account_slug/'
+    | '/sign/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
+    | '/sign/verify'
+    | '/$account_slug'
+    | '/sign'
+  id:
+    | '__root__'
+    | '/'
+    | '/$account_slug'
+    | '/sign'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
+    | '/sign/verify'
+    | '/$account_slug/'
+    | '/sign/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Account_slugRoute: typeof Account_slugRouteWithChildren
+  SignRoute: typeof SignRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +134,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$account_slug': {
+      id: '/$account_slug'
+      path: '/$account_slug'
+      fullPath: '/$account_slug'
+      preLoaderRoute: typeof Account_slugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign': {
+      id: '/sign'
+      path: '/sign'
+      fullPath: '/sign'
+      preLoaderRoute: typeof SignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$account_slug/': {
+      id: '/$account_slug/'
+      path: '/'
+      fullPath: '/$account_slug/'
+      preLoaderRoute: typeof Account_slugIndexRouteImport
+      parentRoute: typeof Account_slugRoute
+    }
+    '/$account_slug/jobs': {
+      id: '/$account_slug/jobs'
+      path: '/jobs'
+      fullPath: '/$account_slug/jobs'
+      preLoaderRoute: typeof Account_slugJobsRouteImport
+      parentRoute: typeof Account_slugRoute
+    }
+    '/$account_slug/stats': {
+      id: '/$account_slug/stats'
+      path: '/stats'
+      fullPath: '/$account_slug/stats'
+      preLoaderRoute: typeof Account_slugStatsRouteImport
+      parentRoute: typeof Account_slugRoute
+    }
+    '/sign/': {
+      id: '/sign/'
+      path: '/'
+      fullPath: '/sign/'
+      preLoaderRoute: typeof SignIndexRouteImport
+      parentRoute: typeof SignRoute
+    }
+    '/sign/verify': {
+      id: '/sign/verify'
+      path: '/verify'
+      fullPath: '/sign/verify'
+      preLoaderRoute: typeof SignVerifyRouteImport
+      parentRoute: typeof SignRoute
+    }
   }
 }
 
+interface Account_slugRouteChildren {
+  Account_slugJobsRoute: typeof Account_slugJobsRoute
+  Account_slugStatsRoute: typeof Account_slugStatsRoute
+  Account_slugIndexRoute: typeof Account_slugIndexRoute
+}
+
+const Account_slugRouteChildren: Account_slugRouteChildren = {
+  Account_slugJobsRoute: Account_slugJobsRoute,
+  Account_slugStatsRoute: Account_slugStatsRoute,
+  Account_slugIndexRoute: Account_slugIndexRoute,
+}
+
+const Account_slugRouteWithChildren = Account_slugRoute._addFileChildren(
+  Account_slugRouteChildren,
+)
+
+interface SignRouteChildren {
+  SignVerifyRoute: typeof SignVerifyRoute
+  SignIndexRoute: typeof SignIndexRoute
+}
+
+const SignRouteChildren: SignRouteChildren = {
+  SignVerifyRoute: SignVerifyRoute,
+  SignIndexRoute: SignIndexRoute,
+}
+
+const SignRouteWithChildren = SignRoute._addFileChildren(SignRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Account_slugRoute: Account_slugRouteWithChildren,
+  SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

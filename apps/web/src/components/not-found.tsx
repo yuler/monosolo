@@ -1,14 +1,12 @@
 import { Link } from "@tanstack/react-router";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteLayout } from "@/components/layout";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function NotFound() {
 	return (
-		<div className="flex min-h-svh flex-col bg-background text-foreground">
-			<SiteHeader />
+		<SiteLayout>
 			<main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
 				<p className="text-sm font-medium text-muted-foreground">404</p>
 				<h1 className="mt-2 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -21,7 +19,6 @@ export function NotFound() {
 					Back to home
 				</Link>
 			</main>
-			<SiteFooter />
-		</div>
+		</SiteLayout>
 	);
 }

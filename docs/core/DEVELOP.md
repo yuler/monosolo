@@ -33,6 +33,24 @@ Modern OS/browsers resolve `*.localhost` to `127.0.0.1` — no `/etc/hosts` entr
 
 Host authorization in development allows any `*.localhost` host (optional port) via `config.hosts` in [`config/environments/development.rb`](../../core/config/environments/development.rb). This is for local hostname convenience only — multi-tenancy remains path-based (`/{slug}/...`), not subdomain-based.
 
+### Local CORS (development only)
+
+`apps/web` and Core run on different origins locally (`web.*` vs `core.*`, or `localhost:3000` vs `localhost:3001`). Browser `fetch` to `/api/v1` needs CORS.
+
+[`config/initializers/development_cors.rb`](../../core/config/initializers/development_cors.rb) registers `DevelopmentCors` **only when `Rails.env.development?`**. Test and production do not load it.
+
+Allowed origins (credentials enabled):
+
+| Origin                                         | Notes                          |
+| ---------------------------------------------- | ------------------------------ |
+| `http://web.monosolo.localhost:${WEB_PORT}`    | Preferred local subdomain      |
+| `http://localhost:${WEB_PORT}`                 | Plain loopback                 |
+| `http://127.0.0.1:${WEB_PORT}`                 | IPv4 loopback                  |
+| `http://[::1]:${WEB_PORT}`                     | IPv6 loopback                  |
+| `ENV["WEB_URL"]`                               | Optional extra origin override |
+
+Rails has no built-in “allow CORS” config switch — this middleware is the local equivalent of what production would do with `rack-cors` or a reverse proxy (same-origin `/api`).
+
 ### Testing
 
 ```bash
@@ -94,8 +112,18 @@ Passwordless magic-link authentication:
 
 - Global `Identity` (email-based) can have `Users` in multiple Accounts
 - Users belong to an Account and have roles: owner, admin, member, system
-- Sessions managed via signed cookies
+- Sessions managed via signed `session_id` cookies (browser) and optional Bearer tokens (mobile/CLI)
 - Board-level access control via `Access` records
+
+**Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"`. After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients.
+
+| Deployment | `VITE_CORE_URL`            | `SESSION_COOKIE_DOMAIN`  | CORS                                                         |
+| ---------- | -------------------------- | ------------------------ | ------------------------------------------------------------ |
+| Local A    | `http://core…:3001`        | unset                    | `development_cors.rb` only                                   |
+| A — split  | `https://core.example.com` | `.example.com`           | Needed in production (not shipped; use `rack-cors` or proxy) |
+| B — proxy  | `""` (relative `/api/v1`)  | unset (host-only cookie) | Not needed for web                                           |
+
+Session cookies use `SameSite=Lax`. CSRF uses Rails 8.2 `protect_from_forgery using: :header_only` (`Sec-Fetch-Site` from the browser); JSON API clients without that header (curl, native apps) are allowed via [`RequestForgeryProtection`](../../core/app/controllers/concerns/request_forgery_protection.rb). Local CORS for the web ↔ core split is documented under [Local CORS](#local-cors-development-only).
 
 ### Core Domain Models
 

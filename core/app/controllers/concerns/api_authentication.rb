@@ -31,6 +31,7 @@ module ApiAuthentication
 
     def allow_unauthenticated_access(**options)
       skip_before_action :require_authentication, **options
+      before_action :resume_session_from_cookie, **options
       allow_unauthorized_access(**options)
     end
   end
@@ -41,8 +42,39 @@ module ApiAuthentication
     end
 
     def require_authentication
-      authenticate_by_bearer_token || authenticate_by_query_token || json_request_unauthorized
+      resume_session_from_cookie ||
+        authenticate_by_bearer_token ||
+        authenticate_by_query_token ||
+        json_request_unauthorized
     end
+
+    def resume_session_from_cookie
+      if session = find_session_by_cookie
+        Current.session = session
+      end
+    end
+
+    def find_session_by_cookie
+      Session.find_signed(cookies.signed[:session_id])
+    end
+
+    def start_new_session_for(identity)
+      identity.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
+        set_current_session session
+      end
+    end
+
+    def set_current_session(session)
+      Current.session = session
+      cookies.signed.permanent[:session_id] = session_cookie_options.merge(value: session.signed_id)
+    end
+
+    def terminate_session
+      Current.session&.destroy
+      cookies.delete(:session_id, **delete_session_cookie_options)
+    end
+
+    include SessionCookieOptions
 
     def authenticate_by_bearer_token
       if request.authorization.to_s.include?("Bearer")

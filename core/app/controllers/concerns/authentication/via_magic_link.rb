@@ -1,12 +1,16 @@
 module Authentication::ViaMagicLink
   extend ActiveSupport::Concern
 
+  include SessionCookieOptions
+
   included do
     after_action :ensure_development_magic_link_not_leaked
   end
 
   private
     def ensure_development_magic_link_not_leaked
+      return unless respond_to?(:flash)
+
       if !Rails.env.development? && flash[:magic_link_code].present?
         raise "Leaking magic link via flash in #{Rails.env}?"
       end
@@ -28,27 +32,45 @@ module Authentication::ViaMagicLink
     end
 
     def set_pending_authentication_token(magic_link)
-      cookies[:pending_authentication_token] = {
-        value: pending_authentication_token_verifier.generate(magic_link.identity.email, expires_at: magic_link.expires_at),
-        httponly: true,
-        same_site: :lax,
-        expires: magic_link.expires_at
-      }
+      cookies[:pending_authentication_token] = auth_cookie_options(magic_link.expires_at).merge(
+        value: generate_pending_authentication_token(magic_link)
+      )
+    end
+
+    def pending_authentication_token
+      params[:pending_authentication_token].presence || cookies[:pending_authentication_token]
     end
 
     def email_pending_authentication
-      pending_authentication_token_verifier.verified(pending_authentication_token)
+      verify_pending_authentication_token(pending_authentication_token)
+    end
+
+    def clear_pending_authentication_token
+      cookies.delete(:pending_authentication_token, **delete_session_cookie_options)
+    end
+
+    def generate_pending_authentication_token(magic_link)
+      pending_authentication_token_verifier.generate(
+        magic_link.identity.email,
+        expires_at: magic_link.expires_at
+      )
+    end
+
+    def verify_pending_authentication_token(token)
+      pending_authentication_token_verifier.verified(token)
     end
 
     def pending_authentication_token_verifier
       Rails.application.message_verifier(:pending_authentication)
     end
 
-    def pending_authentication_token
-      cookies[:pending_authentication_token]
-    end
-
-    def clear_pending_authentication_token
-      cookies.delete(:pending_authentication_token)
+    def auth_cookie_options(expires = nil)
+      {
+        httponly: true,
+        same_site: :lax,
+        secure: !Rails.env.local?,
+        domain: session_cookie_domain,
+        expires: expires
+      }.compact
     end
 end
