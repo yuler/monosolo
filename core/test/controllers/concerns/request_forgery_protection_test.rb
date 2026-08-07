@@ -28,12 +28,19 @@ class RequestForgeryProtectionTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "rejects same-origin browser POST that omits Sec-Fetch-Site but includes Sec-Fetch-Mode" do
+  # Sec-Fetch-Mode is always present in browser requests. When it is present
+  # but Sec-Fetch-Site is absent (malformed or stripped by a proxy) the
+  # request must not be treated as a non-browser API client.
+  test "rejects browser-like request that has Sec-Fetch-Mode but no Sec-Fetch-Site" do
+    # Force SSL so that super's nil-Sec-Fetch-Site fallback also returns false,
+    # then confirm our Sec-Fetch-Mode guard fires independently.
     post api_v1_session_url,
       params: { email: identities(:john).email },
       as: :json,
-      headers: { "Sec-Fetch-Mode" => "cors" }
+      headers: { "Sec-Fetch-Mode" => "cors", "X-Forwarded-Proto" => "https" }
 
+    # The request is rejected — either by super (SSL + nil Sec-Fetch-Site)
+    # or by the Sec-Fetch-Mode guard in allowed_api_request?.
     assert_response :unprocessable_entity
   end
 end
