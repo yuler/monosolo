@@ -15,7 +15,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export type DashboardBreadcrumbItem = {
 	label: string;
-	href?: string;
+	to?: "/$slug" | "/$slug/jobs" | "/$slug/stats";
+	params?: { slug: string };
 	isCurrentPage?: boolean;
 };
 
@@ -38,7 +39,7 @@ export function DashboardHeader({
 				<Breadcrumb className="min-w-0 flex-1">
 					<BreadcrumbList>
 						{breadcrumbs.map((item) => (
-							<Fragment key={item.href ?? item.label}>
+							<Fragment key={`${item.label}-${item.to ?? "current"}`}>
 								{item !== breadcrumbs[0] ? (
 									<BreadcrumbSeparator className="hidden md:block" />
 								) : null}
@@ -51,8 +52,10 @@ export function DashboardHeader({
 								>
 									{item.isCurrentPage ? (
 										<BreadcrumbPage>{item.label}</BreadcrumbPage>
-									) : item.href ? (
-										<BreadcrumbLink render={<Link to={item.href} />}>
+									) : item.to && item.params ? (
+										<BreadcrumbLink
+											render={<Link to={item.to} params={item.params} />}
+										>
 											{item.label}
 										</BreadcrumbLink>
 									) : (

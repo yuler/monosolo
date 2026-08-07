@@ -6,12 +6,14 @@ export type DashboardMeContextValue = {
 	me: MeResponse | null;
 	loading: boolean;
 	error: string | null;
+	slug: string;
 };
 
 const DashboardMeContext = createContext<DashboardMeContextValue>({
 	me: null,
 	loading: true,
 	error: null,
+	slug: "",
 });
 
 export function DashboardMeProvider({

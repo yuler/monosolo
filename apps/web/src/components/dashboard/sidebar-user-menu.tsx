@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronsUpDown, LogOut, Users } from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -18,7 +18,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { CORE_URL } from "@/config";
 import type { MeResponse } from "@/lib/api/session";
 import { destroySession } from "@/lib/api/session";
 import { clearSessionToken } from "@/lib/auth/session";
@@ -94,31 +93,18 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 
 						<DropdownMenuSeparator />
 
-						<DropdownMenuItem
-							onClick={() => {
-								window.open(
-									`${CORE_URL}/my/accounts`,
-									"_blank",
-									"noopener,noreferrer",
-								);
-							}}
-						>
-							<Users />
-							My Accounts
-						</DropdownMenuItem>
-
-						<DropdownMenuSeparator />
-
-						<DropdownMenuItem
-							variant="destructive"
-							disabled={signingOut}
-							onClick={() => {
-								void handleSignOut();
-							}}
-						>
-							<LogOut />
-							{signingOut ? "Signing out…" : "Log out"}
-						</DropdownMenuItem>
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								variant="destructive"
+								disabled={signingOut}
+								onClick={() => {
+									void handleSignOut();
+								}}
+							>
+								<LogOut />
+								{signingOut ? "Signing out…" : "Log out"}
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</SidebarMenuItem>

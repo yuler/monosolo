@@ -14,27 +14,26 @@ import { type AdminJobsResponse, fetchAdminJobs } from "@/lib/api/admin";
 import { ApiError } from "@/lib/api/client";
 import { clearSessionToken } from "@/lib/auth/session";
 
-export const Route = createFileRoute("/dashboard/jobs")({
+export const Route = createFileRoute("/$slug/jobs")({
 	component: JobsPage,
 });
 
 function JobsPage() {
 	const navigate = useNavigate();
-	const { me, loading: meLoading } = useDashboardMe();
+	const { me, slug } = useDashboardMe();
 	const [data, setData] = useState<AdminJobsResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		if (meLoading) return;
 		if (!me) return;
 		if (!me.identity.staff) {
-			void navigate({ to: "/dashboard" });
+			void navigate({ to: "/$slug", params: { slug } });
 		}
-	}, [me, meLoading, navigate]);
+	}, [me, navigate, slug]);
 
 	useEffect(() => {
-		if (meLoading || !me?.identity.staff) return;
+		if (!me?.identity.staff) return;
 
 		let cancelled = false;
 
@@ -52,7 +51,7 @@ function JobsPage() {
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/dashboard" });
+					navigate({ to: "/$slug", params: { slug } });
 					return;
 				}
 				setError(
@@ -67,13 +66,13 @@ function JobsPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [me, meLoading, navigate]);
+	}, [me, navigate, slug]);
 
 	return (
 		<>
 			<DashboardHeader
 				breadcrumbs={[
-					{ label: "Dashboard", href: "/dashboard" },
+					{ label: "Home", to: "/$slug", params: { slug } },
 					{ label: "Jobs", isCurrentPage: true },
 				]}
 			/>
@@ -88,7 +87,7 @@ function JobsPage() {
 					</p>
 				</div>
 
-				{loading || meLoading ? (
+				{loading ? (
 					<p className="text-sm text-muted-foreground">Loading…</p>
 				) : null}
 

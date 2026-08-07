@@ -8,10 +8,12 @@ import type { MeResponse } from "@/lib/api/session";
 export function DashboardShell({
 	user,
 	accounts,
+	slug,
 	children,
 }: {
 	user: MeResponse["identity"] | null;
 	accounts: MeResponse["accounts"];
+	slug: string;
 	children: ReactNode;
 }) {
 	return (
@@ -25,7 +27,7 @@ export function DashboardShell({
 					} as CSSProperties
 				}
 			>
-				<DashboardSidebar user={user} accounts={accounts} />
+				<DashboardSidebar user={user} accounts={accounts} slug={slug} />
 				<SidebarInset>{children}</SidebarInset>
 			</SidebarProvider>
 		</TooltipProvider>

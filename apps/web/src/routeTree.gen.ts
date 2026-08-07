@@ -10,11 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as SignRouteImport } from './routes/sign'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as DashboardJobsRouteImport } from './routes/dashboard/jobs'
-import { Route as DashboardStatsRouteImport } from './routes/dashboard/stats'
+import { Route as SlugIndexRouteImport } from './routes/$slug/index'
+import { Route as SlugJobsRouteImport } from './routes/$slug/jobs'
+import { Route as SlugStatsRouteImport } from './routes/$slug/stats'
 import { Route as SignIndexRouteImport } from './routes/sign/index'
 import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
@@ -23,9 +23,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const SlugRoute = SlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignRoute = SignRouteImport.update({
@@ -33,20 +33,20 @@ const SignRoute = SignRouteImport.update({
   path: '/sign',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
+const SlugIndexRoute = SlugIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => SlugRoute,
 } as any)
-const DashboardJobsRoute = DashboardJobsRouteImport.update({
+const SlugJobsRoute = SlugJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => SlugRoute,
 } as any)
-const DashboardStatsRoute = DashboardStatsRouteImport.update({
+const SlugStatsRoute = SlugStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => SlugRoute,
 } as any)
 const SignIndexRoute = SignIndexRouteImport.update({
   id: '/',
@@ -61,67 +61,61 @@ const SignVerifyRoute = SignVerifyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/$slug': typeof SlugRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/dashboard/jobs': typeof DashboardJobsRoute
-  '/dashboard/stats': typeof DashboardStatsRoute
+  '/$slug/jobs': typeof SlugJobsRoute
+  '/$slug/stats': typeof SlugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/$slug/': typeof SlugIndexRoute
   '/sign/': typeof SignIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard/jobs': typeof DashboardJobsRoute
-  '/dashboard/stats': typeof DashboardStatsRoute
+  '/$slug/jobs': typeof SlugJobsRoute
+  '/$slug/stats': typeof SlugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/$slug': typeof SlugIndexRoute
   '/sign': typeof SignIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/$slug': typeof SlugRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/dashboard/jobs': typeof DashboardJobsRoute
-  '/dashboard/stats': typeof DashboardStatsRoute
+  '/$slug/jobs': typeof SlugJobsRoute
+  '/$slug/stats': typeof SlugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/$slug/': typeof SlugIndexRoute
   '/sign/': typeof SignIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
+    | '/$slug'
     | '/sign'
-    | '/dashboard/jobs'
-    | '/dashboard/stats'
+    | '/$slug/jobs'
+    | '/$slug/stats'
     | '/sign/verify'
-    | '/dashboard/'
+    | '/$slug/'
     | '/sign/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/dashboard/jobs'
-    | '/dashboard/stats'
-    | '/sign/verify'
-    | '/dashboard'
-    | '/sign'
+  to: '/' | '/$slug/jobs' | '/$slug/stats' | '/sign/verify' | '/$slug' | '/sign'
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
+    | '/$slug'
     | '/sign'
-    | '/dashboard/jobs'
-    | '/dashboard/stats'
+    | '/$slug/jobs'
+    | '/$slug/stats'
     | '/sign/verify'
-    | '/dashboard/'
+    | '/$slug/'
     | '/sign/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
+  SlugRoute: typeof SlugRouteWithChildren
   SignRoute: typeof SignRouteWithChildren
 }
 
@@ -134,11 +128,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign': {
@@ -148,26 +142,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
+    '/$slug/': {
+      id: '/$slug/'
       path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      fullPath: '/$slug/'
+      preLoaderRoute: typeof SlugIndexRouteImport
+      parentRoute: typeof SlugRoute
     }
-    '/dashboard/jobs': {
-      id: '/dashboard/jobs'
+    '/$slug/jobs': {
+      id: '/$slug/jobs'
       path: '/jobs'
-      fullPath: '/dashboard/jobs'
-      preLoaderRoute: typeof DashboardJobsRouteImport
-      parentRoute: typeof DashboardRoute
+      fullPath: '/$slug/jobs'
+      preLoaderRoute: typeof SlugJobsRouteImport
+      parentRoute: typeof SlugRoute
     }
-    '/dashboard/stats': {
-      id: '/dashboard/stats'
+    '/$slug/stats': {
+      id: '/$slug/stats'
       path: '/stats'
-      fullPath: '/dashboard/stats'
-      preLoaderRoute: typeof DashboardStatsRouteImport
-      parentRoute: typeof DashboardRoute
+      fullPath: '/$slug/stats'
+      preLoaderRoute: typeof SlugStatsRouteImport
+      parentRoute: typeof SlugRoute
     }
     '/sign/': {
       id: '/sign/'
@@ -186,21 +180,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface DashboardRouteChildren {
-  DashboardJobsRoute: typeof DashboardJobsRoute
-  DashboardStatsRoute: typeof DashboardStatsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
+interface SlugRouteChildren {
+  SlugJobsRoute: typeof SlugJobsRoute
+  SlugStatsRoute: typeof SlugStatsRoute
+  SlugIndexRoute: typeof SlugIndexRoute
 }
 
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardJobsRoute: DashboardJobsRoute,
-  DashboardStatsRoute: DashboardStatsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
+const SlugRouteChildren: SlugRouteChildren = {
+  SlugJobsRoute: SlugJobsRoute,
+  SlugStatsRoute: SlugStatsRoute,
+  SlugIndexRoute: SlugIndexRoute,
 }
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
+const SlugRouteWithChildren = SlugRoute._addFileChildren(SlugRouteChildren)
 
 interface SignRouteChildren {
   SignVerifyRoute: typeof SignVerifyRoute
@@ -216,7 +208,7 @@ const SignRouteWithChildren = SignRoute._addFileChildren(SignRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRouteWithChildren,
+  SlugRoute: SlugRouteWithChildren,
   SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport

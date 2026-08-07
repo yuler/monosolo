@@ -28,11 +28,13 @@ import type { MeResponse } from "@/lib/api/session";
 type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
 	user: MeResponse["identity"] | null;
 	accounts: MeResponse["accounts"];
+	slug: string;
 };
 
 export function DashboardSidebar({
 	user,
 	accounts,
+	slug,
 	...props
 }: DashboardSidebarProps) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -42,13 +44,14 @@ export function DashboardSidebar({
 		if (isMobile) setOpenMobile(false);
 	};
 
-	const isActive = (href: string) =>
-		pathname === href || pathname.startsWith(`${href}/`);
+	const homePath = `/${slug}`;
+	const jobsPath = `/${slug}/jobs`;
+	const statsPath = `/${slug}/stats`;
 
 	return (
 		<Sidebar collapsible="icon" variant="inset" {...props}>
 			<SidebarHeader>
-				<AccountSwitcher accounts={accounts} />
+				<AccountSwitcher accounts={accounts} slug={slug} />
 			</SidebarHeader>
 
 			<SidebarContent>
@@ -58,13 +61,19 @@ export function DashboardSidebar({
 							<SidebarMenuItem>
 								<SidebarMenuButton
 									isActive={
-										pathname === "/dashboard" || pathname === "/dashboard/"
+										pathname === homePath || pathname === `${homePath}/`
 									}
-									tooltip="Dashboard"
-									render={<Link to="/dashboard" onClick={closeMobileSidebar} />}
+									tooltip="Home"
+									render={
+										<Link
+											to="/$slug"
+											params={{ slug }}
+											onClick={closeMobileSidebar}
+										/>
+									}
 								>
 									<LayoutDashboard />
-									<span>Dashboard</span>
+									<span>Home</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						</SidebarMenu>
@@ -106,10 +115,17 @@ export function DashboardSidebar({
 							<SidebarMenu>
 								<SidebarMenuItem>
 									<SidebarMenuButton
-										isActive={isActive("/dashboard/jobs")}
+										isActive={
+											pathname === jobsPath ||
+											pathname.startsWith(`${jobsPath}/`)
+										}
 										tooltip="Jobs"
 										render={
-											<Link to="/dashboard/jobs" onClick={closeMobileSidebar} />
+											<Link
+												to="/$slug/jobs"
+												params={{ slug }}
+												onClick={closeMobileSidebar}
+											/>
 										}
 									>
 										<BriefcaseBusiness />
@@ -118,11 +134,15 @@ export function DashboardSidebar({
 								</SidebarMenuItem>
 								<SidebarMenuItem>
 									<SidebarMenuButton
-										isActive={isActive("/dashboard/stats")}
+										isActive={
+											pathname === statsPath ||
+											pathname.startsWith(`${statsPath}/`)
+										}
 										tooltip="Stats"
 										render={
 											<Link
-												to="/dashboard/stats"
+												to="/$slug/stats"
+												params={{ slug }}
 												onClick={closeMobileSidebar}
 											/>
 										}

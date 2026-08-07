@@ -15,27 +15,26 @@ import { type AdminStatsResponse, fetchAdminStats } from "@/lib/api/admin";
 import { ApiError } from "@/lib/api/client";
 import { clearSessionToken } from "@/lib/auth/session";
 
-export const Route = createFileRoute("/dashboard/stats")({
+export const Route = createFileRoute("/$slug/stats")({
 	component: StatsPage,
 });
 
 function StatsPage() {
 	const navigate = useNavigate();
-	const { me, loading: meLoading } = useDashboardMe();
+	const { me, slug } = useDashboardMe();
 	const [data, setData] = useState<AdminStatsResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		if (meLoading) return;
 		if (!me) return;
 		if (!me.identity.staff) {
-			void navigate({ to: "/dashboard" });
+			void navigate({ to: "/$slug", params: { slug } });
 		}
-	}, [me, meLoading, navigate]);
+	}, [me, navigate, slug]);
 
 	useEffect(() => {
-		if (meLoading || !me?.identity.staff) return;
+		if (!me?.identity.staff) return;
 
 		let cancelled = false;
 
@@ -53,7 +52,7 @@ function StatsPage() {
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/dashboard" });
+					navigate({ to: "/$slug", params: { slug } });
 					return;
 				}
 				setError(
@@ -68,13 +67,13 @@ function StatsPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [me, meLoading, navigate]);
+	}, [me, navigate, slug]);
 
 	return (
 		<>
 			<DashboardHeader
 				breadcrumbs={[
-					{ label: "Dashboard", href: "/dashboard" },
+					{ label: "Home", to: "/$slug", params: { slug } },
 					{ label: "Stats", isCurrentPage: true },
 				]}
 			/>
@@ -89,7 +88,7 @@ function StatsPage() {
 					</p>
 				</div>
 
-				{loading || meLoading ? (
+				{loading ? (
 					<p className="text-sm text-muted-foreground">Loading…</p>
 				) : null}
 

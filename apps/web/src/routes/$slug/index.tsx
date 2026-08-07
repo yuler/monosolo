@@ -11,26 +11,25 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-export const Route = createFileRoute("/dashboard/")({
-	component: DashboardPage,
+export const Route = createFileRoute("/$slug/")({
+	component: AccountHomePage,
 });
 
-function DashboardPage() {
-	const { me, loading, error } = useDashboardMe();
+function AccountHomePage() {
+	const { me, loading, error, slug } = useDashboardMe();
+	const account = me?.accounts.find((item) => item.slug === slug);
 
 	return (
 		<>
-			<DashboardHeader
-				breadcrumbs={[{ label: "Dashboard", isCurrentPage: true }]}
-			/>
+			<DashboardHeader breadcrumbs={[{ label: "Home", isCurrentPage: true }]} />
 
 			<div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
 				<div>
 					<h1 className="font-heading text-2xl font-semibold tracking-tight">
-						Dashboard
+						{account?.name ?? "Account"}
 					</h1>
 					<p className="mt-1 text-sm text-muted-foreground">
-						Your identity and accounts.
+						/{slug} · identity and membership for this account.
 					</p>
 				</div>
 
@@ -69,18 +68,18 @@ function DashboardPage() {
 										No accounts yet.
 									</p>
 								) : (
-									me.accounts.map((account) => (
+									me.accounts.map((item) => (
 										<div
-											key={account.id}
+											key={item.id}
 											className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
 										>
 											<div className="min-w-0">
-												<p className="truncate font-medium">{account.name}</p>
+												<p className="truncate font-medium">{item.name}</p>
 												<p className="truncate text-xs text-muted-foreground">
-													/{account.slug}
+													/{item.slug}
 												</p>
 											</div>
-											{account.personal ? (
+											{item.personal ? (
 												<Badge variant="secondary">Personal</Badge>
 											) : (
 												<Badge variant="outline">Team</Badge>

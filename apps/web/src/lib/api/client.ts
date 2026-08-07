@@ -1,4 +1,5 @@
 import { CORE_URL } from "@/config";
+import { getSelectedAccountSlug } from "@/lib/auth/account";
 import { clearSessionToken, getSessionToken } from "@/lib/auth/session";
 
 export class ApiError extends Error {
@@ -16,11 +17,19 @@ export class ApiError extends Error {
 type ApiOptions = Omit<RequestInit, "body"> & {
 	body?: unknown;
 	auth?: boolean;
+	/** When true, sends X-Account-Slug from the selected account (account-scoped APIs). */
+	accountScoped?: boolean;
 };
 
 export async function apiFetch<T>(
 	path: string,
-	{ body, auth = false, headers, ...init }: ApiOptions = {},
+	{
+		body,
+		auth = false,
+		accountScoped = false,
+		headers,
+		...init
+	}: ApiOptions = {},
 ): Promise<T> {
 	const requestHeaders = new Headers(headers);
 	if (body !== undefined) {
@@ -34,6 +43,13 @@ export async function apiFetch<T>(
 			throw new ApiError(401, "Unauthorized", "UNAUTHORIZED");
 		}
 		requestHeaders.set("Authorization", `Bearer ${token}`);
+	}
+
+	if (accountScoped) {
+		const slug = getSelectedAccountSlug();
+		if (slug) {
+			requestHeaders.set("X-Account-Slug", slug);
+		}
 	}
 
 	const response = await fetch(`${CORE_URL}${path}`, {
