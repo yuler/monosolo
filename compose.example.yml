@@ -2,9 +2,9 @@
 # Example Docker Compose file
 # ===========================================================================
 
-x-rails-env:
+x-core-env:
   # `rails secret` or `openssl rand -hex 64` generate a random secret key
-  &rails_env
+  &core_env
   SECRET_KEY_BASE: ${SECRET_KEY_BASE:-e84aa0d3f501eaeb64b6c4ddbb6ba2d27f25bf980b3f855e9b525dc80fd65fbdfdf46bdee5c0de6cf51642f332e030ef1afc17f0788af447a16cacb789b6e868}
   CORE_PORT: ${CORE_PORT:-3001}
 
@@ -12,32 +12,47 @@ services:
   core:
     image: ghcr.io/yuler/monosolo:main
     volumes:
-      - rails-storage:/rails/storage
+      - core-storage:/rails/storage
     ports:
       - ${CORE_PORT:-3001}:3000
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      <<: *rails_env
+      <<: *core_env
     networks:
-      - rails_starter_net
+      - core_net
 
   worker:
     image: ghcr.io/yuler/monosolo:main
     command: bin/jobs
     volumes:
-      - rails-storage:/rails/storage
+      - core-storage:/rails/storage
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      <<: *rails_env
+      <<: *core_env
     networks:
-      - rails_starter_net
+      - core_net
+
+  # apps/web — Vite SPA (static build served on port 80 in the container)
+  web:
+    image: ghcr.io/yuler/monosolo-web:main
+    ports:
+      - ${WEB_PORT:-3000}:80
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      WEB_PORT: ${WEB_PORT:-3000}
+    depends_on:
+      - core
+    networks:
+      - core_net
 
 volumes:
-  rails-storage:
+  core-storage:
     # driver: local
     # driver_opts:
     #   type: none
@@ -45,5 +60,5 @@ volumes:
     #   device: ${PWD}/storage
 
 networks:
-  rails_starter_net:
+  core_net:
     driver: bridge
