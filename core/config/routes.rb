@@ -58,7 +58,7 @@ Rails.application.routes.draw do
           resource :magic_link, only: :create
         end
       end
-      resource :me, only: :show, controller: "me"
+      get "me", to: "me#show"
 
       namespace :admin do
         resource :stats, only: :show
