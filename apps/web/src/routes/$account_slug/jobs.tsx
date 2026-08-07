@@ -14,7 +14,7 @@ import { type AdminJobsResponse, fetchAdminJobs } from "@/lib/api/admin";
 import { ApiError } from "@/lib/api/client";
 import { clearSessionToken } from "@/lib/auth/session";
 
-export const Route = createFileRoute("/$slug/jobs")({
+export const Route = createFileRoute("/$account_slug/jobs")({
 	component: JobsPage,
 });
 
@@ -28,7 +28,7 @@ function JobsPage() {
 	useEffect(() => {
 		if (!me) return;
 		if (!me.identity.staff) {
-			void navigate({ to: "/$slug", params: { slug } });
+			void navigate({ to: "/$account_slug", params: { account_slug: slug } });
 		}
 	}, [me, navigate, slug]);
 
@@ -51,7 +51,7 @@ function JobsPage() {
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/$slug", params: { slug } });
+					navigate({ to: "/$account_slug", params: { account_slug: slug } });
 					return;
 				}
 				setError(
@@ -72,7 +72,7 @@ function JobsPage() {
 		<>
 			<DashboardHeader
 				breadcrumbs={[
-					{ label: "Home", to: "/$slug", params: { slug } },
+					{ label: "Home", to: "/$account_slug", params: { account_slug: slug } },
 					{ label: "Jobs", isCurrentPage: true },
 				]}
 			/>

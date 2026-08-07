@@ -15,7 +15,7 @@ import { type AdminStatsResponse, fetchAdminStats } from "@/lib/api/admin";
 import { ApiError } from "@/lib/api/client";
 import { clearSessionToken } from "@/lib/auth/session";
 
-export const Route = createFileRoute("/$slug/stats")({
+export const Route = createFileRoute("/$account_slug/stats")({
 	component: StatsPage,
 });
 
@@ -29,7 +29,7 @@ function StatsPage() {
 	useEffect(() => {
 		if (!me) return;
 		if (!me.identity.staff) {
-			void navigate({ to: "/$slug", params: { slug } });
+			void navigate({ to: "/$account_slug", params: { account_slug: slug } });
 		}
 	}, [me, navigate, slug]);
 
@@ -52,7 +52,7 @@ function StatsPage() {
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/$slug", params: { slug } });
+					navigate({ to: "/$account_slug", params: { account_slug: slug } });
 					return;
 				}
 				setError(
@@ -73,7 +73,7 @@ function StatsPage() {
 		<>
 			<DashboardHeader
 				breadcrumbs={[
-					{ label: "Home", to: "/$slug", params: { slug } },
+					{ label: "Home", to: "/$account_slug", params: { account_slug: slug } },
 					{ label: "Stats", isCurrentPage: true },
 				]}
 			/>

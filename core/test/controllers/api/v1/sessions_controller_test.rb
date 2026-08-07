@@ -48,7 +48,7 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
     session = identity.sessions.create!
     sign_in_with_session_cookie(session)
 
-    delete api_v1_session_url, headers: csrf_headers, as: :json
+    delete api_v1_session_url, as: :json
 
     assert_response :success
     assert_nil Session.find_by(id: session.id)
@@ -66,11 +66,5 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
         cookie_jar.signed[:session_id] = session.signed_id
         cookies[:session_id] = cookie_jar[:session_id]
       end
-    end
-
-    def csrf_headers
-      get api_v1_csrf_url, as: :json
-      token = response.parsed_body["csrf_token"]
-      { "X-CSRF-Token" => token }
     end
 end

@@ -66,8 +66,8 @@ export function DashboardSidebar({
 									tooltip="Home"
 									render={
 										<Link
-											to="/$slug"
-											params={{ slug }}
+											to="/$account_slug"
+											params={{ account_slug: slug }}
 											onClick={closeMobileSidebar}
 										/>
 									}
@@ -122,8 +122,8 @@ export function DashboardSidebar({
 										tooltip="Jobs"
 										render={
 											<Link
-												to="/$slug/jobs"
-												params={{ slug }}
+												to="/$account_slug/jobs"
+												params={{ account_slug: slug }}
 												onClick={closeMobileSidebar}
 											/>
 										}
@@ -141,8 +141,8 @@ export function DashboardSidebar({
 										tooltip="Stats"
 										render={
 											<Link
-												to="/$slug/stats"
-												params={{ slug }}
+												to="/$account_slug/stats"
+												params={{ account_slug: slug }}
 												onClick={closeMobileSidebar}
 											/>
 										}

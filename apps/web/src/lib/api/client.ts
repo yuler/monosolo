@@ -1,5 +1,4 @@
 import { CORE_URL } from "@/config";
-import { clearCsrfToken, ensureCsrfToken } from "@/lib/api/csrf";
 import { getSelectedAccountSlug } from "@/lib/auth/account";
 import { clearSessionToken, getSessionToken } from "@/lib/auth/session";
 
@@ -21,12 +20,6 @@ type ApiOptions = Omit<RequestInit, "body"> & {
 	/** When true, sends X-Account-Slug from the selected account (account-scoped APIs). */
 	accountScoped?: boolean;
 };
-
-const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-
-function isMutatingMethod(method: string): boolean {
-	return MUTATING_METHODS.has(method.toUpperCase());
-}
 
 export async function apiFetch<T>(
 	path: string,
@@ -57,10 +50,6 @@ export async function apiFetch<T>(
 		}
 	}
 
-	if (isMutatingMethod(method) && !token) {
-		requestHeaders.set("X-CSRF-Token", await ensureCsrfToken());
-	}
-
 	const response = await fetch(`${CORE_URL}${path}`, {
 		...init,
 		method,
@@ -69,32 +58,6 @@ export async function apiFetch<T>(
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
 
-	if (response.status === 422) {
-		let code: string | undefined;
-		try {
-			const payload = (await response.clone().json()) as { code?: string };
-			code = payload.code;
-		} catch {
-			// ignore
-		}
-		if (code === "INVALID_CSRF") {
-			clearCsrfToken();
-			requestHeaders.set("X-CSRF-Token", await ensureCsrfToken());
-			const retry = await fetch(`${CORE_URL}${path}`, {
-				...init,
-				method,
-				credentials: "include",
-				headers: requestHeaders,
-				body: body === undefined ? undefined : JSON.stringify(body),
-			});
-			return parseResponse<T>(retry, auth);
-		}
-	}
-
-	return parseResponse<T>(response, auth);
-}
-
-async function parseResponse<T>(response: Response, auth: boolean): Promise<T> {
 	if (response.status === 401 && auth) {
 		clearSessionToken();
 	}

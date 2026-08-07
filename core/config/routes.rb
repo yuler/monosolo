@@ -59,7 +59,6 @@ Rails.application.routes.draw do
         end
       end
       get "me", to: "me#show"
-      resource :csrf, only: :show, controller: "csrf"
 
       namespace :admin do
         resource :stats, only: :show

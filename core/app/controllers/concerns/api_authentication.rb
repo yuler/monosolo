@@ -11,11 +11,6 @@ module ApiAuthentication
     etag { Current.identity.id if authenticated? }
 
     include ActionController::HttpAuthentication::Token::ControllerMethods
-    include ActionController::RequestForgeryProtection
-
-    if Rails.application.config.action_controller.allow_forgery_protection
-      protect_from_forgery with: :exception, unless: :csrf_exempt?
-    end
   end
 
   class_methods do
@@ -94,14 +89,6 @@ module ApiAuthentication
 
     def session_cookie_domain
       ENV["SESSION_COOKIE_DOMAIN"].presence
-    end
-
-    def csrf_exempt?
-      bearer_authenticated? || request.get? || request.head? || request.options?
-    end
-
-    def bearer_authenticated?
-      request.authorization.to_s.include?("Bearer")
     end
 
     def authenticate_by_bearer_token

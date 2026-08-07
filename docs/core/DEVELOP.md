@@ -104,7 +104,7 @@ Passwordless magic-link authentication:
 | A — split  | `https://core.example.com` | `.example.com`            | Required (`Allow-Credentials`) |
 | B — proxy  | `""` (relative `/api/v1`) | unset (host-only cookie)  | Not needed for web           |
 
-Cookie-authenticated mutating API requests require `X-CSRF-Token` from `GET /api/v1/csrf` unless the request sends `Authorization: Bearer`.
+Session cookies use `SameSite=Lax`. CSRF uses Rails 8.2 `protect_from_forgery using: :header_only` (`Sec-Fetch-Site` from the browser); JSON API clients without that header (curl, native apps) are allowed via `RequestForgeryProtection`.
 
 ### Core Domain Models
 

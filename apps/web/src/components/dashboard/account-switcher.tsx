@@ -86,14 +86,14 @@ export function AccountSwitcher({
 			: "";
 
 		if (suffix === "/jobs") {
-			void navigate({ to: "/$slug/jobs", params: { slug: account.slug } });
+			void navigate({ to: "/$account_slug/jobs", params: { account_slug: account.slug } });
 			return;
 		}
 		if (suffix === "/stats") {
-			void navigate({ to: "/$slug/stats", params: { slug: account.slug } });
+			void navigate({ to: "/$account_slug/stats", params: { account_slug: account.slug } });
 			return;
 		}
-		void navigate({ to: "/$slug", params: { slug: account.slug } });
+		void navigate({ to: "/$account_slug", params: { account_slug: account.slug } });
 	}
 
 	const ActiveIcon = active.personal ? UserRound : Building2;

@@ -2,6 +2,7 @@
 
 class Api::V1::BaseController < ActionController::API
   include ActionController::Cookies
+  include RequestForgeryProtection
   include ApiAuthentication
   include Authorization
   include CurrentRequest
@@ -12,6 +13,6 @@ class Api::V1::BaseController < ActionController::API
   end
 
   rescue_from ActionController::InvalidCrossOriginRequest do
-    render json: { error: "Invalid CSRF token", code: "INVALID_CSRF" }, status: :unprocessable_entity
+    render json: { error: "Invalid cross-origin request", code: "INVALID_CROSS_ORIGIN" }, status: :unprocessable_entity
   end
 end

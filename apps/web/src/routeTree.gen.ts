@@ -10,11 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SlugRouteImport } from './routes/$slug'
+import { Route as Account_slugRouteImport } from './routes/$account_slug'
 import { Route as SignRouteImport } from './routes/sign'
-import { Route as SlugIndexRouteImport } from './routes/$slug/index'
-import { Route as SlugJobsRouteImport } from './routes/$slug/jobs'
-import { Route as SlugStatsRouteImport } from './routes/$slug/stats'
+import { Route as Account_slugIndexRouteImport } from './routes/$account_slug/index'
+import { Route as Account_slugJobsRouteImport } from './routes/$account_slug/jobs'
+import { Route as Account_slugStatsRouteImport } from './routes/$account_slug/stats'
 import { Route as SignIndexRouteImport } from './routes/sign/index'
 import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
@@ -23,9 +23,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlugRoute = SlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
+const Account_slugRoute = Account_slugRouteImport.update({
+  id: '/$account_slug',
+  path: '/$account_slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignRoute = SignRouteImport.update({
@@ -33,20 +33,20 @@ const SignRoute = SignRouteImport.update({
   path: '/sign',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlugIndexRoute = SlugIndexRouteImport.update({
+const Account_slugIndexRoute = Account_slugIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => SlugRoute,
+  getParentRoute: () => Account_slugRoute,
 } as any)
-const SlugJobsRoute = SlugJobsRouteImport.update({
+const Account_slugJobsRoute = Account_slugJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
-  getParentRoute: () => SlugRoute,
+  getParentRoute: () => Account_slugRoute,
 } as any)
-const SlugStatsRoute = SlugStatsRouteImport.update({
+const Account_slugStatsRoute = Account_slugStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
-  getParentRoute: () => SlugRoute,
+  getParentRoute: () => Account_slugRoute,
 } as any)
 const SignIndexRoute = SignIndexRouteImport.update({
   id: '/',
@@ -61,61 +61,67 @@ const SignVerifyRoute = SignVerifyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$slug': typeof SlugRouteWithChildren
+  '/$account_slug': typeof Account_slugRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/$slug/jobs': typeof SlugJobsRoute
-  '/$slug/stats': typeof SlugStatsRoute
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/$slug/': typeof SlugIndexRoute
+  '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$slug/jobs': typeof SlugJobsRoute
-  '/$slug/stats': typeof SlugStatsRoute
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/$slug': typeof SlugIndexRoute
+  '/$account_slug': typeof Account_slugIndexRoute
   '/sign': typeof SignIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$slug': typeof SlugRouteWithChildren
+  '/$account_slug': typeof Account_slugRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/$slug/jobs': typeof SlugJobsRoute
-  '/$slug/stats': typeof SlugStatsRoute
+  '/$account_slug/jobs': typeof Account_slugJobsRoute
+  '/$account_slug/stats': typeof Account_slugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
-  '/$slug/': typeof SlugIndexRoute
+  '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$slug'
+    | '/$account_slug'
     | '/sign'
-    | '/$slug/jobs'
-    | '/$slug/stats'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
     | '/sign/verify'
-    | '/$slug/'
+    | '/$account_slug/'
     | '/sign/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$slug/jobs' | '/$slug/stats' | '/sign/verify' | '/$slug' | '/sign'
+  to:
+    | '/'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
+    | '/sign/verify'
+    | '/$account_slug'
+    | '/sign'
   id:
     | '__root__'
     | '/'
-    | '/$slug'
+    | '/$account_slug'
     | '/sign'
-    | '/$slug/jobs'
-    | '/$slug/stats'
+    | '/$account_slug/jobs'
+    | '/$account_slug/stats'
     | '/sign/verify'
-    | '/$slug/'
+    | '/$account_slug/'
     | '/sign/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SlugRoute: typeof SlugRouteWithChildren
+  Account_slugRoute: typeof Account_slugRouteWithChildren
   SignRoute: typeof SignRouteWithChildren
 }
 
@@ -128,11 +134,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$slug': {
-      id: '/$slug'
-      path: '/$slug'
-      fullPath: '/$slug'
-      preLoaderRoute: typeof SlugRouteImport
+    '/$account_slug': {
+      id: '/$account_slug'
+      path: '/$account_slug'
+      fullPath: '/$account_slug'
+      preLoaderRoute: typeof Account_slugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign': {
@@ -142,26 +148,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$slug/': {
-      id: '/$slug/'
+    '/$account_slug/': {
+      id: '/$account_slug/'
       path: '/'
-      fullPath: '/$slug/'
-      preLoaderRoute: typeof SlugIndexRouteImport
-      parentRoute: typeof SlugRoute
+      fullPath: '/$account_slug/'
+      preLoaderRoute: typeof Account_slugIndexRouteImport
+      parentRoute: typeof Account_slugRoute
     }
-    '/$slug/jobs': {
-      id: '/$slug/jobs'
+    '/$account_slug/jobs': {
+      id: '/$account_slug/jobs'
       path: '/jobs'
-      fullPath: '/$slug/jobs'
-      preLoaderRoute: typeof SlugJobsRouteImport
-      parentRoute: typeof SlugRoute
+      fullPath: '/$account_slug/jobs'
+      preLoaderRoute: typeof Account_slugJobsRouteImport
+      parentRoute: typeof Account_slugRoute
     }
-    '/$slug/stats': {
-      id: '/$slug/stats'
+    '/$account_slug/stats': {
+      id: '/$account_slug/stats'
       path: '/stats'
-      fullPath: '/$slug/stats'
-      preLoaderRoute: typeof SlugStatsRouteImport
-      parentRoute: typeof SlugRoute
+      fullPath: '/$account_slug/stats'
+      preLoaderRoute: typeof Account_slugStatsRouteImport
+      parentRoute: typeof Account_slugRoute
     }
     '/sign/': {
       id: '/sign/'
@@ -180,19 +186,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface SlugRouteChildren {
-  SlugJobsRoute: typeof SlugJobsRoute
-  SlugStatsRoute: typeof SlugStatsRoute
-  SlugIndexRoute: typeof SlugIndexRoute
+interface Account_slugRouteChildren {
+  Account_slugJobsRoute: typeof Account_slugJobsRoute
+  Account_slugStatsRoute: typeof Account_slugStatsRoute
+  Account_slugIndexRoute: typeof Account_slugIndexRoute
 }
 
-const SlugRouteChildren: SlugRouteChildren = {
-  SlugJobsRoute: SlugJobsRoute,
-  SlugStatsRoute: SlugStatsRoute,
-  SlugIndexRoute: SlugIndexRoute,
+const Account_slugRouteChildren: Account_slugRouteChildren = {
+  Account_slugJobsRoute: Account_slugJobsRoute,
+  Account_slugStatsRoute: Account_slugStatsRoute,
+  Account_slugIndexRoute: Account_slugIndexRoute,
 }
 
-const SlugRouteWithChildren = SlugRoute._addFileChildren(SlugRouteChildren)
+const Account_slugRouteWithChildren = Account_slugRoute._addFileChildren(
+  Account_slugRouteChildren,
+)
 
 interface SignRouteChildren {
   SignVerifyRoute: typeof SignVerifyRoute
@@ -208,7 +216,7 @@ const SignRouteWithChildren = SignRoute._addFileChildren(SignRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SlugRoute: SlugRouteWithChildren,
+  Account_slugRoute: Account_slugRouteWithChildren,
   SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport

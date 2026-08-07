@@ -11,7 +11,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-export const Route = createFileRoute("/$slug/")({
+export const Route = createFileRoute("/$account_slug/")({
 	component: AccountHomePage,
 });
 

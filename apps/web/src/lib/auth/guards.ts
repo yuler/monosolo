@@ -14,7 +14,7 @@ export async function requireGuest() {
 
 	const saved = getSelectedAccountSlug();
 	if (saved && isAccountSlug(saved)) {
-		throw redirect({ to: "/$slug", params: { slug: saved } });
+		throw redirect({ to: "/$account_slug", params: { account_slug: saved } });
 	}
 
 	try {
@@ -22,7 +22,10 @@ export async function requireGuest() {
 		const account = resolveSelectedAccount(me.accounts);
 		if (account) {
 			setSelectedAccountSlug(account.slug);
-			throw redirect({ to: "/$slug", params: { slug: account.slug } });
+			throw redirect({
+				to: "/$account_slug",
+				params: { account_slug: account.slug },
+			});
 		}
 	} catch (err) {
 		if (err && typeof err === "object" && "to" in err) throw err;
@@ -42,5 +45,5 @@ export async function redirectToAccountHome() {
 		throw redirect({ to: "/sign" });
 	}
 	setSelectedAccountSlug(account.slug);
-	throw redirect({ to: "/$slug", params: { slug: account.slug } });
+	throw redirect({ to: "/$account_slug", params: { account_slug: account.slug } });
 }

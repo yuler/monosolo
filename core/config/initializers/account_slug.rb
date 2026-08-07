@@ -9,7 +9,7 @@ module AccountSlug
   # - FROM_ROUTES: top-level segments in config/routes.rb (+ mounts). Update when adding routes.
   # - EXTRA: policy / future / infra words reserved even without a matching route today.
   RESERVED_FROM_ROUTES = %w[
-    admin api cable csrf home hotwire-spark invitations join join_code
+    admin api cable home hotwire-spark invitations join join_code
     landing letter_opener manifest my payment rails service-worker session settings
     subscription up users webhooks
   ].freeze

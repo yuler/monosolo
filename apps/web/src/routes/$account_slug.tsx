@@ -14,21 +14,23 @@ import { requireAuth } from "@/lib/auth/guards";
 import { clearSessionToken } from "@/lib/auth/session";
 import { isAccountSlug } from "@/lib/auth/slugs";
 
-export const Route = createFileRoute("/$slug")({
+export const Route = createFileRoute("/$account_slug")({
 	beforeLoad: ({ params }) => {
 		requireAuth();
-		if (!isAccountSlug(params.slug)) {
+		if (!isAccountSlug(params.account_slug)) {
 			throw notFound();
 		}
 	},
 	loader: async ({ params }) => {
 		try {
 			const me = await fetchMe();
-			const account = me.accounts.find((item) => item.slug === params.slug);
+			const account = me.accounts.find(
+				(item) => item.slug === params.account_slug,
+			);
 			if (!account) {
 				throw notFound();
 			}
-			setSelectedAccountSlug(params.slug);
+			setSelectedAccountSlug(params.account_slug);
 			return { me, account };
 		} catch (err) {
 			if (err instanceof ApiError && err.status === 401) {
@@ -42,12 +44,14 @@ export const Route = createFileRoute("/$slug")({
 });
 
 function AccountLayout() {
-	const { slug } = Route.useParams();
+	const { account_slug } = Route.useParams();
 	const { me } = Route.useLoaderData();
 
 	return (
-		<DashboardShell user={me.identity} accounts={me.accounts} slug={slug}>
-			<DashboardMeProvider value={{ me, loading: false, error: null, slug }}>
+		<DashboardShell user={me.identity} accounts={me.accounts} slug={account_slug}>
+			<DashboardMeProvider
+				value={{ me, loading: false, error: null, slug: account_slug }}
+			>
 				<Outlet />
 			</DashboardMeProvider>
 		</DashboardShell>

@@ -102,8 +102,8 @@ export function SiteAuthButton({
 	if (slug) {
 		return (
 			<Link
-				to="/$slug"
-				params={{ slug }}
+				to="/$account_slug"
+				params={{ account_slug: slug }}
 				className={cn(buttonVariants({ size, variant }), className)}
 			>
 				{dashboardLabel}
@@ -126,8 +126,8 @@ export function SiteAuthButton({
 						setSelectedAccountSlug(account.slug);
 						setSlug(account.slug);
 						await navigate({
-							to: "/$slug",
-							params: { slug: account.slug },
+							to: "/$account_slug",
+							params: { account_slug: account.slug },
 						});
 					} catch {
 						setSignedIn(false);

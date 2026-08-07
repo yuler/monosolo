@@ -49,7 +49,7 @@ module MonoSolo
           204,
           cors_headers({
             "Access-Control-Allow-Methods" => "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers" => "Authorization, Content-Type, X-Account-Slug, X-CSRF-Token",
+            "Access-Control-Allow-Headers" => "Authorization, Content-Type, X-Account-Slug",
             "Access-Control-Max-Age" => "86400"
           }, origin),
           []
