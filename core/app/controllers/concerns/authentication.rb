@@ -8,6 +8,7 @@ module Authentication
 
     # before_action: set_sentry_context, TODO:
 
+    include Authentication::SessionCookies
     include Authentication::ViaMagicLink
   end
 
@@ -52,10 +53,6 @@ module Authentication
       end
     end
 
-    def find_session_by_cookie
-      Session.find_signed(cookies.signed[:session_id])
-    end
-
     def authenticate_by_bearer_token
       if request.authorization.to_s.include?("Bearer")
         authenticate_or_request_with_http_token do |token|
@@ -96,27 +93,4 @@ module Authentication
       redirect_to main_app.root_url(script_name: nil) if Current.account.present?
     end
 
-    def start_new_session_for(identity)
-      identity.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
-        set_current_session session
-      end
-    end
-
-    def set_current_session(session)
-      Current.session = session
-      cookies.signed.permanent[:session_id] = { value: session.signed_id, httponly: true, same_site: :lax }
-    end
-
-    def terminate_session
-      Current.session.destroy
-      cookies.delete(:session_id)
-    end
-
-    def session_token
-      Current.session.signed_id
-    end
-
-    def session_id
-      cookies[:session_id]
-    end
 end

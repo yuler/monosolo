@@ -19,6 +19,18 @@ class Api::V1::MeControllerTest < ActionDispatch::IntegrationTest
     assert body["accounts"].any? { |account| account["slug"] == accounts(:john_account).slug }
   end
 
+  test "show accepts session cookie" do
+    ActionDispatch::TestRequest.create.cookie_jar.tap do |cookie_jar|
+      cookie_jar.signed[:session_id] = @session.signed_id
+      cookies[:session_id] = cookie_jar[:session_id]
+    end
+
+    get api_v1_me_url, as: :json
+
+    assert_response :success
+    assert_equal @identity.id, response.parsed_body["identity"]["id"]
+  end
+
   test "show requires authentication" do
     get api_v1_me_url, as: :json
 

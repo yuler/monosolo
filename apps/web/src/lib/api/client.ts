@@ -1,4 +1,5 @@
 import { CORE_URL } from "@/config";
+import { clearCsrfToken, ensureCsrfToken } from "@/lib/api/csrf";
 import { getSelectedAccountSlug } from "@/lib/auth/account";
 import { clearSessionToken, getSessionToken } from "@/lib/auth/session";
 
@@ -21,6 +22,12 @@ type ApiOptions = Omit<RequestInit, "body"> & {
 	accountScoped?: boolean;
 };
 
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+function isMutatingMethod(method: string): boolean {
+	return MUTATING_METHODS.has(method.toUpperCase());
+}
+
 export async function apiFetch<T>(
 	path: string,
 	{
@@ -28,6 +35,7 @@ export async function apiFetch<T>(
 		auth = false,
 		accountScoped = false,
 		headers,
+		method = "GET",
 		...init
 	}: ApiOptions = {},
 ): Promise<T> {
@@ -37,11 +45,8 @@ export async function apiFetch<T>(
 	}
 	requestHeaders.set("Accept", "application/json");
 
-	if (auth) {
-		const token = getSessionToken();
-		if (!token) {
-			throw new ApiError(401, "Unauthorized", "UNAUTHORIZED");
-		}
+	const token = auth ? getSessionToken() : null;
+	if (token) {
 		requestHeaders.set("Authorization", `Bearer ${token}`);
 	}
 
@@ -52,12 +57,44 @@ export async function apiFetch<T>(
 		}
 	}
 
+	if (isMutatingMethod(method) && !token) {
+		requestHeaders.set("X-CSRF-Token", await ensureCsrfToken());
+	}
+
 	const response = await fetch(`${CORE_URL}${path}`, {
 		...init,
+		method,
+		credentials: "include",
 		headers: requestHeaders,
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
 
+	if (response.status === 422) {
+		let code: string | undefined;
+		try {
+			const payload = (await response.clone().json()) as { code?: string };
+			code = payload.code;
+		} catch {
+			// ignore
+		}
+		if (code === "INVALID_CSRF") {
+			clearCsrfToken();
+			requestHeaders.set("X-CSRF-Token", await ensureCsrfToken());
+			const retry = await fetch(`${CORE_URL}${path}`, {
+				...init,
+				method,
+				credentials: "include",
+				headers: requestHeaders,
+				body: body === undefined ? undefined : JSON.stringify(body),
+			});
+			return parseResponse<T>(retry, auth);
+		}
+	}
+
+	return parseResponse<T>(response, auth);
+}
+
+async function parseResponse<T>(response: Response, auth: boolean): Promise<T> {
 	if (response.status === 401 && auth) {
 		clearSessionToken();
 	}

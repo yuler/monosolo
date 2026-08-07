@@ -1,5 +1,5 @@
-# Allow browser apps (apps/web) to call /api/v1 with Bearer tokens.
-# Credentials cookies are not used — Authorization header only.
+# Allow browser apps (apps/web) to call /api/v1 with cookies and/or Bearer tokens.
+# Cross-origin (subdomain split) requires CORS with credentials; same-origin proxy does not.
 module MonoSolo
   class CorsMiddleware
     API_PREFIX = "/api/v1"
@@ -49,7 +49,7 @@ module MonoSolo
           204,
           cors_headers({
             "Access-Control-Allow-Methods" => "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers" => "Authorization, Content-Type, X-Account-Slug",
+            "Access-Control-Allow-Headers" => "Authorization, Content-Type, X-Account-Slug, X-CSRF-Token",
             "Access-Control-Max-Age" => "86400"
           }, origin),
           []
@@ -60,6 +60,7 @@ module MonoSolo
         headers = headers.dup
         if allowed_origin?(origin)
           headers["Access-Control-Allow-Origin"] = origin
+          headers["Access-Control-Allow-Credentials"] = "true"
           headers["Vary"] = [ headers["Vary"], "Origin" ].compact.join(", ")
         end
         headers

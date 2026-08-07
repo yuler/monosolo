@@ -1,5 +1,6 @@
 class Api::V1::SessionsController < Api::V1::BaseController
   include Authentication::PendingAuthenticationToken
+  include Authentication::PendingAuthenticationCookies
 
   allow_unauthenticated_access only: :create
   disallow_account_scope
@@ -14,7 +15,7 @@ class Api::V1::SessionsController < Api::V1::BaseController
   end
 
   def destroy
-    Current.session.destroy
+    terminate_session
     render_json_ok
   end
 
@@ -38,6 +39,8 @@ class Api::V1::SessionsController < Api::V1::BaseController
     end
 
     def start_magic_link_for(magic_link)
+      set_pending_authentication_token(magic_link)
+
       payload = {
         pending_authentication_token: generate_pending_authentication_token(magic_link)
       }

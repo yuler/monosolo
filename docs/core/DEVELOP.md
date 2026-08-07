@@ -94,8 +94,17 @@ Passwordless magic-link authentication:
 
 - Global `Identity` (email-based) can have `Users` in multiple Accounts
 - Users belong to an Account and have roles: owner, admin, member, system
-- Sessions managed via signed cookies
+- Sessions managed via signed `session_id` cookies (browser) and optional Bearer tokens (mobile/CLI)
 - Board-level access control via `Access` records
+
+**Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"`. After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients.
+
+| Deployment | `VITE_CORE_URL`           | `SESSION_COOKIE_DOMAIN`   | CORS                         |
+| ---------- | ------------------------- | ------------------------- | ---------------------------- |
+| A — split  | `https://core.example.com` | `.example.com`            | Required (`Allow-Credentials`) |
+| B — proxy  | `""` (relative `/api/v1`) | unset (host-only cookie)  | Not needed for web           |
+
+Cookie-authenticated mutating API requests require `X-CSRF-Token` from `GET /api/v1/csrf` unless the request sends `Authorization: Bearer`.
 
 ### Core Domain Models
 

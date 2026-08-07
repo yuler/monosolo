@@ -18,12 +18,25 @@ class Api::V1::Sessions::MagicLinksControllerTest < ActionDispatch::IntegrationT
     token = response.parsed_body["session_token"]
     assert token.present?
     assert Session.find_signed(token)
+    assert cookies[:session_id].present?
+  end
+
+  test "create accepts pending token from cookie" do
+    post api_v1_session_url, params: { email: @identity.email }, as: :json
+    pending_cookie = cookies[:pending_authentication_token]
+    assert pending_cookie.present?
+
+    post api_v1_session_magic_link_url, params: { code: @code }, as: :json
+
+    assert_response :success
+    assert response.parsed_body["session_token"].present?
   end
 
   test "create rejects missing pending token" do
-    post api_v1_session_magic_link_url, params: { code: @code }, as: :json
-
-    assert_response :unauthorized
+    open_session do |sess|
+      sess.post sess.api_v1_session_magic_link_url, params: { code: @code }, as: :json
+      sess.assert_response :unauthorized
+    end
   end
 
   test "create rejects bad code" do

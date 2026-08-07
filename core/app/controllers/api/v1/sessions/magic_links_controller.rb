@@ -1,5 +1,7 @@
 class Api::V1::Sessions::MagicLinksController < Api::V1::BaseController
   include Authentication::PendingAuthenticationToken
+  include Authentication::PendingAuthenticationCookies
+  include Authentication::SessionCookies
 
   allow_unauthenticated_access
   disallow_account_scope
@@ -20,10 +22,6 @@ class Api::V1::Sessions::MagicLinksController < Api::V1::BaseController
       params.expect(:code)
     end
 
-    def email_pending_authentication
-      verify_pending_authentication_token(params[:pending_authentication_token])
-    end
-
     def authenticate(magic_link)
       if ActiveSupport::SecurityUtils.secure_compare(email_pending_authentication, magic_link.identity.email)
         sign_in magic_link
@@ -33,11 +31,8 @@ class Api::V1::Sessions::MagicLinksController < Api::V1::BaseController
     end
 
     def sign_in(magic_link)
-      session = magic_link.identity.sessions.create!(
-        user_agent: request.user_agent,
-        ip_address: request.remote_ip
-      )
-      Current.session = session
+      clear_pending_authentication_token
+      session = start_new_session_for(magic_link.identity)
 
       render_json json: { session_token: session.signed_id }
     end
