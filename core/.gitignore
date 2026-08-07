@@ -40,5 +40,8 @@
 
 /node_modules
 
+# Bundler installs (CI / local path installs)
+/vendor/bundle
+
 # Misc
 /TODO.md

@@ -41,7 +41,7 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = {
     host: "localhost",
-    port: ENV.fetch("CORE_PORT", ENV.fetch("PORT", "3000")).to_i
+    port: ENV.fetch("CORE_PORT", ENV.fetch("PORT", "3001")).to_i
   }
 
   # Print deprecation notices to the Rails logger.
@@ -84,4 +84,6 @@ Rails.application.configure do
   config.hosts << /.*\.trycloudflare\.com/
   # Allow local dev access on default Rails port (and IPv4/IPv6 variants)
   config.hosts << "127.0.0.1" << "localhost" << "0.0.0.0"
+  # Allow any *.localhost subdomain (optional port) for custom local domains
+  config.hosts << /(.+\.)?localhost(:\d+)?/
 end

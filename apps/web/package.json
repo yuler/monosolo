@@ -11,6 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "biome format",
+    "format:fix": "biome check --write",
     "lint": "biome lint",
     "check": "biome check"
   },

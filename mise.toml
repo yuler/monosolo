@@ -3,6 +3,8 @@ ruby = "3.4.7"
 node = "24.17.0"
 pnpm = "10.14.0"
 gum = "0.17.0"
+overmind = "2.5.1"
+tmux = "3.7b"
 
 [env]
 _.file = ".env"
@@ -19,12 +21,12 @@ run = "bash scripts/clean.sh"
 description = "Start the Rails development server"
 dir = "core"
 env = { RUBY_DEBUG_OPEN = "true", RUBY_DEBUG_LAZY = "true" }
-run = "bin/rails server -p ${CORE_PORT:-3000}"
+run = "bin/rails server -p ${CORE_PORT:-3001}"
 
 [tasks."web:dev"]
 description = "Start the Vite development server"
 dir = "apps/web"
-run = "pnpm run dev -- --port ${WEB_PORT:-5173}"
+run = "pnpm run dev -- --port ${WEB_PORT:-3000}"
 
 [tasks."web:build"]
 description = "Build the web app for production"
@@ -33,7 +35,7 @@ run = "pnpm run build"
 
 [tasks.dev]
 description = "Start core and web development servers"
-run = [{ tasks = ["core:dev", "web:dev"] }]
+run = "bash scripts/dev.sh"
 
 [tasks.core]
 description = "Run common core rails commands (interactive)"

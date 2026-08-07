@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
+import { CORE_URL } from "@/config";
 import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
@@ -22,10 +23,7 @@ export function SiteHeader() {
 
 				<div className="flex items-center gap-2">
 					<ThemeToggle />
-					<a
-						href="http://localhost:3000/sign_in"
-						className={cn(buttonVariants())}
-					>
+					<a href={`${CORE_URL}/sign_in`} className={cn(buttonVariants())}>
 						Sign in
 					</a>
 				</div>
