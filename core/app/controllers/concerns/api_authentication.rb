@@ -11,8 +11,11 @@ module ApiAuthentication
     etag { Current.identity.id if authenticated? }
 
     include ActionController::HttpAuthentication::Token::ControllerMethods
-    include Authentication::SessionCookies
-    include ApiAuthentication::CsrfProtection
+    include ActionController::RequestForgeryProtection
+
+    if Rails.application.config.action_controller.allow_forgery_protection
+      protect_from_forgery with: :exception, unless: :csrf_exempt?
+    end
   end
 
   class_methods do
@@ -54,6 +57,51 @@ module ApiAuthentication
       if session = find_session_by_cookie
         Current.session = session
       end
+    end
+
+    def find_session_by_cookie
+      Session.find_signed(cookies.signed[:session_id])
+    end
+
+    def start_new_session_for(identity)
+      identity.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
+        set_current_session session
+      end
+    end
+
+    def set_current_session(session)
+      Current.session = session
+      cookies.signed.permanent[:session_id] = session_cookie_options.merge(value: session.signed_id)
+    end
+
+    def terminate_session
+      Current.session&.destroy
+      cookies.delete(:session_id, **delete_session_cookie_options)
+    end
+
+    def session_cookie_options
+      {
+        httponly: true,
+        same_site: :lax,
+        secure: !Rails.env.local?,
+        domain: session_cookie_domain
+      }.compact
+    end
+
+    def delete_session_cookie_options
+      { domain: session_cookie_domain }.compact
+    end
+
+    def session_cookie_domain
+      ENV["SESSION_COOKIE_DOMAIN"].presence
+    end
+
+    def csrf_exempt?
+      bearer_authenticated? || request.get? || request.head? || request.options?
+    end
+
+    def bearer_authenticated?
+      request.authorization.to_s.include?("Bearer")
     end
 
     def authenticate_by_bearer_token

@@ -1,7 +1,5 @@
 class Api::V1::Sessions::MagicLinksController < Api::V1::BaseController
-  include Authentication::PendingAuthenticationToken
-  include Authentication::PendingAuthenticationCookies
-  include Authentication::SessionCookies
+  include Authentication::ViaMagicLink
 
   allow_unauthenticated_access
   disallow_account_scope

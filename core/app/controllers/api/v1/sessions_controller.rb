@@ -1,6 +1,5 @@
 class Api::V1::SessionsController < Api::V1::BaseController
-  include Authentication::PendingAuthenticationToken
-  include Authentication::PendingAuthenticationCookies
+  include Authentication::ViaMagicLink
 
   allow_unauthenticated_access only: :create
   disallow_account_scope
