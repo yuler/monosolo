@@ -58,7 +58,12 @@ export function AccountSwitcher({
 		return (
 			<SidebarMenu>
 				<SidebarMenuItem>
-					<SidebarMenuButton size="lg" disabled tooltip="No accounts" className="group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-0!">
+					<SidebarMenuButton
+						size="lg"
+						disabled
+						tooltip="No accounts"
+						className="group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-0!"
+					>
 						<span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
 							<Building2 className="size-4" />
 						</span>
