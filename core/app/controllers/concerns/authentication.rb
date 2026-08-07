@@ -92,5 +92,4 @@ module Authentication
     def redirect_account_scoped_request
       redirect_to main_app.root_url(script_name: nil) if Current.account.present?
     end
-
 end

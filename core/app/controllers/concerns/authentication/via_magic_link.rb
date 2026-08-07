@@ -29,5 +29,4 @@ module Authentication::ViaMagicLink
         response.set_header("X-Magic-Link-Code", magic_link.code)
       end
     end
-
 end
