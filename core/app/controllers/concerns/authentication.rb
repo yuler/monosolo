@@ -120,4 +120,3 @@ module Authentication
       cookies[:session_id]
     end
 end
-
