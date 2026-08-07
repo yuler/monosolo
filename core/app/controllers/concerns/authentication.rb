@@ -112,7 +112,12 @@ module Authentication
       cookies.delete(:session_id)
     end
 
+    def session_token
+      Current.session.signed_id
+    end
+
     def session_id
       cookies[:session_id]
     end
 end
+

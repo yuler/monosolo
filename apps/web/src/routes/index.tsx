@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Box, Layers, Rocket } from "lucide-react";
 
 import { SiteFooter } from "@/components/site-footer";
@@ -12,7 +12,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { CORE_URL } from "@/config";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -58,12 +57,9 @@ function Home() {
 							clients together.
 						</p>
 						<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-							<a
-								href={`${CORE_URL}/sign_in`}
-								className={cn(buttonVariants({ size: "lg" }))}
-							>
+							<Link to="/sign" className={cn(buttonVariants({ size: "lg" }))}>
 								Get started
-							</a>
+							</Link>
 							<a
 								href="https://github.com"
 								target="_blank"
@@ -121,12 +117,12 @@ function Home() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<a
-								href={`${CORE_URL}/sign_in`}
+							<Link
+								to="/sign"
 								className={cn(buttonVariants({ variant: "secondary" }))}
 							>
 								Open app
-							</a>
+							</Link>
 						</CardContent>
 					</Card>
 				</section>

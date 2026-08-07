@@ -10,33 +10,119 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as SignRouteImport } from './routes/sign'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardJobsRouteImport } from './routes/dashboard/jobs'
+import { Route as DashboardStatsRouteImport } from './routes/dashboard/stats'
+import { Route as SignIndexRouteImport } from './routes/sign/index'
+import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignRoute = SignRouteImport.update({
+  id: '/sign',
+  path: '/sign',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardJobsRoute = DashboardJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardStatsRoute = DashboardStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const SignIndexRoute = SignIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SignRoute,
+} as any)
+const SignVerifyRoute = SignVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => SignRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/sign': typeof SignRouteWithChildren
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/stats': typeof DashboardStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/sign/': typeof SignIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/stats': typeof DashboardStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/sign': typeof SignIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/sign': typeof SignRouteWithChildren
+  '/dashboard/jobs': typeof DashboardJobsRoute
+  '/dashboard/stats': typeof DashboardStatsRoute
+  '/sign/verify': typeof SignVerifyRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/sign/': typeof SignIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/sign'
+    | '/dashboard/jobs'
+    | '/dashboard/stats'
+    | '/sign/verify'
+    | '/dashboard/'
+    | '/sign/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard/jobs'
+    | '/dashboard/stats'
+    | '/sign/verify'
+    | '/dashboard'
+    | '/sign'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/sign'
+    | '/dashboard/jobs'
+    | '/dashboard/stats'
+    | '/sign/verify'
+    | '/dashboard/'
+    | '/sign/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  SignRoute: typeof SignRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +134,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign': {
+      id: '/sign'
+      path: '/sign'
+      fullPath: '/sign'
+      preLoaderRoute: typeof SignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/jobs': {
+      id: '/dashboard/jobs'
+      path: '/jobs'
+      fullPath: '/dashboard/jobs'
+      preLoaderRoute: typeof DashboardJobsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/stats': {
+      id: '/dashboard/stats'
+      path: '/stats'
+      fullPath: '/dashboard/stats'
+      preLoaderRoute: typeof DashboardStatsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/sign/': {
+      id: '/sign/'
+      path: '/'
+      fullPath: '/sign/'
+      preLoaderRoute: typeof SignIndexRouteImport
+      parentRoute: typeof SignRoute
+    }
+    '/sign/verify': {
+      id: '/sign/verify'
+      path: '/verify'
+      fullPath: '/sign/verify'
+      preLoaderRoute: typeof SignVerifyRouteImport
+      parentRoute: typeof SignRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardJobsRoute: typeof DashboardJobsRoute
+  DashboardStatsRoute: typeof DashboardStatsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardJobsRoute: DashboardJobsRoute,
+  DashboardStatsRoute: DashboardStatsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
+interface SignRouteChildren {
+  SignVerifyRoute: typeof SignVerifyRoute
+  SignIndexRoute: typeof SignIndexRoute
+}
+
+const SignRouteChildren: SignRouteChildren = {
+  SignVerifyRoute: SignVerifyRoute,
+  SignIndexRoute: SignIndexRoute,
+}
+
+const SignRouteWithChildren = SignRoute._addFileChildren(SignRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
