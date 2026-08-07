@@ -1,6 +1,8 @@
 module Authentication::ViaMagicLink
   extend ActiveSupport::Concern
 
+  include SessionCookieOptions
+
   included do
     after_action :ensure_development_magic_link_not_leaked
   end
@@ -44,7 +46,7 @@ module Authentication::ViaMagicLink
     end
 
     def clear_pending_authentication_token
-      cookies.delete(:pending_authentication_token, **delete_auth_cookie_options)
+      cookies.delete(:pending_authentication_token, **delete_session_cookie_options)
     end
 
     def generate_pending_authentication_token(magic_link)
@@ -70,13 +72,5 @@ module Authentication::ViaMagicLink
         domain: session_cookie_domain,
         expires: expires
       }.compact
-    end
-
-    def delete_auth_cookie_options
-      { domain: session_cookie_domain }.compact
-    end
-
-    def session_cookie_domain
-      ENV["SESSION_COOKIE_DOMAIN"].presence
     end
 end
