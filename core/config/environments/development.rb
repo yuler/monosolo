@@ -87,4 +87,3 @@ Rails.application.configure do
   # Allow any *.localhost subdomain (optional port) for custom local domains
   config.hosts << /(.+\.)?localhost(:\d+)?/
 end
-

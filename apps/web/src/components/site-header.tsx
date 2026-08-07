@@ -23,10 +23,7 @@ export function SiteHeader() {
 
 				<div className="flex items-center gap-2">
 					<ThemeToggle />
-					<a
-						href={`${CORE_URL}/sign_in`}
-						className={cn(buttonVariants())}
-					>
+					<a href={`${CORE_URL}/sign_in`} className={cn(buttonVariants())}>
 						Sign in
 					</a>
 				</div>
