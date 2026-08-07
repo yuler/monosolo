@@ -12,6 +12,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { CORE_URL } from "@/config";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -58,7 +59,7 @@ function Home() {
 						</p>
 						<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
 							<a
-								href="http://core.monosolo.localhost:3001/sign_in"
+								href={`${CORE_URL}/sign_in`}
 								className={cn(buttonVariants({ size: "lg" }))}
 							>
 								Get started
@@ -121,7 +122,7 @@ function Home() {
 						</CardHeader>
 						<CardContent>
 							<a
-								href="http://core.monosolo.localhost:3001/sign_in"
+								href={`${CORE_URL}/sign_in`}
 								className={cn(buttonVariants({ variant: "secondary" }))}
 							>
 								Open app

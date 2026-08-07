@@ -44,6 +44,8 @@ ensure_ports_free() {
   # shellcheck disable=SC2086
   kill -9 $pids 2>/dev/null || true
   sleep 0.3
+  # Re-query after the grace period: a child may have re-bound the port
+  # (e.g. puma worker restart) between the first kill and now.
   pids="$(listening_pids "$@")"
   # shellcheck disable=SC2086
   [ -n "${pids// /}" ] && kill -9 $pids 2>/dev/null || true
