@@ -24,6 +24,8 @@ mise dev
 
 `*.localhost` resolves to `127.0.0.1` (no hosts file). Login: `john@example.com`
 
+Local CORS for web → core `/api/v1` is development-only: [`core/config/initializers/development_cors.rb`](core/config/initializers/development_cors.rb). Details: [`docs/core/DEVELOP.md`](docs/core/DEVELOP.md#local-cors-development-only).
+
 ## Rules
 
 - Git commit title format: `emoji [scope] The main change` — example: `✨ [core] Adopt shared account slug tenancy for personal and team`
