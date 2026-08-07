@@ -27,4 +27,13 @@ class RequestForgeryProtectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "rejects same-origin browser POST that omits Sec-Fetch-Site but includes Sec-Fetch-Mode" do
+    post api_v1_session_url,
+      params: { email: identities(:john).email },
+      as: :json,
+      headers: { "Sec-Fetch-Mode" => "cors" }
+
+    assert_response :unprocessable_entity
+  end
 end
