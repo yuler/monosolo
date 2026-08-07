@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
 
+import { SiteAuthButton } from "@/components/layout/site-auth-button";
 import { LogoMark } from "@/components/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
 	return (
@@ -22,9 +21,7 @@ export function SiteHeader() {
 
 				<div className="flex items-center gap-2">
 					<ThemeToggle />
-					<Link to="/sign" className={cn(buttonVariants())}>
-						Sign in
-					</Link>
+					<SiteAuthButton />
 				</div>
 			</div>
 		</header>

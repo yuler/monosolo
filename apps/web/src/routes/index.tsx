@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Box, Layers, Rocket } from "lucide-react";
 
-import { SiteLayout } from "@/components/layout";
+import { SiteAuthButton, SiteLayout } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -54,9 +54,11 @@ function Home() {
 							clients together.
 						</p>
 						<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-							<Link to="/sign" className={cn(buttonVariants({ size: "lg" }))}>
-								Get started
-							</Link>
+							<SiteAuthButton
+								signInLabel="Get started"
+								dashboardLabel="Open dashboard"
+								size="lg"
+							/>
 							<a
 								href="https://github.com"
 								target="_blank"
@@ -114,12 +116,11 @@ function Home() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<Link
-								to="/sign"
-								className={cn(buttonVariants({ variant: "secondary" }))}
-							>
-								Open app
-							</Link>
+							<SiteAuthButton
+								signInLabel="Open app"
+								dashboardLabel="Dashboard"
+								variant="secondary"
+							/>
 						</CardContent>
 					</Card>
 				</section>
