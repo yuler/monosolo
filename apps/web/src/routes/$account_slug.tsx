@@ -48,7 +48,11 @@ function AccountLayout() {
 	const { me } = Route.useLoaderData();
 
 	return (
-		<DashboardShell user={me.identity} accounts={me.accounts} slug={account_slug}>
+		<DashboardShell
+			user={me.identity}
+			accounts={me.accounts}
+			slug={account_slug}
+		>
 			<DashboardMeProvider
 				value={{ me, loading: false, error: null, slug: account_slug }}
 			>

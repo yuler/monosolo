@@ -72,7 +72,11 @@ function JobsPage() {
 		<>
 			<DashboardHeader
 				breadcrumbs={[
-					{ label: "Home", to: "/$account_slug", params: { account_slug: slug } },
+					{
+						label: "Home",
+						to: "/$account_slug",
+						params: { account_slug: slug },
+					},
 					{ label: "Jobs", isCurrentPage: true },
 				]}
 			/>

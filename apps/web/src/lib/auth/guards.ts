@@ -45,5 +45,8 @@ export async function redirectToAccountHome() {
 		throw redirect({ to: "/sign" });
 	}
 	setSelectedAccountSlug(account.slug);
-	throw redirect({ to: "/$account_slug", params: { account_slug: account.slug } });
+	throw redirect({
+		to: "/$account_slug",
+		params: { account_slug: account.slug },
+	});
 }
