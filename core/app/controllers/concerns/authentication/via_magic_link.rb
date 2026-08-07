@@ -2,8 +2,6 @@ module Authentication::ViaMagicLink
   extend ActiveSupport::Concern
 
   included do
-    include Authentication::PendingAuthenticationToken
-
     after_action :ensure_development_magic_link_not_leaked
   end
 
@@ -47,6 +45,21 @@ module Authentication::ViaMagicLink
 
     def clear_pending_authentication_token
       cookies.delete(:pending_authentication_token, **delete_auth_cookie_options)
+    end
+
+    def generate_pending_authentication_token(magic_link)
+      pending_authentication_token_verifier.generate(
+        magic_link.identity.email,
+        expires_at: magic_link.expires_at
+      )
+    end
+
+    def verify_pending_authentication_token(token)
+      pending_authentication_token_verifier.verified(token)
+    end
+
+    def pending_authentication_token_verifier
+      Rails.application.message_verifier(:pending_authentication)
     end
 
     def auth_cookie_options(expires = nil)
