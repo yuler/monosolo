@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
-import { verifyMagicLink } from "@/lib/api/session";
+import { fetchMe, verifyMagicLink } from "@/lib/api/session";
+import {
+	resolveSelectedAccount,
+	setSelectedAccountSlug,
+} from "@/lib/auth/account";
 import {
 	clearPendingAuthenticationToken,
 	getPendingAuthenticationToken,
 	setSessionToken,
 } from "@/lib/auth/session";
-import { resolveSelectedAccount } from "@/lib/auth/account";
-import { fetchMe } from "@/lib/api/session";
-import { setSelectedAccountSlug } from "@/lib/auth/account";
 
 export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
 	const navigate = useNavigate();
@@ -97,7 +98,11 @@ export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
 					{error}
 				</p>
 			) : null}
-			<Button type="submit" disabled={pending || code.length < 6} className="w-full">
+			<Button
+				type="submit"
+				disabled={pending || code.length < 6}
+				className="w-full"
+			>
 				{pending ? "Verifying…" : "Verify"}
 			</Button>
 		</form>
