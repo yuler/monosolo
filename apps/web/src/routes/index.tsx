@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Box, Layers, Rocket } from "lucide-react";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteLayout } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -39,9 +38,7 @@ const features = [
 
 function Home() {
 	return (
-		<div className="flex min-h-svh flex-col bg-background text-foreground">
-			<SiteHeader />
-
+		<SiteLayout>
 			<main className="flex-1">
 				<section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
 					<div className="mx-auto flex max-w-2xl flex-col items-center text-center">
@@ -127,8 +124,6 @@ function Home() {
 					</Card>
 				</section>
 			</main>
-
-			<SiteFooter />
-		</div>
+		</SiteLayout>
 	);
 }
