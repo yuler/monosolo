@@ -58,7 +58,7 @@ jobs:
       - name: Commit and push fixes
         uses: stefanzweifel/git-auto-commit-action@v7.2.0
         with:
-          commit_message: "💄 [ci] Autofix"
+          commit_message: "💄 [ci] Autofix code format"
           branch: ${{ github.head_ref }}
           # Only update tracked files — never stage untracked vendor/bundle, etc.
           add_options: "-u"
