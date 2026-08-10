@@ -2,7 +2,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { ApiError } from "@/lib/api/client";
-import { clearSessionToken } from "@/lib/auth/session";
 
 export function useAdminResource<T>(
 	load: () => Promise<T>,
@@ -26,7 +25,6 @@ export function useAdminResource<T>(
 			} catch (err) {
 				if (cancelled) return;
 				if (err instanceof ApiError && err.status === 401) {
-					clearSessionToken();
 					navigate({ to: "/sign" });
 					return;
 				}

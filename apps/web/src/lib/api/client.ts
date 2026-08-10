@@ -1,6 +1,4 @@
 import { CORE_URL } from "@/config";
-import { getSelectedAccountSlug } from "@/lib/auth/account";
-import { clearSessionToken, getSessionToken } from "@/lib/auth/session";
 
 export class ApiError extends Error {
 	status: number;
@@ -16,21 +14,11 @@ export class ApiError extends Error {
 
 type ApiOptions = Omit<RequestInit, "body"> & {
 	body?: unknown;
-	auth?: boolean;
-	/** When true, sends X-Account-Slug from the selected account (account-scoped APIs). */
-	accountScoped?: boolean;
 };
 
 export async function apiFetch<T>(
 	path: string,
-	{
-		body,
-		auth = false,
-		accountScoped = false,
-		headers,
-		method = "GET",
-		...init
-	}: ApiOptions = {},
+	{ body, headers, method = "GET", ...init }: ApiOptions = {},
 ): Promise<T> {
 	const requestHeaders = new Headers(headers);
 	if (body !== undefined) {
@@ -38,20 +26,9 @@ export async function apiFetch<T>(
 	}
 	requestHeaders.set("Accept", "application/json");
 
-	const token = auth ? getSessionToken() : null;
-	if (token) {
-		requestHeaders.set("Authorization", `Bearer ${token}`);
-	}
-
-	if (accountScoped) {
-		const slug = getSelectedAccountSlug();
-		if (slug) {
-			requestHeaders.set("X-Account-Slug", slug);
-		}
-	}
-
 	// Mode A (split): CORE_URL is absolute origin. Mode B (proxy): CORE_URL is
 	// "" so `path` stays a same-origin relative URL (e.g. `/api/v1/me`).
+	// Session is the HttpOnly `session_id` cookie (credentials: "include").
 	const url = CORE_URL ? `${CORE_URL}${path}` : path;
 	const response = await fetch(url, {
 		...init,
@@ -60,10 +37,6 @@ export async function apiFetch<T>(
 		headers: requestHeaders,
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
-
-	if (response.status === 401 && auth) {
-		clearSessionToken();
-	}
 
 	if (!response.ok) {
 		let message = response.statusText || "Request failed";

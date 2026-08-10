@@ -27,7 +27,6 @@ import { CORE_URL } from "@/config";
 import {
 	type AccountSummary,
 	resolveSelectedAccount,
-	setSelectedAccountSlug,
 } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
 
@@ -83,7 +82,6 @@ export function AccountSwitcher({
 	}
 
 	function selectAccount(account: AccountSummary) {
-		setSelectedAccountSlug(account.slug);
 		setActive(account);
 
 		const suffix = pathname.startsWith(`/${slug}/`)

@@ -44,13 +44,11 @@ export type AdminJobsResponse = {
 export function fetchAdminStats() {
 	return apiFetch<AdminStatsResponse>("/api/v1/admin/stats", {
 		method: "GET",
-		auth: true,
 	});
 }
 
 export function fetchAdminJobs() {
 	return apiFetch<AdminJobsResponse>("/api/v1/admin/jobs", {
 		method: "GET",
-		auth: true,
 	});
 }

@@ -1,11 +1,13 @@
 import { apiFetch } from "@/lib/api/client";
 
 export type StartSessionResponse = {
+	/** Still returned for non-browser clients; browsers rely on the pending cookie. */
 	pending_authentication_token: string;
 	code?: string;
 };
 
 export type VerifySessionResponse = {
+	/** Still returned for non-browser clients; browsers rely on the session cookie. */
 	session_token: string;
 };
 
@@ -31,29 +33,22 @@ export function startSession(email: string) {
 	});
 }
 
-export function verifyMagicLink(
-	code: string,
-	pendingAuthenticationToken: string,
-) {
+/** Verifies the magic-link code; pending auth comes from the HttpOnly cookie. */
+export function verifyMagicLink(code: string) {
 	return apiFetch<VerifySessionResponse>("/api/v1/session/magic_link", {
 		method: "POST",
-		body: {
-			code,
-			pending_authentication_token: pendingAuthenticationToken,
-		},
+		body: { code },
 	});
 }
 
 export function fetchMe() {
 	return apiFetch<MeResponse>("/api/v1/me", {
 		method: "GET",
-		auth: true,
 	});
 }
 
 export function destroySession() {
 	return apiFetch<{ message: string }>("/api/v1/session", {
 		method: "DELETE",
-		auth: true,
 	});
 }

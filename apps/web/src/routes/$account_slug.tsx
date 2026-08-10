@@ -8,14 +8,10 @@ import {
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe } from "@/lib/api/session";
-import { setSelectedAccountSlug } from "@/lib/auth/account";
-import { requireAuth } from "@/lib/auth/guards";
-import { clearSessionToken } from "@/lib/auth/session";
 import { isAccountSlug } from "@/lib/auth/slugs";
 
 export const Route = createFileRoute("/$account_slug")({
 	beforeLoad: async ({ params }) => {
-		requireAuth();
 		if (!isAccountSlug(params.account_slug)) {
 			throw notFound();
 		}
@@ -28,11 +24,9 @@ export const Route = createFileRoute("/$account_slug")({
 			if (!account) {
 				throw notFound();
 			}
-			setSelectedAccountSlug(params.account_slug);
 			return { me, account };
 		} catch (err) {
 			if (err instanceof ApiError && err.status === 401) {
-				clearSessionToken();
 				throw redirect({ to: "/sign" });
 			}
 			throw err;

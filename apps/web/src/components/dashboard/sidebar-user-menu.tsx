@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import type { MeResponse } from "@/lib/api/session";
 import { destroySession } from "@/lib/api/session";
-import { clearSessionToken } from "@/lib/auth/session";
 
 export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 	const navigate = useNavigate();
@@ -35,9 +34,8 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 		try {
 			await destroySession();
 		} catch {
-			// Clear local session even if the API call fails.
+			// Navigate away even if the API call fails; cookie clear is best-effort.
 		} finally {
-			clearSessionToken();
 			setOpen(false);
 			navigate({ to: "/sign" });
 		}

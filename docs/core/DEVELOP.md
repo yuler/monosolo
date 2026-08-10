@@ -112,7 +112,7 @@ Passwordless magic-link authentication:
 - Sessions managed via signed `session_id` cookies (browser) and optional Bearer tokens (mobile/CLI)
 - Board-level access control via `Access` records
 
-**Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"`. After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients.
+**Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"` and rely on the HttpOnly `session_id` cookie (no bearer token in localStorage). After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients (mobile/CLI).
 
 | Deployment | `VITE_CORE_URL`            | `SESSION_COOKIE_DOMAIN`  | CORS                                                         |
 | ---------- | -------------------------- | ------------------------ | ------------------------------------------------------------ |

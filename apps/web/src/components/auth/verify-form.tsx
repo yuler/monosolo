@@ -6,15 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe, verifyMagicLink } from "@/lib/api/session";
-import {
-	resolveSelectedAccount,
-	setSelectedAccountSlug,
-} from "@/lib/auth/account";
-import {
-	clearPendingAuthenticationToken,
-	getPendingAuthenticationToken,
-	setSessionToken,
-} from "@/lib/auth/session";
+import { resolveSelectedAccount } from "@/lib/auth/account";
 
 export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
 	const navigate = useNavigate();
@@ -35,26 +27,15 @@ export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
 		setError(null);
 		setPending(true);
 
-		const pendingToken = getPendingAuthenticationToken();
-		if (!pendingToken) {
-			setError("Session expired. Please request a new code.");
-			setPending(false);
-			return;
-		}
-
 		try {
-			const result = await verifyMagicLink(code.trim(), pendingToken);
-			setSessionToken(result.session_token);
-			clearPendingAuthenticationToken();
+			await verifyMagicLink(code.trim());
 			if (import.meta.env.DEV) {
 				sessionStorage.removeItem("monosolo.dev_magic_link_code");
 			}
 
-			// Redirect to account home
 			const me = await fetchMe();
 			const account = resolveSelectedAccount(me.accounts);
 			if (account) {
-				setSelectedAccountSlug(account.slug);
 				await navigate({
 					to: "/$account_slug",
 					params: { account_slug: account.slug },

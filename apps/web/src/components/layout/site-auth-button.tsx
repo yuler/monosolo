@@ -5,21 +5,10 @@ import { useEffect, useState } from "react";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { fetchMe } from "@/lib/api/session";
-import {
-	getSelectedAccountSlug,
-	resolveSelectedAccount,
-	setSelectedAccountSlug,
-} from "@/lib/auth/account";
-import { isSignedIn } from "@/lib/auth/session";
-import { isAccountSlug } from "@/lib/auth/slugs";
+import { resolveSelectedAccount } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
 
 type ButtonProps = ComponentProps<typeof Button>;
-
-function readCachedSlug(): string | null {
-	const saved = getSelectedAccountSlug();
-	return saved && isAccountSlug(saved) ? saved : null;
-}
 
 export function SiteAuthButton({
 	signInLabel = "Sign in",
@@ -35,40 +24,20 @@ export function SiteAuthButton({
 	className?: string;
 }) {
 	const navigate = useNavigate();
-	const [signedIn, setSignedIn] = useState(() => isSignedIn());
-	const [slug, setSlug] = useState<string | null>(() =>
-		isSignedIn() ? readCachedSlug() : null,
-	);
-	const [resolving, setResolving] = useState(
-		() => isSignedIn() && !readCachedSlug(),
-	);
+	const [signedIn, setSignedIn] = useState(false);
+	const [slug, setSlug] = useState<string | null>(null);
+	const [resolving, setResolving] = useState(true);
 
 	useEffect(() => {
-		if (!isSignedIn()) {
-			setSignedIn(false);
-			setSlug(null);
-			setResolving(false);
-			return;
-		}
-
-		setSignedIn(true);
-		const cached = readCachedSlug();
-		if (cached) {
-			setSlug(cached);
-			setResolving(false);
-			return;
-		}
-
 		let cancelled = false;
-		setResolving(true);
 
 		void fetchMe()
 			.then((me) => {
 				if (cancelled) return;
 				const account = resolveSelectedAccount(me.accounts);
 				if (account) {
-					setSelectedAccountSlug(account.slug);
 					setSlug(account.slug);
+					setSignedIn(true);
 				} else {
 					setSignedIn(false);
 					setSlug(null);
@@ -87,6 +56,14 @@ export function SiteAuthButton({
 			cancelled = true;
 		};
 	}, []);
+
+	if (resolving) {
+		return (
+			<Button size={size} variant={variant} className={className} disabled>
+				{signInLabel}
+			</Button>
+		);
+	}
 
 	if (!signedIn) {
 		return (
@@ -116,14 +93,12 @@ export function SiteAuthButton({
 			size={size}
 			variant={variant}
 			className={className}
-			disabled={resolving}
 			onClick={() => {
 				void (async () => {
 					try {
 						const me = await fetchMe();
 						const account = resolveSelectedAccount(me.accounts);
 						if (!account) return;
-						setSelectedAccountSlug(account.slug);
 						setSlug(account.slug);
 						await navigate({
 							to: "/$account_slug",

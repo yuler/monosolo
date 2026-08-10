@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
 import { startSession } from "@/lib/api/session";
-import { setPendingAuthenticationToken } from "@/lib/auth/session";
 
 export function SignInForm({
 	idPrefix = "sign",
@@ -27,7 +26,6 @@ export function SignInForm({
 
 		try {
 			const result = await startSession(email.trim());
-			setPendingAuthenticationToken(result.pending_authentication_token);
 			if (import.meta.env.DEV && result.code) {
 				sessionStorage.setItem("monosolo.dev_magic_link_code", result.code);
 			}
