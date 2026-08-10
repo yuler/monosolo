@@ -54,7 +54,7 @@ export function fetchMe() {
 	});
 }
 
-/** Ask Core to persist the last-account picker hint cookie. */
+/** Ask Core to persist the last-account picker hint on the identity. */
 export function rememberLastAccount(slug: string) {
 	return apiFetch<{ last_account_slug: string }>("/api/v1/me/last_account", {
 		method: "PUT",

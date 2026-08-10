@@ -1,5 +1,5 @@
 # Rails session jar (`_mono_solo_session`) — flash, return_to, etc.
-# Align Domain with session_id / pending auth / last_account_slug for Mode A.
+# Align Domain with session_id / pending auth for Mode A.
 Rails.application.config.session_store :cookie_store, **{
   key: "_mono_solo_session",
   same_site: :lax,

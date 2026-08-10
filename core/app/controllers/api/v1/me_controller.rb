@@ -17,7 +17,7 @@ class Api::V1::MeController < Api::V1::BaseController
           personal: account.personal?
         }
       },
-      last_account_slug: cookies[:last_account_slug].presence
+      last_account_slug: Current.identity.last_account_slug.presence
     }
   end
 

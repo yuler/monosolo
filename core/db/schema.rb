@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_08_03_050000) do
+ActiveRecord::Schema[8.2].define(version: 2026_08_10_060000) do
   create_table "account_charges", id: :uuid, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.integer "amount", null: false
@@ -168,6 +168,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_08_03_050000) do
     t.string "email", null: false
     t.boolean "staff", default: false, null: false
     t.datetime "updated_at", null: false
+    t.string "last_account_slug"
     t.index ["email"], name: "index_identities_on_email", unique: true
   end
 
