@@ -1,8 +1,6 @@
 module Authentication::ViaMagicLink
   extend ActiveSupport::Concern
 
-  include SessionCookieOptions
-
   included do
     after_action :ensure_development_magic_link_not_leaked
   end
@@ -32,9 +30,14 @@ module Authentication::ViaMagicLink
     end
 
     def set_pending_authentication_token(magic_link)
-      cookies[:pending_authentication_token] = auth_cookie_options(magic_link.expires_at).merge(
-        value: generate_pending_authentication_token(magic_link)
-      )
+      cookies[:pending_authentication_token] = {
+        value: generate_pending_authentication_token(magic_link),
+        httponly: true,
+        same_site: :lax,
+        secure: !Rails.env.local?,
+        domain: ENV["SESSION_COOKIE_DOMAIN"].presence,
+        expires: magic_link.expires_at
+      }.compact
     end
 
     def pending_authentication_token
@@ -46,7 +49,7 @@ module Authentication::ViaMagicLink
     end
 
     def clear_pending_authentication_token
-      cookies.delete(:pending_authentication_token, **delete_session_cookie_options)
+      cookies.delete(:pending_authentication_token, **{ domain: ENV["SESSION_COOKIE_DOMAIN"].presence }.compact)
     end
 
     def generate_pending_authentication_token(magic_link)
@@ -62,15 +65,5 @@ module Authentication::ViaMagicLink
 
     def pending_authentication_token_verifier
       Rails.application.message_verifier(:pending_authentication)
-    end
-
-    def auth_cookie_options(expires = nil)
-      {
-        httponly: true,
-        same_site: :lax,
-        secure: !Rails.env.local?,
-        domain: session_cookie_domain,
-        expires: expires
-      }.compact
     end
 end

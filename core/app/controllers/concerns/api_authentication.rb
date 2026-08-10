@@ -66,15 +66,19 @@ module ApiAuthentication
 
     def set_current_session(session)
       Current.session = session
-      cookies.signed.permanent[:session_id] = session_cookie_options.merge(value: session.signed_id)
+      cookies.signed.permanent[:session_id] = {
+        value: session.signed_id,
+        httponly: true,
+        same_site: :lax,
+        secure: !Rails.env.local?,
+        domain: ENV["SESSION_COOKIE_DOMAIN"].presence
+      }.compact
     end
 
     def terminate_session
       Current.session&.destroy
-      cookies.delete(:session_id, **delete_session_cookie_options)
+      cookies.delete(:session_id, **{ domain: ENV["SESSION_COOKIE_DOMAIN"].presence }.compact)
     end
-
-    include SessionCookieOptions
 
     def authenticate_by_bearer_token
       if request.authorization.to_s.include?("Bearer")

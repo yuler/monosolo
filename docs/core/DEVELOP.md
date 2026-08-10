@@ -41,13 +41,10 @@ Host authorization in development allows any `*.localhost` host (optional port) 
 
 Allowed origins (credentials enabled):
 
-| Origin                                         | Notes                          |
-| ---------------------------------------------- | ------------------------------ |
-| `http://web.monosolo.localhost:${WEB_PORT}`    | Preferred local subdomain      |
-| `http://localhost:${WEB_PORT}`                 | Plain loopback                 |
-| `http://127.0.0.1:${WEB_PORT}`                 | IPv4 loopback                  |
-| `http://[::1]:${WEB_PORT}`                     | IPv6 loopback                  |
-| `ENV["WEB_URL"]`                               | Optional extra origin override |
+| Origin                             | Notes                           |
+| ---------------------------------- | ------------------------------- |
+| `http(s)://*.localhost` (any port) | Any localhost / subdomain       |
+| `http(s)://127.0.0.1` / `[::1]`    | IPv4 / IPv6 loopback (any port) |
 
 Rails has no built-in “allow CORS” config switch — this middleware is the local equivalent of what production would do with `rack-cors` or a reverse proxy (same-origin `/api`).
 

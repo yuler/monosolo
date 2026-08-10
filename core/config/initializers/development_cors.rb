@@ -2,17 +2,9 @@
 if Rails.env.development?
   class DevelopmentCors
     API_PREFIX = "/api/v1"
-
-    def self.allowed_origins
-      web_port = ENV.fetch("WEB_PORT", "3000")
-      [
-        ENV["WEB_URL"],
-        "http://web.monosolo.localhost:#{web_port}",
-        "http://localhost:#{web_port}",
-        "http://127.0.0.1:#{web_port}",
-        "http://[::1]:#{web_port}"
-      ].compact.uniq
-    end
+    # Align with config.hosts: any *.localhost (optional port), plus loopback IPs.
+    LOCALHOST_ORIGIN = %r{\Ahttps?://(.+\.)?localhost(:\d+)?\z}i
+    LOOPBACK_ORIGIN = %r{\Ahttps?://(127\.0\.0\.1|\[::1\])(:\d+)?\z}i
 
     def initialize(app)
       @app = app
@@ -41,7 +33,9 @@ if Rails.env.development?
       end
 
       def allowed_origin?(origin)
-        origin.present? && self.class.allowed_origins.include?(origin)
+        return false if origin.blank?
+
+        origin.match?(LOCALHOST_ORIGIN) || origin.match?(LOOPBACK_ORIGIN)
       end
 
       def preflight_response(origin)

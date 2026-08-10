@@ -43,11 +43,11 @@ class Sessions::MagicLinksController < ApplicationController
 
     def sign_in(magic_link)
       clear_pending_authentication_token
-      start_new_session_for magic_link.identity
+      session = start_new_session_for(magic_link.identity)
 
       respond_to do |format|
         format.html { redirect_to after_sign_in_url(magic_link) }
-        format.json { render json: { session_token: session_token } }
+        format.json { render json: { session_token: session.signed_id } }
       end
     end
 
