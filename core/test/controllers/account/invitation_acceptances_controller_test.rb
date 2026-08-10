@@ -21,7 +21,7 @@ class Account::InvitationAcceptancesControllerTest < ActionDispatch::Integration
     assert Account::Invitation.exists?(@invitation.id)
     assert_includes identity.reload.accounts, @account
     assert_redirected_to root_url(script_name: @account.slug_path)
-    assert_equal @account.slug, cookies[:last_account_slug]
+    assert_equal @account.slug, identity.reload.last_account_slug
   end
 
   test "accepting with wrong email redirects with alert" do

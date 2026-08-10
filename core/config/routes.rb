@@ -53,12 +53,32 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1, defaults: { format: :json } do
+      resource :session, only: %i[ create destroy ] do
+        scope module: :sessions do
+          resource :magic_link, only: :create
+        end
+      end
+      get "me", to: "me#show"
+      put "me/last_account", to: "me#update_last_account"
+
+      namespace :admin do
+        resource :stats, only: :show
+        resource :jobs, only: :show
+      end
+
+      namespace :dev do
+        resources :letters, only: %i[ index destroy ] do
+          delete :clear, on: :collection
+        end
+      end
+
       namespace :test do
         get :public,  to: "public#show"
         get :private, to: "private#show"
       end
     end
   end
+
 
   # Dashboard Engines
   namespace :admin do

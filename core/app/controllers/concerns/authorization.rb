@@ -34,9 +34,20 @@ module Authorization
     end
 
     def remember_last_account
-      if respond_to?(:cookies, true) && Current.account.present?
-        cookies.permanent[:last_account_slug] = Current.account.slug
-      end
+      return if Current.account.blank?
+      # Only when the request targeted an account (path / X-Account-Slug), not the
+      # personal fallback used by unscoped API controllers.
+      return if request.env["account_slug"].blank?
+
+      write_last_account_slug(Current.account.slug)
+    end
+
+    def write_last_account_slug(slug)
+      identity = Current.identity
+      return if identity.blank?
+      return if identity.last_account_slug == slug
+
+      identity.update_column(:last_account_slug, slug)
     end
 
     def redirect_existing_user

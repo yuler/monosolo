@@ -45,7 +45,8 @@
   --sidebar-foreground: oklch(var(--lch-ink));
   --sidebar-primary: oklch(var(--lch-violet));
   --sidebar-primary-foreground: oklch(var(--lch-violet-foreground));
-  --sidebar-accent: oklch(var(--lch-shade));
+  /* Distinct from --sidebar so menu hover/active is visible */
+  --sidebar-accent: oklch(94% 0.003 285);
   --sidebar-accent-foreground: oklch(var(--lch-ink));
   --sidebar-border: oklch(var(--lch-border));
   --sidebar-ring: oklch(var(--lch-violet));
@@ -85,7 +86,8 @@
   --sidebar-foreground: oklch(var(--lch-ink));
   --sidebar-primary: oklch(var(--lch-violet));
   --sidebar-primary-foreground: oklch(var(--lch-violet-foreground));
-  --sidebar-accent: oklch(var(--lch-shade));
+  /* Distinct from --sidebar so menu hover/active is visible */
+  --sidebar-accent: oklch(26% 0.006 285);
   --sidebar-accent-foreground: oklch(var(--lch-ink));
   --sidebar-border: oklch(var(--lch-border));
   --sidebar-ring: oklch(var(--lch-violet));

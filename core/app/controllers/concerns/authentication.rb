@@ -104,15 +104,17 @@ module Authentication
 
     def set_current_session(session)
       Current.session = session
-      cookies.signed.permanent[:session_id] = { value: session.signed_id, httponly: true, same_site: :lax }
+      cookies.signed.permanent[:session_id] = {
+        value: session.signed_id,
+        httponly: true,
+        same_site: :lax,
+        secure: !Rails.env.local?,
+        domain: ENV["SESSION_COOKIE_DOMAIN"].presence
+      }.compact
     end
 
     def terminate_session
-      Current.session.destroy
-      cookies.delete(:session_id)
-    end
-
-    def session_id
-      cookies[:session_id]
+      Current.session&.destroy
+      cookies.delete(:session_id, **{ domain: ENV["SESSION_COOKIE_DOMAIN"].presence }.compact)
     end
 end

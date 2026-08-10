@@ -5,7 +5,7 @@ class Account::InvitationAcceptancesController < ApplicationController
   def create
     @account_invitation.accept!
 
-    cookies.permanent[:last_account_slug] = @account_invitation.account.slug
+    write_last_account_slug(@account_invitation.account.slug)
     redirect_to root_url(script_name: @account_invitation.account.slug_path),
       notice: "You've joined #{@account_invitation.account.name}."
   rescue Account::Invitation::EmailMismatch => error

@@ -69,7 +69,7 @@ flowchart TD
   L[Login] --> M{How many accounts?}
   M -->|One| N[Go there directly]
   M -->|Many| O[Always show account picker]
-  O --> P[Cookie may preselect last account]
+  O --> P[Identity last_account_slug may preselect]
   P --> Q[User must confirm]
   R[Open invite link] --> S{Signed in as invitee?}
   S -->|No| T[Login with return_to]
@@ -88,7 +88,7 @@ Invite links live at `/{slug}/invitations/:token`. Accepting adds team membershi
 1. **Account** is the only tenant boundary; tenant models use `account_id`.
 2. Personal and team share one slug namespace and the same `/{slug}/...` URL shape.
 3. Every Identity has exactly one personal Account — eager-created on signup, never deleted.
-4. Global routes keep `Current.account` nil. Last-account cookie is picker hint only — never silent tenant context.
+4. Global routes keep `Current.account` nil. Identity `last_account_slug` is picker hint only — never silent tenant context.
 5. Missing Account or non-member → **404**. Unauthenticated on a slug route → login with `return_to`.
 6. Slug rename releases the old name immediately (no redirects). Prefer stable Account ids for long-lived API clients.
 7. API: path slug wins over `X-Account-Slug`; if neither, fall back to personal.

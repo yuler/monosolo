@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Box, Layers, Rocket } from "lucide-react";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteAuthButton, SiteLayout } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -12,7 +11,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { CORE_URL } from "@/config";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -40,9 +38,7 @@ const features = [
 
 function Home() {
 	return (
-		<div className="flex min-h-svh flex-col bg-background text-foreground">
-			<SiteHeader />
-
+		<SiteLayout>
 			<main className="flex-1">
 				<section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
 					<div className="mx-auto flex max-w-2xl flex-col items-center text-center">
@@ -58,12 +54,11 @@ function Home() {
 							clients together.
 						</p>
 						<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-							<a
-								href={`${CORE_URL}/sign_in`}
-								className={cn(buttonVariants({ size: "lg" }))}
-							>
-								Get started
-							</a>
+							<SiteAuthButton
+								signInLabel="Get started"
+								dashboardLabel="Open dashboard"
+								size="lg"
+							/>
 							<a
 								href="https://github.com"
 								target="_blank"
@@ -121,18 +116,15 @@ function Home() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<a
-								href={`${CORE_URL}/sign_in`}
-								className={cn(buttonVariants({ variant: "secondary" }))}
-							>
-								Open app
-							</a>
+							<SiteAuthButton
+								signInLabel="Open app"
+								dashboardLabel="Dashboard"
+								variant="secondary"
+							/>
 						</CardContent>
 					</Card>
 				</section>
 			</main>
-
-			<SiteFooter />
-		</div>
+		</SiteLayout>
 	);
 }
