@@ -37,7 +37,7 @@ const RESERVED_FROM_CORE = [
 	"test",
 ] as const;
 
-const RESERVED_WEB = ["sign", "dashboard"] as const;
+const RESERVED_WEB = ["sign", "dashboard", "accounts"] as const;
 
 export const RESERVED_SLUGS = new Set<string>([
 	...RESERVED_FROM_CORE,

@@ -8,9 +8,11 @@ export const Route = createFileRoute("/sign/verify")({
 });
 
 function VerifyPage() {
+	const { return_to: returnTo } = Route.useSearch();
+
 	return (
 		<AuthCard description="Enter the code we sent to your email.">
-			<VerifyForm idPrefix="page-verify" />
+			<VerifyForm idPrefix="page-verify" returnTo={returnTo} />
 		</AuthCard>
 	);
 }

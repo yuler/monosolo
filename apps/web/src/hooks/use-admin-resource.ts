@@ -1,7 +1,8 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { ApiError } from "@/lib/api/client";
+import { safeReturnTo } from "@/lib/auth/return-to";
 
 export function useAdminResource<T>(
 	load: () => Promise<T>,
@@ -9,6 +10,8 @@ export function useAdminResource<T>(
 	slug: string,
 ) {
 	const navigate = useNavigate();
+	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const search = useRouterState({ select: (s) => s.location.searchStr });
 	const [data, setData] = useState<T | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -25,11 +28,18 @@ export function useAdminResource<T>(
 			} catch (err) {
 				if (cancelled) return;
 				if (err instanceof ApiError && err.status === 401) {
-					navigate({ to: "/sign" });
+					const returnTo = safeReturnTo(`${pathname}${search}`);
+					void navigate({
+						to: "/sign",
+						search: returnTo ? { return_to: returnTo } : {},
+					});
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/$account_slug", params: { account_slug: slug } });
+					void navigate({
+						to: "/$account_slug",
+						params: { account_slug: slug },
+					});
 					return;
 				}
 				setError(err instanceof ApiError ? err.message : fallbackError);
@@ -42,7 +52,7 @@ export function useAdminResource<T>(
 		return () => {
 			cancelled = true;
 		};
-	}, [fallbackError, load, navigate, slug]);
+	}, [fallbackError, load, navigate, pathname, search, slug]);
 
 	return { data, error, loading };
 }

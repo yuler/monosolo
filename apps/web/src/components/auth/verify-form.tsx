@@ -6,9 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe, verifyMagicLink } from "@/lib/api/session";
-import { resolveSelectedAccount } from "@/lib/auth/account";
+import { resolvePostAuthTarget } from "@/lib/auth/account";
+import { navigateForTarget } from "@/lib/auth/guards";
 
-export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
+export function VerifyForm({
+	idPrefix = "verify",
+	returnTo,
+}: {
+	idPrefix?: string;
+	returnTo?: string;
+}) {
 	const navigate = useNavigate();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState<string | null>(null);
@@ -34,15 +41,10 @@ export function VerifyForm({ idPrefix = "verify" }: { idPrefix?: string }) {
 			}
 
 			const me = await fetchMe();
-			const account = resolveSelectedAccount(me.accounts);
-			if (account) {
-				await navigate({
-					to: "/$account_slug",
-					params: { account_slug: account.slug },
-				});
-			} else {
-				await navigate({ to: "/sign" });
-			}
+			await navigateForTarget(
+				navigate,
+				resolvePostAuthTarget(me.accounts, returnTo),
+			);
 		} catch (err) {
 			setError(err instanceof ApiError ? err.message : "Something went wrong.");
 		} finally {

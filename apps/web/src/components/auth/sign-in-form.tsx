@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
 import { startSession } from "@/lib/api/session";
+import { safeReturnTo } from "@/lib/auth/return-to";
 
 export function SignInForm({
 	idPrefix = "sign",
+	returnTo,
 	onSuccess,
 }: {
 	idPrefix?: string;
+	returnTo?: string;
 	onSuccess?: () => void;
 }) {
 	const navigate = useNavigate();
@@ -30,7 +33,11 @@ export function SignInForm({
 				sessionStorage.setItem("monosolo.dev_magic_link_code", result.code);
 			}
 			onSuccess?.();
-			await navigate({ to: "/sign/verify" });
+			const safe = safeReturnTo(returnTo);
+			await navigate({
+				to: "/sign/verify",
+				search: safe ? { return_to: safe } : {},
+			});
 		} catch (err) {
 			setError(err instanceof ApiError ? err.message : "Something went wrong.");
 		} finally {

@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { fetchMe } from "@/lib/api/session";
-import { resolveSelectedAccount } from "@/lib/auth/account";
+import { resolveDashboardTarget } from "@/lib/auth/account";
+import { navigateForTarget } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
 
 type ButtonProps = ComponentProps<typeof Button>;
@@ -25,7 +26,9 @@ export function SiteAuthButton({
 }) {
 	const navigate = useNavigate();
 	const [signedIn, setSignedIn] = useState(false);
-	const [slug, setSlug] = useState<string | null>(null);
+	const [target, setTarget] = useState<ReturnType<
+		typeof resolveDashboardTarget
+	> | null>(null);
 	const [resolving, setResolving] = useState(true);
 
 	useEffect(() => {
@@ -34,19 +37,18 @@ export function SiteAuthButton({
 		void fetchMe()
 			.then((me) => {
 				if (cancelled) return;
-				const account = resolveSelectedAccount(me.accounts);
-				if (account) {
-					setSlug(account.slug);
-					setSignedIn(true);
-				} else {
+				if (me.accounts.length === 0) {
 					setSignedIn(false);
-					setSlug(null);
+					setTarget(null);
+					return;
 				}
+				setSignedIn(true);
+				setTarget(resolveDashboardTarget(me.accounts));
 			})
 			.catch(() => {
 				if (cancelled) return;
 				setSignedIn(false);
-				setSlug(null);
+				setTarget(null);
 			})
 			.finally(() => {
 				if (!cancelled) setResolving(false);
@@ -76,11 +78,22 @@ export function SiteAuthButton({
 		);
 	}
 
-	if (slug) {
+	if (target?.kind === "account") {
 		return (
 			<Link
 				to="/$account_slug"
-				params={{ account_slug: slug }}
+				params={{ account_slug: target.slug }}
+				className={cn(buttonVariants({ size, variant }), className)}
+			>
+				{dashboardLabel}
+			</Link>
+		);
+	}
+
+	if (target?.kind === "picker") {
+		return (
+			<Link
+				to="/accounts"
 				className={cn(buttonVariants({ size, variant }), className)}
 			>
 				{dashboardLabel}
@@ -97,15 +110,13 @@ export function SiteAuthButton({
 				void (async () => {
 					try {
 						const me = await fetchMe();
-						const account = resolveSelectedAccount(me.accounts);
-						if (!account) return;
-						setSlug(account.slug);
-						await navigate({
-							to: "/$account_slug",
-							params: { account_slug: account.slug },
-						});
+						const next = resolveDashboardTarget(me.accounts);
+						setTarget(next);
+						setSignedIn(next.kind !== "sign");
+						await navigateForTarget(navigate, next);
 					} catch {
 						setSignedIn(false);
+						setTarget(null);
 					}
 				})();
 			}}

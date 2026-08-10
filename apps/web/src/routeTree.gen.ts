@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Account_slugRouteImport } from './routes/$account_slug'
+import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as SignRouteImport } from './routes/sign'
 import { Route as Account_slugIndexRouteImport } from './routes/$account_slug/index'
 import { Route as Account_slugJobsRouteImport } from './routes/$account_slug/jobs'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const Account_slugRoute = Account_slugRouteImport.update({
   id: '/$account_slug',
   path: '/$account_slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountsRoute = AccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignRoute = SignRouteImport.update({
@@ -62,6 +68,7 @@ const SignVerifyRoute = SignVerifyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$account_slug': typeof Account_slugRouteWithChildren
+  '/accounts': typeof AccountsRoute
   '/sign': typeof SignRouteWithChildren
   '/$account_slug/jobs': typeof Account_slugJobsRoute
   '/$account_slug/stats': typeof Account_slugStatsRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/$account_slug/jobs': typeof Account_slugJobsRoute
   '/$account_slug/stats': typeof Account_slugStatsRoute
   '/sign/verify': typeof SignVerifyRoute
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$account_slug': typeof Account_slugRouteWithChildren
+  '/accounts': typeof AccountsRoute
   '/sign': typeof SignRouteWithChildren
   '/$account_slug/jobs': typeof Account_slugJobsRoute
   '/$account_slug/stats': typeof Account_slugStatsRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$account_slug'
+    | '/accounts'
     | '/sign'
     | '/$account_slug/jobs'
     | '/$account_slug/stats'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accounts'
     | '/$account_slug/jobs'
     | '/$account_slug/stats'
     | '/sign/verify'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$account_slug'
+    | '/accounts'
     | '/sign'
     | '/$account_slug/jobs'
     | '/$account_slug/stats'
@@ -122,6 +134,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   Account_slugRoute: typeof Account_slugRouteWithChildren
+  AccountsRoute: typeof AccountsRoute
   SignRoute: typeof SignRouteWithChildren
 }
 
@@ -139,6 +152,13 @@ declare module '@tanstack/react-router' {
       path: '/$account_slug'
       fullPath: '/$account_slug'
       preLoaderRoute: typeof Account_slugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounts': {
+      id: '/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign': {
@@ -217,6 +237,7 @@ const SignRouteWithChildren = SignRoute._addFileChildren(SignRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   Account_slugRoute: Account_slugRouteWithChildren,
+  AccountsRoute: AccountsRoute,
   SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport

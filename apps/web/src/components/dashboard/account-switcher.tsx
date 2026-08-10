@@ -23,11 +23,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { CORE_URL } from "@/config";
-import {
-	type AccountSummary,
-	resolveSelectedAccount,
-} from "@/lib/auth/account";
+import { coreAppUrl } from "@/config";
+import { type AccountSummary, setLastAccountSlug } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
 
 const SUFFIX_ROUTES = {
@@ -46,16 +43,11 @@ export function AccountSwitcher({
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const { isMobile } = useSidebar();
 	const [active, setActive] = useState<AccountSummary | null>(
-		() =>
-			accounts.find((account) => account.slug === slug) ??
-			resolveSelectedAccount(accounts),
+		() => accounts.find((account) => account.slug === slug) ?? null,
 	);
 
 	useEffect(() => {
-		setActive(
-			accounts.find((account) => account.slug === slug) ??
-				resolveSelectedAccount(accounts),
-		);
+		setActive(accounts.find((account) => account.slug === slug) ?? null);
 	}, [accounts, slug]);
 
 	if (!active) {
@@ -83,6 +75,7 @@ export function AccountSwitcher({
 
 	function selectAccount(account: AccountSummary) {
 		setActive(account);
+		setLastAccountSlug(account.slug);
 
 		const suffix = pathname.startsWith(`/${slug}/`)
 			? pathname.slice(`/${slug}`.length)
@@ -162,7 +155,7 @@ export function AccountSwitcher({
 								className="gap-2 p-2"
 								onClick={() => {
 									window.open(
-										`${CORE_URL}/my/accounts`,
+										coreAppUrl("/my/accounts"),
 										"_blank",
 										"noopener,noreferrer",
 									);
