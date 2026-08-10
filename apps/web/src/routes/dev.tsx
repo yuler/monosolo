@@ -1,4 +1,9 @@
-import { createFileRoute, notFound, Outlet, redirect } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	notFound,
+	Outlet,
+	redirect,
+} from "@tanstack/react-router";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ApiError } from "@/lib/api/client";
