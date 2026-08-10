@@ -1,4 +1,8 @@
-import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	getRouteApi,
+	useNavigate,
+} from "@tanstack/react-router";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -56,7 +60,9 @@ function LettersPage() {
 					});
 					return;
 				}
-				setError(err instanceof ApiError ? err.message : "Failed to load letters.");
+				setError(
+					err instanceof ApiError ? err.message : "Failed to load letters.",
+				);
 			} finally {
 				if (!cancelled) setLoading(false);
 			}
@@ -75,7 +81,9 @@ function LettersPage() {
 			await deleteDevLetter(id);
 			setLetters((prev) => prev?.filter((letter) => letter.id !== id) ?? null);
 		} catch (err) {
-			setError(err instanceof ApiError ? err.message : "Failed to delete letter.");
+			setError(
+				err instanceof ApiError ? err.message : "Failed to delete letter.",
+			);
 		} finally {
 			setPendingId(null);
 		}
@@ -91,7 +99,9 @@ function LettersPage() {
 			await clearDevLetters();
 			setLetters([]);
 		} catch (err) {
-			setError(err instanceof ApiError ? err.message : "Failed to clear letters.");
+			setError(
+				err instanceof ApiError ? err.message : "Failed to clear letters.",
+			);
 		} finally {
 			setClearing(false);
 		}
