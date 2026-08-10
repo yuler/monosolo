@@ -19,7 +19,7 @@ export function VerifyForm({
 	returnTo?: string;
 	/** Go back to the email step (wrong address, etc.). */
 	onBack?: () => void;
-	/** Called after a successful verify, before post-auth navigation. */
+	/** Called after verify, session fetch, and post-auth navigation succeed. */
 	onVerified?: () => void;
 }) {
 	const navigate = useNavigate();
@@ -46,13 +46,13 @@ export function VerifyForm({
 				sessionStorage.removeItem("monosolo.dev_magic_link_code");
 			}
 
-			onVerified?.();
-
 			const me = await fetchMe();
 			await navigateForTarget(
 				navigate,
 				resolvePostAuthTarget(me.accounts, returnTo),
 			);
+
+			onVerified?.();
 		} catch (err) {
 			setError(err instanceof ApiError ? err.message : "Something went wrong.");
 		} finally {

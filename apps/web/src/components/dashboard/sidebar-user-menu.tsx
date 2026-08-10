@@ -18,6 +18,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { ApiError } from "@/lib/api/client";
 import type { MeResponse } from "@/lib/api/session";
 import { destroySession } from "@/lib/api/session";
 
@@ -26,25 +27,38 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 	const { isMobile } = useSidebar();
 	const [open, setOpen] = useState(false);
 	const [signingOut, setSigningOut] = useState(false);
+	const [signOutError, setSignOutError] = useState<string | null>(null);
 
 	const initials = user.name.trim().charAt(0).toUpperCase() || "U";
 
 	async function handleSignOut() {
 		setSigningOut(true);
+		setSignOutError(null);
 		try {
 			await destroySession();
-		} catch {
-			// Navigate away even if the API call fails; cookie clear is best-effort.
-		} finally {
 			setOpen(false);
 			navigate({ to: "/sign" });
+		} catch (err) {
+			setSignOutError(
+				err instanceof ApiError
+					? err.message
+					: "Could not sign out. Please try again.",
+			);
+		} finally {
+			setSigningOut(false);
 		}
 	}
 
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				<DropdownMenu open={open} onOpenChange={setOpen}>
+				<DropdownMenu
+					open={open}
+					onOpenChange={(next) => {
+						setOpen(next);
+						if (!next) setSignOutError(null);
+					}}
+				>
 					<DropdownMenuTrigger
 						render={
 							<SidebarMenuButton
@@ -102,6 +116,14 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 								<LogOut />
 								{signingOut ? "Signing out…" : "Log out"}
 							</DropdownMenuItem>
+							{signOutError ? (
+								<p
+									className="px-2 py-1.5 text-xs text-destructive"
+									role="alert"
+								>
+									{signOutError}
+								</p>
+							) : null}
 						</DropdownMenuGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
