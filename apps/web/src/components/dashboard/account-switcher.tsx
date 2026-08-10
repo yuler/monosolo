@@ -75,7 +75,7 @@ export function AccountSwitcher({
 			// Picker hint is best-effort.
 		});
 
-		if (pathname.startsWith("/admin")) {
+		if (pathname.startsWith("/admin") || pathname.startsWith("/dev")) {
 			return;
 		}
 

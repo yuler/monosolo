@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as Account_slugRouteImport } from './routes/$account_slug'
 import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as DevRouteImport } from './routes/dev'
 import { Route as SignRouteImport } from './routes/sign'
 import { Route as Account_slugIndexRouteImport } from './routes/$account_slug/index'
 import { Route as AdminJobsRouteImport } from './routes/admin/jobs'
 import { Route as AdminStatsRouteImport } from './routes/admin/stats'
+import { Route as DevLettersRouteImport } from './routes/dev/letters'
 import { Route as SignIndexRouteImport } from './routes/sign/index'
 import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
@@ -40,6 +42,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevRoute = DevRouteImport.update({
+  id: '/dev',
+  path: '/dev',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignRoute = SignRouteImport.update({
   id: '/sign',
   path: '/sign',
@@ -60,6 +67,11 @@ const AdminStatsRoute = AdminStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => AdminRoute,
 } as any)
+const DevLettersRoute = DevLettersRouteImport.update({
+  id: '/letters',
+  path: '/letters',
+  getParentRoute: () => DevRoute,
+} as any)
 const SignIndexRoute = SignIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -76,9 +88,11 @@ export interface FileRoutesByFullPath {
   '/$account_slug': typeof Account_slugRouteWithChildren
   '/accounts': typeof AccountsRoute
   '/admin': typeof AdminRouteWithChildren
+  '/dev': typeof DevRouteWithChildren
   '/sign': typeof SignRouteWithChildren
   '/admin/jobs': typeof AdminJobsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dev/letters': typeof DevLettersRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
@@ -87,8 +101,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
   '/admin': typeof AdminRouteWithChildren
+  '/dev': typeof DevRouteWithChildren
   '/admin/jobs': typeof AdminJobsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dev/letters': typeof DevLettersRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug': typeof Account_slugIndexRoute
   '/sign': typeof SignIndexRoute
@@ -99,9 +115,11 @@ export interface FileRoutesById {
   '/$account_slug': typeof Account_slugRouteWithChildren
   '/accounts': typeof AccountsRoute
   '/admin': typeof AdminRouteWithChildren
+  '/dev': typeof DevRouteWithChildren
   '/sign': typeof SignRouteWithChildren
   '/admin/jobs': typeof AdminJobsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dev/letters': typeof DevLettersRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
@@ -113,9 +131,11 @@ export interface FileRouteTypes {
     | '/$account_slug'
     | '/accounts'
     | '/admin'
+    | '/dev'
     | '/sign'
     | '/admin/jobs'
     | '/admin/stats'
+    | '/dev/letters'
     | '/sign/verify'
     | '/$account_slug/'
     | '/sign/'
@@ -124,8 +144,10 @@ export interface FileRouteTypes {
     | '/'
     | '/accounts'
     | '/admin'
+    | '/dev'
     | '/admin/jobs'
     | '/admin/stats'
+    | '/dev/letters'
     | '/sign/verify'
     | '/$account_slug'
     | '/sign'
@@ -135,9 +157,11 @@ export interface FileRouteTypes {
     | '/$account_slug'
     | '/accounts'
     | '/admin'
+    | '/dev'
     | '/sign'
     | '/admin/jobs'
     | '/admin/stats'
+    | '/dev/letters'
     | '/sign/verify'
     | '/$account_slug/'
     | '/sign/'
@@ -148,6 +172,7 @@ export interface RootRouteChildren {
   Account_slugRoute: typeof Account_slugRouteWithChildren
   AccountsRoute: typeof AccountsRoute
   AdminRoute: typeof AdminRouteWithChildren
+  DevRoute: typeof DevRouteWithChildren
   SignRoute: typeof SignRouteWithChildren
 }
 
@@ -181,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev': {
+      id: '/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign': {
       id: '/sign'
       path: '/sign'
@@ -208,6 +240,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/stats'
       preLoaderRoute: typeof AdminStatsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/dev/letters': {
+      id: '/dev/letters'
+      path: '/letters'
+      fullPath: '/dev/letters'
+      preLoaderRoute: typeof DevLettersRouteImport
+      parentRoute: typeof DevRoute
     }
     '/sign/': {
       id: '/sign/'
@@ -250,6 +289,16 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface DevRouteChildren {
+  DevLettersRoute: typeof DevLettersRoute
+}
+
+const DevRouteChildren: DevRouteChildren = {
+  DevLettersRoute: DevLettersRoute,
+}
+
+const DevRouteWithChildren = DevRoute._addFileChildren(DevRouteChildren)
+
 interface SignRouteChildren {
   SignVerifyRoute: typeof SignVerifyRoute
   SignIndexRoute: typeof SignIndexRoute
@@ -267,6 +316,7 @@ const rootRouteChildren: RootRouteChildren = {
   Account_slugRoute: Account_slugRouteWithChildren,
   AccountsRoute: AccountsRoute,
   AdminRoute: AdminRouteWithChildren,
+  DevRoute: DevRouteWithChildren,
   SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport

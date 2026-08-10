@@ -2,7 +2,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	Activity,
 	BriefcaseBusiness,
-	ExternalLink,
 	LayoutDashboard,
 	Mail,
 } from "lucide-react";
@@ -23,7 +22,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { coreAppUrl } from "@/config";
 import type { MeResponse } from "@/lib/api/session";
 
 type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -46,6 +44,7 @@ export function DashboardSidebar({
 	};
 
 	const homePath = `/${slug}`;
+	const lettersPath = "/dev/letters";
 	const jobsPath = "/admin/jobs";
 	const statsPath = "/admin/stats";
 
@@ -88,21 +87,17 @@ export function DashboardSidebar({
 							<SidebarMenu>
 								<SidebarMenuItem>
 									<SidebarMenuButton
+										isActive={
+											pathname === lettersPath ||
+											pathname.startsWith(`${lettersPath}/`)
+										}
 										tooltip="Letters"
 										render={
-											// biome-ignore lint/a11y/useAnchorContent: children merge via useRender
-											<a
-												href={coreAppUrl("/letter_opener")}
-												target="_blank"
-												rel="noreferrer"
-												aria-label="Letters"
-												onClick={closeMobileSidebar}
-											/>
+											<Link to="/dev/letters" onClick={closeMobileSidebar} />
 										}
 									>
 										<Mail />
 										<span>Letters</span>
-										<ExternalLink className="ml-auto size-3.5 opacity-60" />
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							</SidebarMenu>

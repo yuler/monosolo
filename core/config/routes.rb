@@ -66,6 +66,10 @@ Rails.application.routes.draw do
         resource :jobs, only: :show
       end
 
+      namespace :dev do
+        resources :letters, only: :index
+      end
+
       namespace :test do
         get :public,  to: "public#show"
         get :private, to: "private#show"
