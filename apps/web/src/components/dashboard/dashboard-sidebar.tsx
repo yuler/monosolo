@@ -46,8 +46,8 @@ export function DashboardSidebar({
 	};
 
 	const homePath = `/${slug}`;
-	const jobsPath = `/${slug}/jobs`;
-	const statsPath = `/${slug}/stats`;
+	const jobsPath = "/admin/jobs";
+	const statsPath = "/admin/stats";
 
 	return (
 		<Sidebar collapsible="icon" variant="inset" {...props}>
@@ -123,11 +123,7 @@ export function DashboardSidebar({
 										}
 										tooltip="Jobs"
 										render={
-											<Link
-												to="/$account_slug/jobs"
-												params={{ account_slug: slug }}
-												onClick={closeMobileSidebar}
-											/>
+											<Link to="/admin/jobs" onClick={closeMobileSidebar} />
 										}
 									>
 										<BriefcaseBusiness />
@@ -142,11 +138,7 @@ export function DashboardSidebar({
 										}
 										tooltip="Stats"
 										render={
-											<Link
-												to="/$account_slug/stats"
-												params={{ account_slug: slug }}
-												onClick={closeMobileSidebar}
-											/>
+											<Link to="/admin/stats" onClick={closeMobileSidebar} />
 										}
 									>
 										<Activity />

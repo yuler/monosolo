@@ -46,7 +46,7 @@ Allowed origins (credentials enabled):
 | `http(s)://*.localhost` (any port) | Any localhost / subdomain       |
 | `http(s)://127.0.0.1` / `[::1]`    | IPv4 / IPv6 loopback (any port) |
 
-Rails has no built-in “allow CORS” config switch — this middleware is the local equivalent of what production would do with `rack-cors` or a reverse proxy (same-origin `/api`).
+Rails has no built-in “allow CORS” config switch. This middleware is **development-only**. In production, serve web and `/api` same-origin behind a reverse proxy (Mode B).
 
 ### Testing
 
@@ -114,11 +114,10 @@ Passwordless magic-link authentication:
 
 **Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"` and rely on the HttpOnly `session_id` cookie (no bearer token in localStorage). After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients (mobile/CLI).
 
-| Deployment | `VITE_CORE_URL`            | `SESSION_COOKIE_DOMAIN`  | CORS                                                         |
+| Deployment | `VITE_CORE_URL`            | `SESSION_COOKIE_DOMAIN`  | API access                                                   |
 | ---------- | -------------------------- | ------------------------ | ------------------------------------------------------------ |
 | Local A    | `http://core…:3001`        | `.monosolo.localhost`    | `development_cors.rb` only                                   |
-| A — split  | `https://core.example.com` | `.example.com`           | Needed in production (not shipped; use `rack-cors` or proxy) |
-| B — proxy  | `""` (relative `/api/v1`)  | unset (host-only cookie) | Not needed for web                                           |
+| Production | `""` (relative `/api/v1`)  | unset (host-only cookie) | Reverse proxy — same-origin `/api` (Mode B)                  |
 
 `SESSION_COOKIE_DOMAIN` is shared by Rails `_mono_solo_session`, `session_id`, pending-auth cookies, and server-owned `last_account_slug` (Core writes; `/api/v1/me` exposes the hint). `VITE_CORE_URL` can interpolate `${CORE_PORT}`. Session cookies use `SameSite=Lax`. CSRF uses Rails 8.2 `protect_from_forgery using: :header_only` (`Sec-Fetch-Site` from the browser); JSON API clients without that header (curl, native apps) are allowed via [`RequestForgeryProtection`](../../core/app/controllers/concerns/request_forgery_protection.rb). Local CORS for the web ↔ core split is documented under [Local CORS](#local-cors-development-only).
 
@@ -152,8 +151,10 @@ All tables use UUIDs (UUIDv7, base36-encoded as 25-char strings):
 
 Database-backed job queue (no Redis):
 
+- Development and production use `:solid_queue` with a dedicated `queue` DB (`storage/*_queue.sqlite3`)
+- Locally set `SOLID_QUEUE_IN_PUMA=true` (see root `.env.example`) so the supervisor runs inside Puma
 - Jobs automatically capture/restore `Current.account`
-- Mission Control::Jobs for monitoring
+- Mission Control::Jobs for monitoring; apps/web staff pages at `/admin/jobs` and `/admin/stats`
 
 Key recurring tasks (via [`config/recurring.yml`](../../core/config/recurring.yml)):
 

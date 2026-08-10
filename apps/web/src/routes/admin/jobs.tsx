@@ -11,23 +11,18 @@ import {
 } from "@/components/ui/card";
 import { useAdminResource } from "@/hooks/use-admin-resource";
 import { fetchAdminJobs } from "@/lib/api/admin";
-import { requireStaff } from "@/lib/auth/guards";
 
-const accountRoute = getRouteApi("/$account_slug");
+const adminRoute = getRouteApi("/admin");
 
-export const Route = createFileRoute("/$account_slug/jobs")({
-	beforeLoad: ({ context, params }) => {
-		requireStaff(context.me, params.account_slug);
-	},
+export const Route = createFileRoute("/admin/jobs")({
 	component: JobsPage,
 });
 
 function JobsPage() {
-	const { account_slug: slug } = accountRoute.useParams();
+	const { account } = adminRoute.useRouteContext();
 	const { data, error, loading } = useAdminResource(
 		fetchAdminJobs,
 		"Failed to load jobs.",
-		slug,
 	);
 
 	return (
@@ -37,8 +32,9 @@ function JobsPage() {
 					{
 						label: "Home",
 						to: "/$account_slug",
-						params: { account_slug: slug },
+						params: { account_slug: account.slug },
 					},
+					{ label: "Admin" },
 					{ label: "Jobs", isCurrentPage: true },
 				]}
 			/>
@@ -88,8 +84,11 @@ function JobsPage() {
 									<CardHeader>
 										<CardTitle>Solid Queue unavailable</CardTitle>
 										<CardDescription>
-											Queue tables are not configured in this environment.
-											Adapter is still reported above.
+											{data.available
+												? "Could not load queue counts."
+												: data.adapter === "solid_queue"
+													? "Queue database is missing tables — run bin/rails db:prepare in core."
+													: `Active Job adapter is “${data.adapter}”. Enable Solid Queue in this environment to see counts.`}
 										</CardDescription>
 									</CardHeader>
 								</Card>

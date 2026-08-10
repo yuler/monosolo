@@ -8,6 +8,7 @@ import { fetchMe } from "@/lib/api/session";
 import {
 	type AccountSummary,
 	type PostAuthTarget,
+	resolveDashboardTarget,
 	resolvePostAuthTarget,
 } from "@/lib/auth/account";
 import { safeReturnTo } from "@/lib/auth/return-to";
@@ -49,15 +50,12 @@ export async function requireGuest({
 	}
 }
 
-export function requireStaff(
-	me: { identity: { staff: boolean } },
-	accountSlug: string,
-) {
+export function requireStaff(me: {
+	identity: { staff: boolean };
+	accounts: AccountSummary[];
+}) {
 	if (!me.identity.staff) {
-		throw redirect({
-			to: "/$account_slug",
-			params: { account_slug: accountSlug },
-		});
+		redirectForTarget(resolveDashboardTarget(me.accounts));
 	}
 }
 

@@ -12,10 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as Account_slugRouteImport } from './routes/$account_slug'
 import { Route as AccountsRouteImport } from './routes/accounts'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SignRouteImport } from './routes/sign'
 import { Route as Account_slugIndexRouteImport } from './routes/$account_slug/index'
-import { Route as Account_slugJobsRouteImport } from './routes/$account_slug/jobs'
-import { Route as Account_slugStatsRouteImport } from './routes/$account_slug/stats'
+import { Route as AdminJobsRouteImport } from './routes/admin/jobs'
+import { Route as AdminStatsRouteImport } from './routes/admin/stats'
 import { Route as SignIndexRouteImport } from './routes/sign/index'
 import { Route as SignVerifyRouteImport } from './routes/sign/verify'
 
@@ -34,6 +35,11 @@ const AccountsRoute = AccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignRoute = SignRouteImport.update({
   id: '/sign',
   path: '/sign',
@@ -44,15 +50,15 @@ const Account_slugIndexRoute = Account_slugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => Account_slugRoute,
 } as any)
-const Account_slugJobsRoute = Account_slugJobsRouteImport.update({
+const AdminJobsRoute = AdminJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
-  getParentRoute: () => Account_slugRoute,
+  getParentRoute: () => AdminRoute,
 } as any)
-const Account_slugStatsRoute = Account_slugStatsRouteImport.update({
+const AdminStatsRoute = AdminStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
-  getParentRoute: () => Account_slugRoute,
+  getParentRoute: () => AdminRoute,
 } as any)
 const SignIndexRoute = SignIndexRouteImport.update({
   id: '/',
@@ -69,9 +75,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$account_slug': typeof Account_slugRouteWithChildren
   '/accounts': typeof AccountsRoute
+  '/admin': typeof AdminRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/$account_slug/jobs': typeof Account_slugJobsRoute
-  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
@@ -79,8 +86,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
-  '/$account_slug/jobs': typeof Account_slugJobsRoute
-  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug': typeof Account_slugIndexRoute
   '/sign': typeof SignIndexRoute
@@ -90,9 +98,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$account_slug': typeof Account_slugRouteWithChildren
   '/accounts': typeof AccountsRoute
+  '/admin': typeof AdminRouteWithChildren
   '/sign': typeof SignRouteWithChildren
-  '/$account_slug/jobs': typeof Account_slugJobsRoute
-  '/$account_slug/stats': typeof Account_slugStatsRoute
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/sign/verify': typeof SignVerifyRoute
   '/$account_slug/': typeof Account_slugIndexRoute
   '/sign/': typeof SignIndexRoute
@@ -103,9 +112,10 @@ export interface FileRouteTypes {
     | '/'
     | '/$account_slug'
     | '/accounts'
+    | '/admin'
     | '/sign'
-    | '/$account_slug/jobs'
-    | '/$account_slug/stats'
+    | '/admin/jobs'
+    | '/admin/stats'
     | '/sign/verify'
     | '/$account_slug/'
     | '/sign/'
@@ -113,8 +123,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/accounts'
-    | '/$account_slug/jobs'
-    | '/$account_slug/stats'
+    | '/admin'
+    | '/admin/jobs'
+    | '/admin/stats'
     | '/sign/verify'
     | '/$account_slug'
     | '/sign'
@@ -123,9 +134,10 @@ export interface FileRouteTypes {
     | '/'
     | '/$account_slug'
     | '/accounts'
+    | '/admin'
     | '/sign'
-    | '/$account_slug/jobs'
-    | '/$account_slug/stats'
+    | '/admin/jobs'
+    | '/admin/stats'
     | '/sign/verify'
     | '/$account_slug/'
     | '/sign/'
@@ -135,6 +147,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   Account_slugRoute: typeof Account_slugRouteWithChildren
   AccountsRoute: typeof AccountsRoute
+  AdminRoute: typeof AdminRouteWithChildren
   SignRoute: typeof SignRouteWithChildren
 }
 
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign': {
       id: '/sign'
       path: '/sign'
@@ -175,19 +195,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Account_slugIndexRouteImport
       parentRoute: typeof Account_slugRoute
     }
-    '/$account_slug/jobs': {
-      id: '/$account_slug/jobs'
+    '/admin/jobs': {
+      id: '/admin/jobs'
       path: '/jobs'
-      fullPath: '/$account_slug/jobs'
-      preLoaderRoute: typeof Account_slugJobsRouteImport
-      parentRoute: typeof Account_slugRoute
+      fullPath: '/admin/jobs'
+      preLoaderRoute: typeof AdminJobsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/$account_slug/stats': {
-      id: '/$account_slug/stats'
+    '/admin/stats': {
+      id: '/admin/stats'
       path: '/stats'
-      fullPath: '/$account_slug/stats'
-      preLoaderRoute: typeof Account_slugStatsRouteImport
-      parentRoute: typeof Account_slugRoute
+      fullPath: '/admin/stats'
+      preLoaderRoute: typeof AdminStatsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/sign/': {
       id: '/sign/'
@@ -207,20 +227,28 @@ declare module '@tanstack/react-router' {
 }
 
 interface Account_slugRouteChildren {
-  Account_slugJobsRoute: typeof Account_slugJobsRoute
-  Account_slugStatsRoute: typeof Account_slugStatsRoute
   Account_slugIndexRoute: typeof Account_slugIndexRoute
 }
 
 const Account_slugRouteChildren: Account_slugRouteChildren = {
-  Account_slugJobsRoute: Account_slugJobsRoute,
-  Account_slugStatsRoute: Account_slugStatsRoute,
   Account_slugIndexRoute: Account_slugIndexRoute,
 }
 
 const Account_slugRouteWithChildren = Account_slugRoute._addFileChildren(
   Account_slugRouteChildren,
 )
+
+interface AdminRouteChildren {
+  AdminJobsRoute: typeof AdminJobsRoute
+  AdminStatsRoute: typeof AdminStatsRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminJobsRoute: AdminJobsRoute,
+  AdminStatsRoute: AdminStatsRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface SignRouteChildren {
   SignVerifyRoute: typeof SignVerifyRoute
@@ -238,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   Account_slugRoute: Account_slugRouteWithChildren,
   AccountsRoute: AccountsRoute,
+  AdminRoute: AdminRouteWithChildren,
   SignRoute: SignRouteWithChildren,
 }
 export const routeTree = rootRouteImport

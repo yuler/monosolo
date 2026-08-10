@@ -26,7 +26,7 @@ export const Route = createFileRoute("/accounts")({
 			return { me };
 		} catch (err) {
 			if (err instanceof ApiError && err.status === 401) {
-				redirectToSign(`${location.pathname}${location.search}`);
+				redirectToSign(`${location.pathname}${location.searchStr}`);
 			}
 			throw err;
 		}

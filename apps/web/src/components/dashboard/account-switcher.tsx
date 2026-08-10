@@ -24,13 +24,9 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { coreAppUrl } from "@/config";
+import { rememberLastAccount } from "@/lib/api/session";
 import type { AccountSummary } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
-
-const SUFFIX_ROUTES = {
-	"/jobs": "/$account_slug/jobs",
-	"/stats": "/$account_slug/stats",
-} as const;
 
 export function AccountSwitcher({
 	accounts,
@@ -75,15 +71,16 @@ export function AccountSwitcher({
 
 	function selectAccount(account: AccountSummary) {
 		setActive(account);
+		void rememberLastAccount(account.slug).catch(() => {
+			// Picker hint is best-effort.
+		});
 
-		const suffix = pathname.startsWith(`/${slug}/`)
-			? pathname.slice(`/${slug}`.length)
-			: "";
-		const to =
-			SUFFIX_ROUTES[suffix as keyof typeof SUFFIX_ROUTES] ?? "/$account_slug";
+		if (pathname.startsWith("/admin")) {
+			return;
+		}
 
 		void navigate({
-			to,
+			to: "/$account_slug",
 			params: { account_slug: account.slug },
 		});
 	}

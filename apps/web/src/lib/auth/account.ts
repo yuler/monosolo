@@ -26,6 +26,20 @@ export function resolvePostAuthTarget(
 	return { kind: "picker" };
 }
 
+/** Shell account hint: last-used membership, else personal, else first. */
+export function resolveShellAccount(me: MeResponse): AccountSummary | null {
+	if (me.accounts.length === 0) return null;
+	if (me.last_account_slug) {
+		const last = me.accounts.find(
+			(account) => account.slug === me.last_account_slug,
+		);
+		if (last) return last;
+	}
+	return (
+		me.accounts.find((account) => account.personal) ?? me.accounts[0] ?? null
+	);
+}
+
 /** Dashboard CTA: one account → home; many → picker (never invent a tenant). */
 export function resolveDashboardTarget(
 	accounts: AccountSummary[],

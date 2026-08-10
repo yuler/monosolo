@@ -12,23 +12,18 @@ import {
 } from "@/components/ui/card";
 import { useAdminResource } from "@/hooks/use-admin-resource";
 import { fetchAdminStats } from "@/lib/api/admin";
-import { requireStaff } from "@/lib/auth/guards";
 
-const accountRoute = getRouteApi("/$account_slug");
+const adminRoute = getRouteApi("/admin");
 
-export const Route = createFileRoute("/$account_slug/stats")({
-	beforeLoad: ({ context, params }) => {
-		requireStaff(context.me, params.account_slug);
-	},
+export const Route = createFileRoute("/admin/stats")({
 	component: StatsPage,
 });
 
 function StatsPage() {
-	const { account_slug: slug } = accountRoute.useParams();
+	const { account } = adminRoute.useRouteContext();
 	const { data, error, loading } = useAdminResource(
 		fetchAdminStats,
 		"Failed to load stats.",
-		slug,
 	);
 
 	return (
@@ -38,8 +33,9 @@ function StatsPage() {
 					{
 						label: "Home",
 						to: "/$account_slug",
-						params: { account_slug: slug },
+						params: { account_slug: account.slug },
 					},
+					{ label: "Admin" },
 					{ label: "Stats", isCurrentPage: true },
 				]}
 			/>
@@ -102,19 +98,21 @@ function StatsPage() {
 								{data.recent_accounts.length === 0 ? (
 									<p className="text-sm text-muted-foreground">No accounts.</p>
 								) : (
-									data.recent_accounts.map((account) => (
+									data.recent_accounts.map((accountRow) => (
 										<div
-											key={account.id}
+											key={accountRow.id}
 											className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
 										>
 											<div className="min-w-0">
-												<p className="truncate font-medium">{account.name}</p>
+												<p className="truncate font-medium">
+													{accountRow.name}
+												</p>
 												<p className="truncate text-xs text-muted-foreground">
-													/{account.slug} ·{" "}
-													{new Date(account.created_at).toLocaleString()}
+													/{accountRow.slug} ·{" "}
+													{new Date(accountRow.created_at).toLocaleString()}
 												</p>
 											</div>
-											{account.personal ? (
+											{accountRow.personal ? (
 												<Badge variant="secondary">Personal</Badge>
 											) : (
 												<Badge variant="outline">Team</Badge>

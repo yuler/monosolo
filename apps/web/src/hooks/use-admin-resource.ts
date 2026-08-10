@@ -7,7 +7,6 @@ import { safeReturnTo } from "@/lib/auth/return-to";
 export function useAdminResource<T>(
 	load: () => Promise<T>,
 	fallbackError: string,
-	slug: string,
 ) {
 	const navigate = useNavigate();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -36,10 +35,7 @@ export function useAdminResource<T>(
 					return;
 				}
 				if (err instanceof ApiError && err.status === 403) {
-					void navigate({
-						to: "/$account_slug",
-						params: { account_slug: slug },
-					});
+					void navigate({ to: "/accounts" });
 					return;
 				}
 				setError(err instanceof ApiError ? err.message : fallbackError);
@@ -52,7 +48,7 @@ export function useAdminResource<T>(
 		return () => {
 			cancelled = true;
 		};
-	}, [fallbackError, load, navigate, pathname, search, slug]);
+	}, [fallbackError, load, navigate, pathname, search]);
 
 	return { data, error, loading };
 }

@@ -15,7 +15,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export type DashboardBreadcrumbItem = {
 	label: string;
-	to?: "/$account_slug" | "/$account_slug/jobs" | "/$account_slug/stats";
+	to?: "/$account_slug" | "/admin/jobs" | "/admin/stats";
 	params?: { account_slug: string };
 	isCurrentPage?: boolean;
 };
