@@ -21,11 +21,7 @@ class Sessions::MagicLinksController < ApplicationController
   private
     def ensure_that_email_pending_authentication_exists
       unless email_pending_authentication.present?
-        alert_message = "Enter your email address to sign in."
-        respond_to do |format|
-          format.html { redirect_to new_session_path, alert: alert_message }
-          format.json { render json: { message: alert_message }, status: :unauthorized }
-        end
+        redirect_to new_session_path, alert: "Enter your email address to sign in."
       end
     end
 
@@ -43,12 +39,8 @@ class Sessions::MagicLinksController < ApplicationController
 
     def sign_in(magic_link)
       clear_pending_authentication_token
-      session = start_new_session_for(magic_link.identity)
-
-      respond_to do |format|
-        format.html { redirect_to after_sign_in_url(magic_link) }
-        format.json { render json: { session_token: session.signed_id } }
-      end
+      start_new_session_for magic_link.identity
+      redirect_to after_sign_in_url(magic_link)
     end
 
     def after_sign_in_url(magic_link)
@@ -57,26 +49,14 @@ class Sessions::MagicLinksController < ApplicationController
 
     def email_mismatch
       clear_pending_authentication_token
-      alert_message = "Something went wrong. Please try again."
-
-      respond_to do |format|
-        format.html { redirect_to new_session_path, alert: alert_message }
-        format.json { render json: { message: alert_message }, status: :unauthorized }
-      end
+      redirect_to new_session_path, alert: "Something went wrong. Please try again."
     end
 
     def invalid_code
-      respond_to do |format|
-        format.html { redirect_to session_magic_link_path, flash: { shake: true } }
-        format.json { render json: { message: "Try another code." }, status: :unauthorized }
-      end
+      redirect_to session_magic_link_path, flash: { shake: true }
     end
 
     def rate_limit_exceeded
-      rate_limit_exceeded_message = "Try again in 15 minutes."
-      respond_to do |format|
-        format.html { redirect_to session_magic_link_path, alert: rate_limit_exceeded_message }
-        format.json { render json: { message: rate_limit_exceeded_message }, status: :too_many_requests }
-      end
+      redirect_to session_magic_link_path, alert: "Try again in 15 minutes."
     end
 end
