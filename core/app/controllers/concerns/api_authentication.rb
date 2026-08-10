@@ -31,7 +31,7 @@ module ApiAuthentication
 
     def allow_unauthenticated_access(**options)
       skip_before_action :require_authentication, **options
-      before_action :resume_session_from_cookie, **options
+      before_action :resume_session, **options
       allow_unauthorized_access(**options)
     end
   end
@@ -42,13 +42,13 @@ module ApiAuthentication
     end
 
     def require_authentication
-      resume_session_from_cookie ||
+      resume_session ||
         authenticate_by_bearer_token ||
         authenticate_by_query_token ||
         json_request_unauthorized
     end
 
-    def resume_session_from_cookie
+    def resume_session
       if session = find_session_by_cookie
         Current.session = session
       end
