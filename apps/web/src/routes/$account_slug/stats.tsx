@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, getRouteApi } from "@tanstack/react-router";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { useDashboardMe } from "@/components/dashboard/dashboard-me-context";
+import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
 import {
 	Card,
@@ -11,63 +10,26 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { type AdminStatsResponse, fetchAdminStats } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
-import { clearSessionToken } from "@/lib/auth/session";
+import { useAdminResource } from "@/hooks/use-admin-resource";
+import { fetchAdminStats } from "@/lib/api/admin";
+import { requireStaff } from "@/lib/auth/guards";
+
+const accountRoute = getRouteApi("/$account_slug");
 
 export const Route = createFileRoute("/$account_slug/stats")({
+	beforeLoad: ({ context, params }) => {
+		requireStaff(context.me, params.account_slug);
+	},
 	component: StatsPage,
 });
 
 function StatsPage() {
-	const navigate = useNavigate();
-	const { me, slug } = useDashboardMe();
-	const [data, setData] = useState<AdminStatsResponse | null>(null);
-	const [error, setError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		if (!me) return;
-		if (!me.identity.staff) {
-			void navigate({ to: "/$account_slug", params: { account_slug: slug } });
-		}
-	}, [me, navigate, slug]);
-
-	useEffect(() => {
-		if (!me?.identity.staff) return;
-
-		let cancelled = false;
-
-		async function load() {
-			setLoading(true);
-			setError(null);
-			try {
-				const response = await fetchAdminStats();
-				if (!cancelled) setData(response);
-			} catch (err) {
-				if (cancelled) return;
-				if (err instanceof ApiError && err.status === 401) {
-					clearSessionToken();
-					navigate({ to: "/sign" });
-					return;
-				}
-				if (err instanceof ApiError && err.status === 403) {
-					navigate({ to: "/$account_slug", params: { account_slug: slug } });
-					return;
-				}
-				setError(
-					err instanceof ApiError ? err.message : "Failed to load stats.",
-				);
-			} finally {
-				if (!cancelled) setLoading(false);
-			}
-		}
-
-		void load();
-		return () => {
-			cancelled = true;
-		};
-	}, [me, navigate, slug]);
+	const { account_slug: slug } = accountRoute.useParams();
+	const { data, error, loading } = useAdminResource(
+		fetchAdminStats,
+		"Failed to load stats.",
+		slug,
+	);
 
 	return (
 		<>
@@ -166,16 +128,5 @@ function StatsPage() {
 				) : null}
 			</div>
 		</>
-	);
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-	return (
-		<Card size="sm">
-			<CardHeader>
-				<CardDescription>{label}</CardDescription>
-				<CardTitle className="text-2xl tabular-nums">{value}</CardTitle>
-			</CardHeader>
-		</Card>
 	);
 }

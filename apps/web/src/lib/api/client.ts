@@ -50,7 +50,10 @@ export async function apiFetch<T>(
 		}
 	}
 
-	const response = await fetch(`${CORE_URL}${path}`, {
+	// Mode A (split): CORE_URL is absolute origin. Mode B (proxy): CORE_URL is
+	// "" so `path` stays a same-origin relative URL (e.g. `/api/v1/me`).
+	const url = CORE_URL ? `${CORE_URL}${path}` : path;
+	const response = await fetch(url, {
 		...init,
 		method,
 		credentials: "include",

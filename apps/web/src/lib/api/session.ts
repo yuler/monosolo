@@ -51,16 +51,6 @@ export function fetchMe() {
 	});
 }
 
-/** Cookie-only variant — use right after magic-link verify when the session
- *  cookie has just been set by the server and no Bearer token is in storage
- *  yet (or we want to confirm the cookie works before storing the token). */
-export function fetchMeViaCookie() {
-	return apiFetch<MeResponse>("/api/v1/me", {
-		method: "GET",
-		auth: false,
-	});
-}
-
 export function destroySession() {
 	return apiFetch<{ message: string }>("/api/v1/session", {
 		method: "DELETE",

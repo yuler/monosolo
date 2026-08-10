@@ -5,7 +5,6 @@ import {
 	redirect,
 } from "@tanstack/react-router";
 
-import { DashboardMeProvider } from "@/components/dashboard/dashboard-me-context";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe } from "@/lib/api/session";
@@ -15,13 +14,12 @@ import { clearSessionToken } from "@/lib/auth/session";
 import { isAccountSlug } from "@/lib/auth/slugs";
 
 export const Route = createFileRoute("/$account_slug")({
-	beforeLoad: ({ params }) => {
+	beforeLoad: async ({ params }) => {
 		requireAuth();
 		if (!isAccountSlug(params.account_slug)) {
 			throw notFound();
 		}
-	},
-	loader: async ({ params }) => {
+
 		try {
 			const me = await fetchMe();
 			const account = me.accounts.find(
@@ -45,7 +43,7 @@ export const Route = createFileRoute("/$account_slug")({
 
 function AccountLayout() {
 	const { account_slug } = Route.useParams();
-	const { me } = Route.useLoaderData();
+	const { me } = Route.useRouteContext();
 
 	return (
 		<DashboardShell
@@ -53,11 +51,7 @@ function AccountLayout() {
 			accounts={me.accounts}
 			slug={account_slug}
 		>
-			<DashboardMeProvider
-				value={{ me, loading: false, error: null, slug: account_slug }}
-			>
-				<Outlet />
-			</DashboardMeProvider>
+			<Outlet />
 		</DashboardShell>
 	);
 }

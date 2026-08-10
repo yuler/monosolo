@@ -1,10 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-	Activity,
-	BriefcaseBusiness,
-	LayoutDashboard,
-	Mail,
-} from "lucide-react";
+import { Activity, BriefcaseBusiness, LayoutDashboard } from "lucide-react";
 import type * as React from "react";
 
 import { AccountSwitcher } from "@/components/dashboard/account-switcher";
@@ -22,7 +17,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { CORE_URL } from "@/config";
 import type { MeResponse } from "@/lib/api/session";
 
 type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -79,34 +73,6 @@ export function DashboardSidebar({
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-
-				{import.meta.env.DEV ? (
-					<SidebarGroup>
-						<SidebarGroupLabel>Dev</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								<SidebarMenuItem>
-									<SidebarMenuButton
-										tooltip="Letters"
-										render={
-											// biome-ignore lint/a11y/useAnchorContent: children merge via useRender
-											<a
-												href={`${CORE_URL}/letter_opener`}
-												target="_blank"
-												rel="noreferrer"
-												aria-label="Letters"
-												onClick={closeMobileSidebar}
-											/>
-										}
-									>
-										<Mail />
-										<span>Letters</span>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-				) : null}
 
 				{user?.staff ? (
 					<SidebarGroup>

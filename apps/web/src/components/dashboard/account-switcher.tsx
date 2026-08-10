@@ -31,6 +31,11 @@ import {
 } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
 
+const SUFFIX_ROUTES = {
+	"/jobs": "/$account_slug/jobs",
+	"/stats": "/$account_slug/stats",
+} as const;
+
 export function AccountSwitcher({
 	accounts,
 	slug,
@@ -84,23 +89,11 @@ export function AccountSwitcher({
 		const suffix = pathname.startsWith(`/${slug}/`)
 			? pathname.slice(`/${slug}`.length)
 			: "";
+		const to =
+			SUFFIX_ROUTES[suffix as keyof typeof SUFFIX_ROUTES] ?? "/$account_slug";
 
-		if (suffix === "/jobs") {
-			void navigate({
-				to: "/$account_slug/jobs",
-				params: { account_slug: account.slug },
-			});
-			return;
-		}
-		if (suffix === "/stats") {
-			void navigate({
-				to: "/$account_slug/stats",
-				params: { account_slug: account.slug },
-			});
-			return;
-		}
 		void navigate({
-			to: "/$account_slug",
+			to,
 			params: { account_slug: account.slug },
 		});
 	}

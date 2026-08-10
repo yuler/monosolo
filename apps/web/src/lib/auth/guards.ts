@@ -38,6 +38,18 @@ export function requireAuth() {
 	}
 }
 
+export function requireStaff(
+	me: { identity: { staff: boolean } },
+	accountSlug: string,
+) {
+	if (!me.identity.staff) {
+		throw redirect({
+			to: "/$account_slug",
+			params: { account_slug: accountSlug },
+		});
+	}
+}
+
 export async function redirectToAccountHome() {
 	const me = await fetchMe();
 	const account = resolveSelectedAccount(me.accounts);
