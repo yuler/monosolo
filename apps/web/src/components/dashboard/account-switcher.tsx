@@ -24,7 +24,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { coreAppUrl } from "@/config";
-import { type AccountSummary, setLastAccountSlug } from "@/lib/auth/account";
+import type { AccountSummary } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
 
 const SUFFIX_ROUTES = {
@@ -75,7 +75,6 @@ export function AccountSwitcher({
 
 	function selectAccount(account: AccountSummary) {
 		setActive(account);
-		setLastAccountSlug(account.slug);
 
 		const suffix = pathname.startsWith(`/${slug}/`)
 			? pathname.slice(`/${slug}`.length)

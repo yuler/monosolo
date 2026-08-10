@@ -3,8 +3,7 @@ import { useEffect } from "react";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { ApiError } from "@/lib/api/client";
-import { fetchMe } from "@/lib/api/session";
-import { setLastAccountSlug } from "@/lib/auth/account";
+import { fetchMe, rememberLastAccount } from "@/lib/api/session";
 import { redirectToSign } from "@/lib/auth/guards";
 import { isAccountSlug } from "@/lib/auth/slugs";
 
@@ -38,7 +37,9 @@ function AccountLayout() {
 	const { me, account } = Route.useRouteContext();
 
 	useEffect(() => {
-		setLastAccountSlug(account.slug);
+		void rememberLastAccount(account.slug).catch(() => {
+			// Picker hint is best-effort; ignore network failures.
+		});
 	}, [account.slug]);
 
 	return (

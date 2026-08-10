@@ -59,6 +59,7 @@ Rails.application.routes.draw do
         end
       end
       get "me", to: "me#show"
+      put "me/last_account", to: "me#update_last_account"
 
       namespace :admin do
         resource :stats, only: :show

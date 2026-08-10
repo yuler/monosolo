@@ -6,11 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { coreAppUrl } from "@/config";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe } from "@/lib/api/session";
-import {
-	type AccountSummary,
-	getLastAccountSlug,
-	setLastAccountSlug,
-} from "@/lib/auth/account";
+import type { AccountSummary } from "@/lib/auth/account";
 import { redirectToSign } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +36,7 @@ export const Route = createFileRoute("/accounts")({
 
 function AccountsPage() {
 	const { me } = Route.useRouteContext();
-	const lastSlug = getLastAccountSlug();
+	const lastSlug = me.last_account_slug;
 	const description = lastSlug
 		? `Last used: ${lastSlug} — pick an account to continue.`
 		: "Pick an account to continue.";
@@ -86,7 +82,6 @@ function AccountChoice({
 			<Link
 				to="/$account_slug"
 				params={{ account_slug: account.slug }}
-				onClick={() => setLastAccountSlug(account.slug)}
 				className={cn(
 					buttonVariants({ variant: "outline" }),
 					"h-auto w-full justify-start gap-3 px-3 py-3",

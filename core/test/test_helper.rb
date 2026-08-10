@@ -1,4 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
+# Integration tests use hosts like www.example.com; a Mode A parent domain would
+# hide Set-Cookie values from the test cookie jar.
+ENV.delete("SESSION_COOKIE_DOMAIN")
 require_relative "../config/environment"
 require "rails/test_help"
 require_relative "test_helpers/session_test_helper"

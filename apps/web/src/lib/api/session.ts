@@ -24,6 +24,7 @@ export type MeResponse = {
 		slug: string;
 		personal: boolean;
 	}>;
+	last_account_slug: string | null;
 };
 
 export function startSession(email: string) {
@@ -44,6 +45,14 @@ export function verifyMagicLink(code: string) {
 export function fetchMe() {
 	return apiFetch<MeResponse>("/api/v1/me", {
 		method: "GET",
+	});
+}
+
+/** Ask Core to persist the last-account picker hint cookie. */
+export function rememberLastAccount(slug: string) {
+	return apiFetch<{ last_account_slug: string }>("/api/v1/me/last_account", {
+		method: "PUT",
+		body: { slug },
 	});
 }
 

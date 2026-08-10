@@ -5,6 +5,7 @@ class Api::V1::MeControllerTest < ActionDispatch::IntegrationTest
     @identity = identities(:john)
     @session = @identity.sessions.create!
     @token = @session.signed_id
+    @account = accounts(:john_account)
   end
 
   test "show returns identity and accounts" do
@@ -16,7 +17,17 @@ class Api::V1::MeControllerTest < ActionDispatch::IntegrationTest
     assert_equal @identity.email, body["identity"]["email"]
     assert_equal @identity.full_name, body["identity"]["name"]
     assert_equal @identity.staff?, body["identity"]["staff"]
-    assert body["accounts"].any? { |account| account["slug"] == accounts(:john_account).slug }
+    assert body["accounts"].any? { |account| account["slug"] == @account.slug }
+    assert_nil body["last_account_slug"]
+  end
+
+  test "show returns last_account_slug from cookie" do
+    cookies[:last_account_slug] = @account.slug
+
+    get api_v1_me_url, headers: { "Authorization" => "Bearer #{@token}" }, as: :json
+
+    assert_response :success
+    assert_equal @account.slug, response.parsed_body["last_account_slug"]
   end
 
   test "show accepts session cookie" do
@@ -35,5 +46,25 @@ class Api::V1::MeControllerTest < ActionDispatch::IntegrationTest
     get api_v1_me_url, as: :json
 
     assert_response :unauthorized
+  end
+
+  test "update_last_account sets cookie for a membership" do
+    put api_v1_me_last_account_url,
+      params: { slug: @account.slug },
+      headers: { "Authorization" => "Bearer #{@token}" },
+      as: :json
+
+    assert_response :success
+    assert_equal @account.slug, response.parsed_body["last_account_slug"]
+    assert_equal @account.slug, cookies[:last_account_slug]
+  end
+
+  test "update_last_account rejects unknown membership" do
+    put api_v1_me_last_account_url,
+      params: { slug: "no-such-acct" },
+      headers: { "Authorization" => "Bearer #{@token}" },
+      as: :json
+
+    assert_response :not_found
   end
 end
