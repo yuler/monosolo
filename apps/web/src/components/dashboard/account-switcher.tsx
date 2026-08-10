@@ -23,7 +23,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { coreAppUrl } from "@/config";
 import { rememberLastAccount } from "@/lib/api/session";
 import type { AccountSummary } from "@/lib/auth/account";
 import { cn } from "@/lib/utils";
@@ -150,11 +149,7 @@ export function AccountSwitcher({
 							<DropdownMenuItem
 								className="gap-2 p-2"
 								onClick={() => {
-									window.open(
-										coreAppUrl("/my/accounts"),
-										"_blank",
-										"noopener,noreferrer",
-									);
+									void navigate({ to: "/accounts" });
 								}}
 							>
 								<span className="flex size-6 items-center justify-center rounded-md border border-border bg-transparent">
