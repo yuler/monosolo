@@ -11,14 +11,19 @@ import { safeReturnTo } from "@/lib/auth/return-to";
 export function SignInForm({
 	idPrefix = "sign",
 	returnTo,
+	initialEmail = "",
+	/** When true, stay put and call onSuccess (dialog step). Default navigates to /sign/verify. */
+	stayInPlace = false,
 	onSuccess,
 }: {
 	idPrefix?: string;
 	returnTo?: string;
-	onSuccess?: () => void;
+	initialEmail?: string;
+	stayInPlace?: boolean;
+	onSuccess?: (info: { email: string }) => void;
 }) {
 	const navigate = useNavigate();
-	const [email, setEmail] = useState("");
+	const [email, setEmail] = useState(initialEmail);
 	const [error, setError] = useState<string | null>(null);
 	const [pending, setPending] = useState(false);
 
@@ -27,17 +32,21 @@ export function SignInForm({
 		setError(null);
 		setPending(true);
 
+		const trimmed = email.trim();
+
 		try {
-			const result = await startSession(email.trim());
+			const result = await startSession(trimmed);
 			if (import.meta.env.DEV && result.code) {
 				sessionStorage.setItem("monosolo.dev_magic_link_code", result.code);
 			}
-			onSuccess?.();
-			const safe = safeReturnTo(returnTo);
-			await navigate({
-				to: "/sign/verify",
-				search: safe ? { return_to: safe } : {},
-			});
+			onSuccess?.({ email: trimmed });
+			if (!stayInPlace) {
+				const safe = safeReturnTo(returnTo);
+				await navigate({
+					to: "/sign/verify",
+					search: safe ? { return_to: safe } : {},
+				});
+			}
 		} catch (err) {
 			setError(err instanceof ApiError ? err.message : "Something went wrong.");
 		} finally {

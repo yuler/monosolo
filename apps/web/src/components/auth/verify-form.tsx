@@ -12,9 +12,15 @@ import { navigateForTarget } from "@/lib/auth/guards";
 export function VerifyForm({
 	idPrefix = "verify",
 	returnTo,
+	onBack,
+	onVerified,
 }: {
 	idPrefix?: string;
 	returnTo?: string;
+	/** Go back to the email step (wrong address, etc.). */
+	onBack?: () => void;
+	/** Called after a successful verify, before post-auth navigation. */
+	onVerified?: () => void;
 }) {
 	const navigate = useNavigate();
 	const [code, setCode] = useState("");
@@ -39,6 +45,8 @@ export function VerifyForm({
 			if (import.meta.env.DEV) {
 				sessionStorage.removeItem("monosolo.dev_magic_link_code");
 			}
+
+			onVerified?.();
 
 			const me = await fetchMe();
 			await navigateForTarget(
@@ -88,6 +96,17 @@ export function VerifyForm({
 			>
 				{pending ? "Verifying…" : "Verify"}
 			</Button>
+			{onBack ? (
+				<Button
+					type="button"
+					variant="ghost"
+					className="w-full"
+					disabled={pending}
+					onClick={onBack}
+				>
+					Use a different email
+				</Button>
+			) : null}
 		</form>
 	);
 }
