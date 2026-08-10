@@ -17,3 +17,15 @@ export function fetchDevLetters() {
 		method: "GET",
 	});
 }
+
+export function deleteDevLetter(id: string) {
+	return apiFetch<void>(`/api/v1/dev/letters/${encodeURIComponent(id)}`, {
+		method: "DELETE",
+	});
+}
+
+export function clearDevLetters() {
+	return apiFetch<void>("/api/v1/dev/letters/clear", {
+		method: "DELETE",
+	});
+}

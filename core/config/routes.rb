@@ -67,7 +67,9 @@ Rails.application.routes.draw do
       end
 
       namespace :dev do
-        resources :letters, only: :index
+        resources :letters, only: %i[ index destroy ] do
+          delete :clear, on: :collection
+        end
       end
 
       namespace :test do
