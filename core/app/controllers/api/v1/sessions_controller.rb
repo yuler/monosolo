@@ -38,14 +38,14 @@ class Api::V1::SessionsController < Api::V1::BaseController
     end
 
     def start_magic_link_for(magic_link)
+      # Same as HTML: pending auth cookie + (dev) X-Magic-Link-Code — not OTP in JSON.
+      serve_development_magic_link(magic_link)
       set_pending_authentication_token(magic_link)
 
-      payload = {
+      render_json json: {
+        # Non-browser clients; browsers rely on the pending_authentication_token cookie.
         pending_authentication_token: generate_pending_authentication_token(magic_link)
       }
-      payload[:code] = magic_link.code if Rails.env.development? || Rails.env.test?
-
-      render_json json: payload
     end
 
     def rate_limit_exceeded

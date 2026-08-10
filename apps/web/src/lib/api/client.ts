@@ -16,10 +16,10 @@ type ApiOptions = Omit<RequestInit, "body"> & {
 	body?: unknown;
 };
 
-export async function apiFetch<T>(
+async function request(
 	path: string,
 	{ body, headers, method = "GET", ...init }: ApiOptions = {},
-): Promise<T> {
+): Promise<Response> {
 	const requestHeaders = new Headers(headers);
 	if (body !== undefined) {
 		requestHeaders.set("Content-Type", "application/json");
@@ -55,9 +55,35 @@ export async function apiFetch<T>(
 		throw new ApiError(response.status, message, code);
 	}
 
+	return response;
+}
+
+export async function apiFetch<T>(
+	path: string,
+	options: ApiOptions = {},
+): Promise<T> {
+	const response = await request(path, options);
+
 	if (response.status === 204) {
 		return undefined as T;
 	}
 
 	return (await response.json()) as T;
+}
+
+/** Like apiFetch, but also returns response headers (e.g. X-Magic-Link-Code). */
+export async function apiFetchWithHeaders<T>(
+	path: string,
+	options: ApiOptions = {},
+): Promise<{ data: T; headers: Headers }> {
+	const response = await request(path, options);
+
+	if (response.status === 204) {
+		return { data: undefined as T, headers: response.headers };
+	}
+
+	return {
+		data: (await response.json()) as T,
+		headers: response.headers,
+	};
 }

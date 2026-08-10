@@ -1,8 +1,9 @@
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch, apiFetchWithHeaders } from "@/lib/api/client";
 
 export type StartSessionResponse = {
 	/** Still returned for non-browser clients; browsers rely on the pending cookie. */
 	pending_authentication_token: string;
+	/** Dev-only OTP from `X-Magic-Link-Code` (same as Core HTML flash/header). */
 	code?: string;
 };
 
@@ -27,11 +28,16 @@ export type MeResponse = {
 	last_account_slug: string | null;
 };
 
-export function startSession(email: string) {
-	return apiFetch<StartSessionResponse>("/api/v1/session", {
-		method: "POST",
-		body: { email },
-	});
+export async function startSession(email: string) {
+	const { data, headers } = await apiFetchWithHeaders<StartSessionResponse>(
+		"/api/v1/session",
+		{
+			method: "POST",
+			body: { email },
+		},
+	);
+	const code = headers.get("X-Magic-Link-Code") ?? undefined;
+	return code ? { ...data, code } : data;
 }
 
 /** Verifies the magic-link code; pending auth comes from the HttpOnly cookie. */

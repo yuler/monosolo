@@ -11,7 +11,8 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = response.parsed_body
     assert body["pending_authentication_token"].present?
-    assert body["code"].present?
+    assert_nil body["code"]
+    assert cookies[:pending_authentication_token].present?
   end
 
   test "create signs up a new identity" do

@@ -5,7 +5,7 @@ class Api::V1::Sessions::MagicLinksControllerTest < ActionDispatch::IntegrationT
     @identity = identities(:john)
     post api_v1_session_url, params: { email: @identity.email }, as: :json
     @pending_token = response.parsed_body["pending_authentication_token"]
-    @code = response.parsed_body["code"]
+    @code = @identity.magic_links.order(:created_at).last.code
   end
 
   test "create exchanges code for session token" do
@@ -25,8 +25,9 @@ class Api::V1::Sessions::MagicLinksControllerTest < ActionDispatch::IntegrationT
     post api_v1_session_url, params: { email: @identity.email }, as: :json
     pending_cookie = cookies[:pending_authentication_token]
     assert pending_cookie.present?
+    code = @identity.magic_links.order(:created_at).last.code
 
-    post api_v1_session_magic_link_url, params: { code: @code }, as: :json
+    post api_v1_session_magic_link_url, params: { code: code }, as: :json
 
     assert_response :success
     assert response.parsed_body["session_token"].present?
