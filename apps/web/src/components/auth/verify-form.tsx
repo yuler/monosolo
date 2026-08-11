@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ export function VerifyForm({
 	onVerified?: () => void;
 }) {
 	const navigate = useNavigate();
+	const router = useRouter();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [pending, setPending] = useState(false);
@@ -46,7 +47,8 @@ export function VerifyForm({
 				sessionStorage.removeItem("monosolo.dev_magic_link_code");
 			}
 
-			const me = await fetchMe();
+			const me = await fetchMe({ force: true });
+			await router.invalidate();
 			await navigateForTarget(
 				navigate,
 				resolvePostAuthTarget(me.accounts, returnTo),

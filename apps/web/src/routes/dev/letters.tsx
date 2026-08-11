@@ -1,10 +1,10 @@
 import {
 	createFileRoute,
 	getRouteApi,
-	useNavigate,
+	useRouter,
 } from "@tanstack/react-router";
 import { ExternalLink, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -20,66 +20,31 @@ import { coreAppUrl } from "@/config";
 import { ApiError } from "@/lib/api/client";
 import {
 	clearDevLetters,
-	type DevLetter,
 	deleteDevLetter,
 	fetchDevLetters,
 } from "@/lib/api/dev";
-import { safeReturnTo } from "@/lib/auth/return-to";
 
 const devRoute = getRouteApi("/dev");
 
 export const Route = createFileRoute("/dev/letters")({
+	loader: () => fetchDevLetters(),
 	component: LettersPage,
 });
 
 function LettersPage() {
 	const { account } = devRoute.useRouteContext();
-	const navigate = useNavigate();
-	const [letters, setLetters] = useState<DevLetter[] | null>(null);
+	const router = useRouter();
+	const { letters } = Route.useLoaderData();
 	const [error, setError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(true);
 	const [pendingId, setPendingId] = useState<string | null>(null);
 	const [clearing, setClearing] = useState(false);
-
-	useEffect(() => {
-		let cancelled = false;
-
-		async function load() {
-			setLoading(true);
-			setError(null);
-			try {
-				const response = await fetchDevLetters();
-				if (!cancelled) setLetters(response.letters);
-			} catch (err) {
-				if (cancelled) return;
-				if (err instanceof ApiError && err.status === 401) {
-					const returnTo = safeReturnTo("/dev/letters");
-					void navigate({
-						to: "/sign",
-						search: returnTo ? { return_to: returnTo } : {},
-					});
-					return;
-				}
-				setError(
-					err instanceof ApiError ? err.message : "Failed to load letters.",
-				);
-			} finally {
-				if (!cancelled) setLoading(false);
-			}
-		}
-
-		void load();
-		return () => {
-			cancelled = true;
-		};
-	}, [navigate]);
 
 	async function handleDelete(id: string) {
 		setPendingId(id);
 		setError(null);
 		try {
 			await deleteDevLetter(id);
-			setLetters((prev) => prev?.filter((letter) => letter.id !== id) ?? null);
+			await router.invalidate();
 		} catch (err) {
 			setError(
 				err instanceof ApiError ? err.message : "Failed to delete letter.",
@@ -90,14 +55,14 @@ function LettersPage() {
 	}
 
 	async function handleClear() {
-		if (!letters?.length) return;
+		if (!letters.length) return;
 		if (!window.confirm("Delete all captured letters?")) return;
 
 		setClearing(true);
 		setError(null);
 		try {
 			await clearDevLetters();
-			setLetters([]);
+			await router.invalidate();
 		} catch (err) {
 			setError(
 				err instanceof ApiError ? err.message : "Failed to clear letters.",
@@ -132,7 +97,7 @@ function LettersPage() {
 						</p>
 					</div>
 					<div className="flex flex-wrap gap-2">
-						{letters && letters.length > 0 ? (
+						{letters.length > 0 ? (
 							<Button
 								variant="outline"
 								disabled={clearing || pendingId !== null}
@@ -159,23 +124,17 @@ function LettersPage() {
 					</div>
 				</div>
 
-				{loading ? (
-					<p className="text-sm text-muted-foreground">Loading…</p>
-				) : null}
-
 				{error ? (
 					<p className="text-sm text-destructive" role="alert">
 						{error}
 					</p>
 				) : null}
 
-				{!loading && letters && letters.length === 0 ? (
+				{letters.length === 0 ? (
 					<p className="text-sm text-muted-foreground">
 						No letters yet. Sign in or trigger an email to see them here.
 					</p>
-				) : null}
-
-				{letters && letters.length > 0 ? (
+				) : (
 					<ul className="flex flex-col gap-3">
 						{letters.map((letter) => (
 							<li key={letter.id}>
@@ -235,7 +194,7 @@ function LettersPage() {
 							</li>
 						))}
 					</ul>
-				) : null}
+				)}
 			</div>
 		</>
 	);

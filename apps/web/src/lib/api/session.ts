@@ -28,6 +28,16 @@ export type MeResponse = {
 	last_account_slug: string | null;
 };
 
+/** Shared across header / hero / CTA `SiteAuthButton` mounts and route guards. */
+const ME_STALE_MS = 30_000;
+let meInflight: Promise<MeResponse> | null = null;
+let meCached: { value: MeResponse; at: number } | null = null;
+
+export function invalidateMeCache() {
+	meInflight = null;
+	meCached = null;
+}
+
 export async function startSession(email: string) {
 	const { data, headers } = await apiFetchWithHeaders<StartSessionResponse>(
 		"/api/v1/session",
@@ -41,17 +51,55 @@ export async function startSession(email: string) {
 }
 
 /** Verifies the magic-link code; pending auth comes from the HttpOnly cookie. */
-export function verifyMagicLink(code: string) {
-	return apiFetch<VerifySessionResponse>("/api/v1/session/magic_link", {
-		method: "POST",
-		body: { code },
-	});
+export async function verifyMagicLink(code: string) {
+	const result = await apiFetch<VerifySessionResponse>(
+		"/api/v1/session/magic_link",
+		{
+			method: "POST",
+			body: { code },
+		},
+	);
+	invalidateMeCache();
+	return result;
 }
 
-export function fetchMe() {
-	return apiFetch<MeResponse>("/api/v1/me", {
+export function fetchMe(options?: { force?: boolean }): Promise<MeResponse> {
+	const force = options?.force === true;
+	if (!force && meCached && Date.now() - meCached.at < ME_STALE_MS) {
+		return Promise.resolve(meCached.value);
+	}
+	if (!force && meInflight) {
+		return meInflight;
+	}
+
+	const request = apiFetch<MeResponse>("/api/v1/me", {
 		method: "GET",
-	});
+	})
+		.then((me) => {
+			meCached = { value: me, at: Date.now() };
+			return me;
+		})
+		.catch((err) => {
+			invalidateMeCache();
+			throw err;
+		})
+		.finally(() => {
+			if (meInflight === request) {
+				meInflight = null;
+			}
+		});
+
+	meInflight = request;
+	return request;
+}
+
+/** Guest-friendly session probe — 401 / network errors become `null`. */
+export async function fetchMeOrNull(): Promise<MeResponse | null> {
+	try {
+		return await fetchMe();
+	} catch {
+		return null;
+	}
 }
 
 /** Ask Core to persist the last-account picker hint on the identity. */
@@ -62,8 +110,12 @@ export function rememberLastAccount(slug: string) {
 	});
 }
 
-export function destroySession() {
-	return apiFetch<{ message: string }>("/api/v1/session", {
-		method: "DELETE",
-	});
+export async function destroySession() {
+	try {
+		return await apiFetch<{ message: string }>("/api/v1/session", {
+			method: "DELETE",
+		});
+	} finally {
+		invalidateMeCache();
+	}
 }

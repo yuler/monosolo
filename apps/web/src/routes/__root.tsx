@@ -8,6 +8,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
 
 import { NotFound } from "@/components/not-found";
+import { fetchMeOrNull } from "@/lib/api/session";
 
 import appCss from "../styles.css?url";
 
@@ -25,6 +26,10 @@ const themeBootScript = `(() => {
 })();`;
 
 export const Route = createRootRoute({
+	beforeLoad: async () => {
+		const me = await fetchMeOrNull();
+		return { me };
+	},
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
