@@ -1,7 +1,4 @@
-import {
-	type NavigateOptions,
-	redirect,
-} from "@tanstack/react-router";
+import { type NavigateOptions, redirect } from "@tanstack/react-router";
 
 import { ApiError } from "@/lib/api/client";
 import type { MeResponse } from "@/lib/api/session";
