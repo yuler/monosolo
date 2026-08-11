@@ -1,12 +1,32 @@
 # ===========================================================================
-# Example Docker Compose file
+# MonoSolo — Docker Compose quick start (local)
+# ===========================================================================
+#
+#   cp .env.example .env
+#   # Set SECRET_KEY_BASE (`cd core && bin/rails secret`)
+#   cp compose.example.yml compose.yml
+#   docker compose pull   # or: docker compose build
+#   docker compose up -d
+#
+# Web (TanStack Start SSR + /api → core): http://localhost:${WEB_PORT:-3000}
+# Core (direct, optional):                http://localhost:${CORE_PORT:-3001}
+#
+# Images:
+#   ghcr.io/yuler/monosolo:main      (Rails core)
+#   ghcr.io/yuler/monosolo-web:main  (apps/web Node SSR)
+#
+# To build web locally instead of pulling:
+#   docker compose build web
 # ===========================================================================
 
 x-core-env:
-  # `rails secret` or `openssl rand -hex 64` generate a random secret key
   &core_env
+  # `cd core && bin/rails secret` or `openssl rand -hex 64`
   SECRET_KEY_BASE: ${SECRET_KEY_BASE:-e84aa0d3f501eaeb64b6c4ddbb6ba2d27f25bf980b3f855e9b525dc80fd65fbdfdf46bdee5c0de6cf51642f332e030ef1afc17f0788af447a16cacb789b6e868}
-  CORE_PORT: ${CORE_PORT:-3001}
+  # Force Mode B for Compose even if root `.env` is set up for `mise dev` (Mode A).
+  SESSION_COOKIE_DOMAIN: ""
+  SOLID_QUEUE_IN_PUMA: "false"
+  SITE_DOMAIN: ${SITE_DOMAIN:-localhost:3000}
 
 services:
   core:
@@ -14,14 +34,14 @@ services:
     volumes:
       - core-storage:/rails/storage
     ports:
-      - ${CORE_PORT:-3001}:3000
+      - ${CORE_PORT:-3001}:80
     restart: unless-stopped
     env_file:
       - .env
     environment:
       <<: *core_env
     networks:
-      - core_net
+      - monosolo
 
   worker:
     image: ghcr.io/yuler/monosolo:main
@@ -33,32 +53,34 @@ services:
       - .env
     environment:
       <<: *core_env
-    networks:
-      - core_net
-
-  # apps/web — Vite SPA (static build served on port 80 in the container)
-  web:
-    image: ghcr.io/yuler/monosolo-web:main
-    ports:
-      - ${WEB_PORT:-3000}:80
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      WEB_PORT: ${WEB_PORT:-3000}
     depends_on:
       - core
     networks:
-      - core_net
+      - monosolo
+
+  # apps/web — TanStack Start (Node SSR); Nitro proxies /api → core (Mode B)
+  web:
+    image: ghcr.io/yuler/monosolo-web:main
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_CORE_URL: ""
+        CORE_INTERNAL_URL: http://core:80
+    ports:
+      - ${WEB_PORT:-3000}:3000
+    restart: unless-stopped
+    environment:
+      PORT: "3000"
+      CORE_INTERNAL_URL: http://core:80
+    depends_on:
+      - core
+    networks:
+      - monosolo
 
 volumes:
   core-storage:
-    # driver: local
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${PWD}/storage
 
 networks:
-  core_net:
+  monosolo:
     driver: bridge

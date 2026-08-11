@@ -46,3 +46,21 @@ mise dev
 Ports come from root `.env` (`CORE_PORT`, `WEB_PORT`). Rails allows any `*.localhost` host in development; Vite allows `.localhost` via `allowedHosts`.
 
 Login: `john@example.com`
+
+## Docker Compose (local quick start)
+
+```bash
+cp .env.example .env
+# Set SECRET_KEY_BASE (`cd core && bin/rails secret`).
+
+cp compose.example.yml compose.yml
+docker compose pull    # or: docker compose build
+docker compose up -d
+```
+
+Compose forces Mode B (host-only cookies; Nitro proxies `/api` → core), so a Mode A `mise` `.env` is fine to reuse.
+
+- Web: http://localhost:3000 (TanStack Start Node SSR; `/api` proxied to core)
+- Core: http://localhost:3001 (optional direct access)
+
+Images: `ghcr.io/yuler/monosolo` and `ghcr.io/yuler/monosolo-web` (see `core-push-image.yml` / `web-push-image.yml`).

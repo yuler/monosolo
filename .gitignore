@@ -5,7 +5,7 @@
 node_modules/
 pnpm-debug.log*
 
-# Environment files
+# Environment files (repo-root only; do not keep core/.env)
 .env*
 !.env.example
 
@@ -13,7 +13,7 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# The `core` Ruby/Rails specific (monorepo paths)
+# The `core` Ruby/Rails app (monorepo paths)
 core/.bundle
 core/log/*
 core/tmp/*
@@ -33,8 +33,10 @@ core/public/assets
 core/config/*.key
 core/app/assets/builds/*
 !core/app/assets/builds/.keep
+# Bundler path installs (CI / local)
+core/vendor/bundle
 
-# apps/web (TanStack Router / Vite)
+# apps/web (TanStack Start / Vite)
 apps/web/dist
 apps/web/dist-ssr
 apps/web/*.local

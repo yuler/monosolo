@@ -16,6 +16,24 @@ type ApiOptions = Omit<RequestInit, "body"> & {
 	body?: unknown;
 };
 
+/** Origin for API calls. Mode A: absolute VITE_CORE_URL. Mode B browser: "". */
+function resolveApiOrigin(): string {
+	if (CORE_URL) return CORE_URL;
+	// During SSR, relative `/api` must hit Rails (via Nitro proxy or direct).
+	if (import.meta.env.SSR) {
+		return (
+			process.env.CORE_INTERNAL_URL ?? "http://core.monosolo.localhost:3001"
+		);
+	}
+	return "";
+}
+
+async function serverCookieHeader(): Promise<string | undefined> {
+	if (!import.meta.env.SSR) return undefined;
+	const { getRequestHeader } = await import("@tanstack/react-start/server");
+	return getRequestHeader("cookie");
+}
+
 async function request(
 	path: string,
 	{ body, headers, method = "GET", ...init }: ApiOptions = {},
@@ -26,10 +44,14 @@ async function request(
 	}
 	requestHeaders.set("Accept", "application/json");
 
-	// Mode A (split): CORE_URL is absolute origin. Mode B (proxy): CORE_URL is
-	// "" so `path` stays a same-origin relative URL (e.g. `/api/v1/me`).
-	// Session is the HttpOnly `session_id` cookie (credentials: "include").
-	const url = CORE_URL ? `${CORE_URL}${path}` : path;
+	const cookie = await serverCookieHeader();
+	if (cookie && !requestHeaders.has("Cookie")) {
+		requestHeaders.set("Cookie", cookie);
+	}
+
+	// Mode A (split): CORE_URL is absolute origin. Mode B (proxy): browser uses
+	// same-origin relative `/api/v1/...`; SSR uses CORE_INTERNAL_URL.
+	const url = `${resolveApiOrigin()}${path}`;
 	const response = await fetch(url, {
 		...init,
 		method,
