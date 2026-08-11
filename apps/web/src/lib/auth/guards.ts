@@ -1,10 +1,10 @@
 import {
-	isRedirect,
 	type NavigateOptions,
 	redirect,
 } from "@tanstack/react-router";
 
-import { fetchMe } from "@/lib/api/session";
+import { ApiError } from "@/lib/api/client";
+import type { MeResponse } from "@/lib/api/session";
 import {
 	type AccountSummary,
 	type PostAuthTarget,
@@ -37,17 +37,42 @@ export function redirectToSign(returnTo?: string | null): never {
 	});
 }
 
-export async function requireGuest({
+export type RootRouteContext = {
+	me: MeResponse | null;
+};
+
+/**
+ * Like core `Authentication#require_authentication` after `resume_session`:
+ * root `beforeLoad` already probed the cookie; no identity → redirect to sign.
+ */
+export function requireSession({
+	context,
+	location,
+}: {
+	context: RootRouteContext;
+	location: { pathname: string; searchStr: string };
+}): MeResponse {
+	if (!context.me) {
+		redirectToSign(`${location.pathname}${location.searchStr}`);
+	}
+	return context.me;
+}
+
+/**
+ * Like core `redirect_authenticated_user`: root already resumed the session;
+ * signed-in users should not see the sign-in flow.
+ */
+export function requireGuest({
+	context,
 	search,
 }: {
+	context: RootRouteContext;
 	search: { return_to?: string };
 }) {
-	try {
-		const me = await fetchMe();
-		redirectForTarget(resolvePostAuthTarget(me.accounts, search.return_to));
-	} catch (err) {
-		if (isRedirect(err)) throw err;
-	}
+	if (!context.me) return;
+	redirectForTarget(
+		resolvePostAuthTarget(context.me.accounts, search.return_to),
+	);
 }
 
 export function requireStaff(me: {
@@ -57,6 +82,29 @@ export function requireStaff(me: {
 	if (!me.identity.staff) {
 		redirectForTarget(resolveDashboardTarget(me.accounts));
 	}
+}
+
+type LoaderContext = { location: { pathname: string; searchStr: string } };
+
+/**
+ * Wrap a route loader so a 401 (stale/revoked session) or 403 (role change)
+ * redirects like the removed `useAdminResource` hook did, instead of dumping a
+ * raw error page through the default error boundary.
+ */
+export function withAuthRedirects<R>(load: () => Promise<R>) {
+	return async ({ location }: LoaderContext): Promise<R> => {
+		try {
+			return await load();
+		} catch (err) {
+			if (err instanceof ApiError && err.status === 401) {
+				redirectToSign(`${location.pathname}${location.searchStr}`);
+			}
+			if (err instanceof ApiError && err.status === 403) {
+				throw redirect({ to: "/accounts" });
+			}
+			throw err;
+		}
+	};
 }
 
 type NavigateFn = (opts: NavigateOptions) => Promise<void> | void;

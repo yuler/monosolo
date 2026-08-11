@@ -1,4 +1,4 @@
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useState } from "react";
 
@@ -24,7 +24,6 @@ import { destroySession } from "@/lib/api/session";
 
 export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 	const navigate = useNavigate();
-	const router = useRouter();
 	const { isMobile } = useSidebar();
 	const [open, setOpen] = useState(false);
 	const [signingOut, setSigningOut] = useState(false);
@@ -38,7 +37,6 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 		try {
 			await destroySession();
 			setOpen(false);
-			await router.invalidate();
 			await navigate({ to: "/sign" });
 		} catch (err) {
 			setSignOutError(

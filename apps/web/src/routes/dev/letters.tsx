@@ -23,11 +23,12 @@ import {
 	deleteDevLetter,
 	fetchDevLetters,
 } from "@/lib/api/dev";
+import { withAuthRedirects } from "@/lib/auth/guards";
 
 const devRoute = getRouteApi("/dev");
 
 export const Route = createFileRoute("/dev/letters")({
-	loader: () => fetchDevLetters(),
+	loader: withAuthRedirects(fetchDevLetters),
 	component: LettersPage,
 });
 

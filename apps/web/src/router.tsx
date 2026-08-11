@@ -1,6 +1,7 @@
 import { createRouter } from "@tanstack/react-router";
 
 import { NotFound } from "@/components/not-found";
+import { ME_STALE_MS } from "@/lib/api/session";
 
 import { routeTree } from "./routeTree.gen";
 
@@ -9,8 +10,8 @@ export function getRouter() {
 		routeTree,
 		defaultPreload: "intent",
 		// Reuse preloaded beforeLoad/loader data briefly so hover→click is not a second fetch.
-		defaultPreloadStaleTime: 30_000,
-		defaultStaleTime: 30_000,
+		defaultPreloadStaleTime: ME_STALE_MS,
+		defaultStaleTime: ME_STALE_MS,
 		defaultNotFoundComponent: NotFound,
 		scrollRestoration: true,
 	});

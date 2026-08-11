@@ -28,8 +28,8 @@ export type MeResponse = {
 	last_account_slug: string | null;
 };
 
-/** Shared across header / hero / CTA `SiteAuthButton` mounts and route guards. */
-const ME_STALE_MS = 30_000;
+/** Shared with router stale-time defaults and route guards. */
+export const ME_STALE_MS = 30_000;
 let meInflight: Promise<MeResponse> | null = null;
 let meCached: { value: MeResponse; at: number } | null = null;
 

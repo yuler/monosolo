@@ -2,32 +2,24 @@ import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { ApiError } from "@/lib/api/client";
-import { fetchMe, rememberLastAccount } from "@/lib/api/session";
-import { redirectToSign } from "@/lib/auth/guards";
+import { rememberLastAccount } from "@/lib/api/session";
+import { requireSession } from "@/lib/auth/guards";
 import { isAccountSlug } from "@/lib/auth/slugs";
 
 export const Route = createFileRoute("/$account_slug")({
-	beforeLoad: async ({ params, location }) => {
+	beforeLoad: ({ context, location, params }) => {
 		if (!isAccountSlug(params.account_slug)) {
 			throw notFound();
 		}
 
-		try {
-			const me = await fetchMe();
-			const account = me.accounts.find(
-				(item) => item.slug === params.account_slug,
-			);
-			if (!account) {
-				throw notFound();
-			}
-			return { me, account };
-		} catch (err) {
-			if (err instanceof ApiError && err.status === 401) {
-				redirectToSign(`${location.pathname}${location.searchStr}`);
-			}
-			throw err;
+		const me = requireSession({ context, location });
+		const account = me.accounts.find(
+			(item) => item.slug === params.account_slug,
+		);
+		if (!account) {
+			throw notFound();
 		}
+		return { me, account };
 	},
 	component: AccountLayout,
 });

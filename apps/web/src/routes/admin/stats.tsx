@@ -11,11 +11,12 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { fetchAdminStats } from "@/lib/api/admin";
+import { withAuthRedirects } from "@/lib/auth/guards";
 
 const adminRoute = getRouteApi("/admin");
 
 export const Route = createFileRoute("/admin/stats")({
-	loader: () => fetchAdminStats(),
+	loader: withAuthRedirects(fetchAdminStats),
 	component: StatsPage,
 });
 
