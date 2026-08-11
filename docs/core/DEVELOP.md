@@ -46,7 +46,7 @@ Allowed origins (credentials enabled):
 | `http(s)://*.localhost` (any port) | Any localhost / subdomain       |
 | `http(s)://127.0.0.1` / `[::1]`    | IPv4 / IPv6 loopback (any port) |
 
-Rails has no built-in “allow CORS” config switch. This middleware is **development-only**. In production, serve web and `/api` same-origin behind a reverse proxy (Mode B).
+Rails has no built-in “allow CORS” config switch. This middleware is **development-only**. In production, TanStack Start (Nitro) proxies `/api` to core same-origin (Mode B).
 
 ### Testing
 
@@ -114,10 +114,10 @@ Passwordless magic-link authentication:
 
 **Browser apps (`apps/web`)** call `/api/v1` with `credentials: "include"` and rely on the HttpOnly `session_id` cookie (no bearer token in localStorage). After magic-link verify, Core sets the session cookie; the JSON body still includes `session_token` for non-browser clients (mobile/CLI).
 
-| Deployment | `VITE_CORE_URL`            | `SESSION_COOKIE_DOMAIN`  | API access                                                   |
-| ---------- | -------------------------- | ------------------------ | ------------------------------------------------------------ |
-| Local A    | `http://core…:3001`        | `.monosolo.localhost`    | `development_cors.rb` only                                   |
-| Production | `""` (relative `/api/v1`)  | unset (host-only cookie) | Reverse proxy — same-origin `/api` (Mode B)                  |
+| Deployment | `VITE_CORE_URL`           | `SESSION_COOKIE_DOMAIN`  | API access                                         |
+| ---------- | ------------------------- | ------------------------ | -------------------------------------------------- |
+| Local A    | `http://core…:3001`       | `.monosolo.localhost`    | `development_cors.rb` only                         |
+| Production | `""` (relative `/api/v1`) | unset (host-only cookie) | Nitro `/api` proxy → core (Mode B, TanStack Start) |
 
 `SESSION_COOKIE_DOMAIN` is shared by Rails `_mono_solo_session`, `session_id`, and pending-auth cookies. `VITE_CORE_URL` can interpolate `${CORE_PORT}`. Session cookies use `SameSite=Lax`. CSRF uses Rails 8.2 `protect_from_forgery using: :header_only` (`Sec-Fetch-Site` from the browser); JSON API clients without that header (curl, native apps) are allowed via [`RequestForgeryProtection`](../../core/app/controllers/concerns/request_forgery_protection.rb). Local CORS for the web ↔ core split is documented under [Local CORS](#local-cors-development-only).
 

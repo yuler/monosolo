@@ -4,32 +4,23 @@ import { Building2, Check, UserRound } from "lucide-react";
 import { AuthCard, AuthLayout } from "@/components/layout";
 import { buttonVariants } from "@/components/ui/button";
 import { coreAppUrl } from "@/config";
-import { ApiError } from "@/lib/api/client";
-import { fetchMe } from "@/lib/api/session";
 import type { AccountSummary } from "@/lib/auth/account";
-import { redirectToSign } from "@/lib/auth/guards";
+import { requireSession } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/accounts")({
-	beforeLoad: async ({ location }) => {
-		try {
-			const me = await fetchMe();
-			if (me.accounts.length === 0) {
-				throw redirect({ to: "/sign" });
-			}
-			if (me.accounts.length === 1) {
-				throw redirect({
-					to: "/$account_slug",
-					params: { account_slug: me.accounts[0].slug },
-				});
-			}
-			return { me };
-		} catch (err) {
-			if (err instanceof ApiError && err.status === 401) {
-				redirectToSign(`${location.pathname}${location.searchStr}`);
-			}
-			throw err;
+	beforeLoad: ({ context, location }) => {
+		const me = requireSession({ context, location });
+		if (me.accounts.length === 0) {
+			throw redirect({ to: "/sign" });
 		}
+		if (me.accounts.length === 1) {
+			throw redirect({
+				to: "/$account_slug",
+				params: { account_slug: me.accounts[0].slug },
+			});
+		}
+		return { me };
 	},
 	component: AccountsPage,
 });

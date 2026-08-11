@@ -37,7 +37,7 @@ export function SidebarUserMenu({ user }: { user: MeResponse["identity"] }) {
 		try {
 			await destroySession();
 			setOpen(false);
-			navigate({ to: "/sign" });
+			await navigate({ to: "/sign" });
 		} catch (err) {
 			setSignOutError(
 				err instanceof ApiError

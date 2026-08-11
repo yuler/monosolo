@@ -1,13 +1,13 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
-import { useEffect, useState } from "react";
 
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { fetchMe } from "@/lib/api/session";
 import { resolveDashboardTarget } from "@/lib/auth/account";
 import { navigateForTarget } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
+
+const rootRoute = getRouteApi("__root__");
 
 type ButtonProps = ComponentProps<typeof Button>;
 
@@ -25,49 +25,11 @@ export function SiteAuthButton({
 	className?: string;
 }) {
 	const navigate = useNavigate();
-	const [signedIn, setSignedIn] = useState(false);
-	const [target, setTarget] = useState<ReturnType<
-		typeof resolveDashboardTarget
-	> | null>(null);
-	const [resolving, setResolving] = useState(true);
+	const { me } = rootRoute.useRouteContext();
+	const target =
+		me && me.accounts.length > 0 ? resolveDashboardTarget(me.accounts) : null;
 
-	useEffect(() => {
-		let cancelled = false;
-
-		void fetchMe()
-			.then((me) => {
-				if (cancelled) return;
-				if (me.accounts.length === 0) {
-					setSignedIn(false);
-					setTarget(null);
-					return;
-				}
-				setSignedIn(true);
-				setTarget(resolveDashboardTarget(me.accounts));
-			})
-			.catch(() => {
-				if (cancelled) return;
-				setSignedIn(false);
-				setTarget(null);
-			})
-			.finally(() => {
-				if (!cancelled) setResolving(false);
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, []);
-
-	if (resolving) {
-		return (
-			<Button size={size} variant={variant} className={className} disabled>
-				{signInLabel}
-			</Button>
-		);
-	}
-
-	if (!signedIn) {
+	if (!target || target.kind === "sign") {
 		return (
 			<SignInDialog
 				label={signInLabel}
@@ -78,7 +40,7 @@ export function SiteAuthButton({
 		);
 	}
 
-	if (target?.kind === "account") {
+	if (target.kind === "account") {
 		return (
 			<Link
 				to="/$account_slug"
@@ -90,7 +52,7 @@ export function SiteAuthButton({
 		);
 	}
 
-	if (target?.kind === "picker") {
+	if (target.kind === "picker") {
 		return (
 			<Link
 				to="/accounts"
@@ -107,18 +69,7 @@ export function SiteAuthButton({
 			variant={variant}
 			className={className}
 			onClick={() => {
-				void (async () => {
-					try {
-						const me = await fetchMe();
-						const next = resolveDashboardTarget(me.accounts);
-						setTarget(next);
-						setSignedIn(next.kind !== "sign");
-						await navigateForTarget(navigate, next);
-					} catch {
-						setSignedIn(false);
-						setTarget(null);
-					}
-				})();
+				void navigateForTarget(navigate, target);
 			}}
 		>
 			{dashboardLabel}

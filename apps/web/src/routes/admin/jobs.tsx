@@ -9,21 +9,19 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useAdminResource } from "@/hooks/use-admin-resource";
 import { fetchAdminJobs } from "@/lib/api/admin";
+import { withAuthRedirects } from "@/lib/auth/guards";
 
 const adminRoute = getRouteApi("/admin");
 
 export const Route = createFileRoute("/admin/jobs")({
+	loader: withAuthRedirects(fetchAdminJobs),
 	component: JobsPage,
 });
 
 function JobsPage() {
 	const { account } = adminRoute.useRouteContext();
-	const { data, error, loading } = useAdminResource(
-		fetchAdminJobs,
-		"Failed to load jobs.",
-	);
+	const data = Route.useLoaderData();
 
 	return (
 		<>
@@ -49,103 +47,87 @@ function JobsPage() {
 					</p>
 				</div>
 
-				{loading ? (
-					<p className="text-sm text-muted-foreground">Loading…</p>
-				) : null}
-
-				{error ? (
-					<p className="text-sm text-destructive" role="alert">
-						{error}
-					</p>
-				) : null}
-
-				{data ? (
-					<>
-						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							<Card size="sm">
-								<CardHeader>
-									<CardDescription>Adapter</CardDescription>
-									<CardTitle className="font-mono text-lg">
-										{data.adapter}
-									</CardTitle>
-								</CardHeader>
-							</Card>
-							{data.counts ? (
-								<>
-									<StatCard label="Pending" value={data.counts.pending} />
-									<StatCard label="Ready" value={data.counts.ready} />
-									<StatCard label="Scheduled" value={data.counts.scheduled} />
-									<StatCard label="Failed" value={data.counts.failed} />
-									<StatCard label="Finished" value={data.counts.finished} />
-									<StatCard label="Total" value={data.counts.total} />
-								</>
-							) : (
-								<Card size="sm" className="sm:col-span-2">
-									<CardHeader>
-										<CardTitle>Solid Queue unavailable</CardTitle>
-										<CardDescription>
-											{data.available
-												? "Could not load queue counts."
-												: data.adapter === "solid_queue"
-													? "Queue database is missing tables — run bin/rails db:prepare in core."
-													: `Active Job adapter is “${data.adapter}”. Enable Solid Queue in this environment to see counts.`}
-										</CardDescription>
-									</CardHeader>
-								</Card>
-							)}
-						</div>
-
-						<Card>
+				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					<Card size="sm">
+						<CardHeader>
+							<CardDescription>Adapter</CardDescription>
+							<CardTitle className="font-mono text-lg">
+								{data.adapter}
+							</CardTitle>
+						</CardHeader>
+					</Card>
+					{data.counts ? (
+						<>
+							<StatCard label="Pending" value={data.counts.pending} />
+							<StatCard label="Ready" value={data.counts.ready} />
+							<StatCard label="Scheduled" value={data.counts.scheduled} />
+							<StatCard label="Failed" value={data.counts.failed} />
+							<StatCard label="Finished" value={data.counts.finished} />
+							<StatCard label="Total" value={data.counts.total} />
+						</>
+					) : (
+						<Card size="sm" className="sm:col-span-2">
 							<CardHeader>
-								<CardTitle>Recent jobs</CardTitle>
+								<CardTitle>Solid Queue unavailable</CardTitle>
 								<CardDescription>
-									Latest 20 jobs from the queue.
+									{data.available
+										? "Could not load queue counts."
+										: data.adapter === "solid_queue"
+											? "Queue database is missing tables — run bin/rails db:prepare in core."
+											: `Active Job adapter is “${data.adapter}”. Enable Solid Queue in this environment to see counts.`}
 								</CardDescription>
 							</CardHeader>
-							<CardContent>
-								{data.recent.length === 0 ? (
-									<p className="text-sm text-muted-foreground">No jobs yet.</p>
-								) : (
-									<div className="overflow-x-auto">
-										<table className="w-full text-left text-sm">
-											<thead className="border-b text-muted-foreground">
-												<tr>
-													<th className="px-2 py-2 font-medium">Class</th>
-													<th className="px-2 py-2 font-medium">Queue</th>
-													<th className="px-2 py-2 font-medium">Status</th>
-													<th className="px-2 py-2 font-medium">Created</th>
-												</tr>
-											</thead>
-											<tbody>
-												{data.recent.map((job) => (
-													<tr
-														key={String(job.id)}
-														className="border-b last:border-0"
-													>
-														<td className="px-2 py-2 font-mono text-xs">
-															{job.class_name}
-														</td>
-														<td className="px-2 py-2">{job.queue_name}</td>
-														<td className="px-2 py-2">
-															{job.failed
-																? "Failed"
-																: job.finished_at
-																	? "Finished"
-																	: "Pending"}
-														</td>
-														<td className="px-2 py-2 text-muted-foreground">
-															{new Date(job.created_at).toLocaleString()}
-														</td>
-													</tr>
-												))}
-											</tbody>
-										</table>
-									</div>
-								)}
-							</CardContent>
 						</Card>
-					</>
-				) : null}
+					)}
+				</div>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Recent jobs</CardTitle>
+						<CardDescription>Latest 20 jobs from the queue.</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{data.recent.length === 0 ? (
+							<p className="text-sm text-muted-foreground">No jobs yet.</p>
+						) : (
+							<div className="overflow-x-auto">
+								<table className="w-full text-left text-sm">
+									<thead className="border-b text-muted-foreground">
+										<tr>
+											<th className="px-2 py-2 font-medium">Class</th>
+											<th className="px-2 py-2 font-medium">Queue</th>
+											<th className="px-2 py-2 font-medium">Status</th>
+											<th className="px-2 py-2 font-medium">Created</th>
+										</tr>
+									</thead>
+									<tbody>
+										{data.recent.map((job) => (
+											<tr
+												key={String(job.id)}
+												className="border-b last:border-0"
+											>
+												<td className="px-2 py-2 font-mono text-xs">
+													{job.class_name}
+												</td>
+												<td className="px-2 py-2">{job.queue_name}</td>
+												<td className="px-2 py-2">
+													{job.failed
+														? "Failed"
+														: job.finished_at
+															? "Finished"
+															: "Pending"}
+												</td>
+												<td className="px-2 py-2 text-muted-foreground">
+													{new Date(job.created_at).toLocaleString()}
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						)}
+					</CardContent>
+				</Card>
 			</div>
 		</>
 	);
