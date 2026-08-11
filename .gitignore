@@ -57,5 +57,8 @@ apps/web/todos.json
 # Shared
 TODO.md
 
+# Docker Compose (local copy from compose.example.yml)
+compose.yml
+
 # Docs
 docs/superpowers
