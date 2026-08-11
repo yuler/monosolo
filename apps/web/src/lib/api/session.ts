@@ -64,6 +64,13 @@ export async function verifyMagicLink(code: string) {
 }
 
 export function fetchMe(options?: { force?: boolean }): Promise<MeResponse> {
+	// Server-side this module lives in the shared SSR process; never reuse the
+	// module-level cache/in-flight state, which would leak one user's identity
+	// to another across requests (each SSR request has its own cookie).
+	if (import.meta.env.SSR) {
+		return apiFetch<MeResponse>("/api/v1/me", { method: "GET" });
+	}
+
 	const force = options?.force === true;
 	if (!force && meCached && Date.now() - meCached.at < ME_STALE_MS) {
 		return Promise.resolve(meCached.value);
