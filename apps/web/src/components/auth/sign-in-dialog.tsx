@@ -43,7 +43,7 @@ export function SignInDialog({
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
+		<Dialog open={open} onOpenChange={handleOpenChange} disablePointerDismissal>
 			<DialogTrigger
 				render={<Button size={size} variant={variant} className={className} />}
 			>
