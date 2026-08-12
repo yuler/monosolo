@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputOTP } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/lib/api/client";
 import { fetchMe, verifyMagicLink } from "@/lib/api/session";
@@ -66,22 +66,9 @@ export function VerifyForm({
 		<form className="flex flex-col gap-4" onSubmit={onSubmit}>
 			<div className="flex flex-col gap-2">
 				<Label htmlFor={codeId}>One-time code</Label>
-				<Input
-					id={codeId}
-					name="code"
-					type="text"
-					inputMode="numeric"
-					autoComplete="one-time-code"
-					required
-					maxLength={6}
-					placeholder="123456"
-					value={code}
-					onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-					className="text-center font-mono text-lg tracking-widest"
-					autoFocus
-				/>
+				<InputOTP id={codeId} value={code} onChange={setCode} autoFocus />
 				<p className="text-xs text-muted-foreground">
-					Check your email for a 6-digit code.
+					Check your email for a 6-character code.
 				</p>
 			</div>
 			{error ? (
