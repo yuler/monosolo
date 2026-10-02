@@ -104,7 +104,6 @@ GIT
 GIT
   remote: https://github.com/yuler/rails_studio.git
   revision: 16feb6799fcc33c2dfbe5c1d237d3eefa99ca320
-  branch: main
   specs:
     rails_studio (0.1.0)
       rails (>= 7.0.0)
