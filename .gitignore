@@ -56,6 +56,7 @@ apps/web/todos.json
 
 # Shared
 TODO.md
+docs/todo.md
 
 # Docker Compose (local copy from compose.example.yml)
 compose.yml
