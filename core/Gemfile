@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+git_source(:yuler) { |repo| "https://github.com/yuler/#{repo}.git" }
 
 ruby file: ".ruby-version"
 
@@ -65,7 +66,7 @@ group :development do
   gem "web-console"
   gem "hotwire-spark"
   gem "ruby-lsp-rails"
-  gem "rails_studio", github: "yuler/rails_studio", branch: "main"
+  gem "rails_studio", yuler: "rails_studio", branch: "main"
 end
 
 group :test do
