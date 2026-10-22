@@ -37,9 +37,11 @@ MonoSolo 的界面设计规范：黑白极简主义与严格直角风格（Schem
 所有组件边角统一为直角，坚决去除圆角：
 
 - 全局 `--radius` 设为 `0`，衍生的 `--radius-sm` 至 `--radius-4xl` 全部计算为 `0`。
-- 注入全局强制直角规则，彻底覆盖历史组件中的 `rounded-*` 类名：
+- 注入全局强制直角规则，彻底覆盖历史组件中的 `rounded-*` 类名（含伪元素）：
   ```css
-  :where(*, *::before, *::after):not([data-rounded], [data-rounded] *) {
+  :where(*):not([data-rounded], [data-rounded] *),
+  :where(*):not([data-rounded], [data-rounded] *)::before,
+  :where(*):not([data-rounded], [data-rounded] *)::after {
     border-radius: 0 !important;
   }
   ```
@@ -52,39 +54,31 @@ MonoSolo 的界面设计规范：黑白极简主义与严格直角风格（Schem
 在 `apps/web/src/styles.css` 中分为三层架构：
 
 ### 1. 原始值层 (`:root` 与 `.dark`)
-定义不带 layer 的无依赖原始变量，避免命名重叠与循环引用：
+定义带 `--k41-` 前缀的无依赖原始变量，避免与第三方库或组件作用域变量冲突：
 ```css
 :root {
-  --ground: #ffffff;
-  --ink: #000000;
-  --gray: #666666;
-  --line: #e5e5e5;
-  --wash: #f2f2f2;
-  --solid: #000000;
-  --solid-ink: #ffffff;
-
-  --color-ground: var(--ground);
-  --color-ink: var(--ink);
-  --color-gray: var(--gray);
-  --color-line: var(--line);
-  --color-wash: var(--wash);
-  --color-solid: var(--solid);
-  --color-solid-ink: var(--solid-ink);
+  --k41-ground: #ffffff;
+  --k41-ink: #000000;
+  --k41-gray: #666666;
+  --k41-line: #e5e5e5;
+  --k41-wash: #f2f2f2;
+  --k41-solid: #000000;
+  --k41-solid-ink: #ffffff;
   ...
 }
 ```
 
 ### 2. Tailwind v4 主题映射 (`@theme inline`)
-将原子类映射到底层 raw Token（如 `--color-ground: var(--ground)`），彻底消除自引用（`var(--color-ground)`）在 CSS 级联层中的失效风险：
+将原子类映射到底层 raw Token（如 `--color-ground: var(--k41-ground)`），彻底消除自引用在 CSS 级联层中的失效风险：
 ```css
 @theme inline {
-  --color-ground: var(--ground);
-  --color-ink: var(--ink);
-  --color-gray: var(--gray);
-  --color-line: var(--line);
-  --color-wash: var(--wash);
-  --color-solid: var(--solid);
-  --color-solid-ink: var(--solid-ink);
+  --color-ground: var(--k41-ground);
+  --color-ink: var(--k41-ink);
+  --color-gray: var(--k41-gray);
+  --color-line: var(--k41-line);
+  --color-wash: var(--k41-wash);
+  --color-solid: var(--k41-solid);
+  --color-solid-ink: var(--k41-solid-ink);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
