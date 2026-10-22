@@ -6,96 +6,100 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — oklch, aligned with DESIGN.md.
- * Raw --lch-* values feed semantic shadcn tokens.
+ * Design tokens — 黑白直角规范 (Theme Wipe)
+ * Aligned with yuler/k41 design system
  */
 
 :root {
-  --lch-canvas: 100% 0 0;
-  --lch-shade: 97% 0.002 285;
-  --lch-ink: 14% 0.005 285;
-  --lch-ink-dark: 45% 0.003 285;
-  --lch-ink-medium: 55% 0.002 285;
-  --lch-border: 93% 0.003 285;
-  --lch-violet: 60% 0.18 285;
-  --lch-violet-dark: 52% 0.18 285;
-  --lch-violet-foreground: 98% 0.01 285;
-  --lch-negative: 55% 0.2 25;
+  --color-ground: #ffffff;
+  --color-ink: #000000;
+  --color-gray: #888888;
+  --color-line: #e5e5e5;
+  --color-wash: #f2f2f2;
+  --color-solid: #000000;
+  --color-solid-ink: #ffffff;
 
-  --background: oklch(var(--lch-canvas));
-  --foreground: oklch(var(--lch-ink));
-  --card: oklch(var(--lch-canvas));
-  --card-foreground: oklch(var(--lch-ink));
-  --popover: oklch(var(--lch-canvas));
-  --popover-foreground: oklch(var(--lch-ink));
-  --primary: oklch(var(--lch-violet));
-  --primary-foreground: oklch(var(--lch-violet-foreground));
-  --secondary: oklch(var(--lch-shade));
-  --secondary-foreground: oklch(var(--lch-ink));
-  --muted: oklch(var(--lch-shade));
-  --muted-foreground: oklch(var(--lch-ink-dark));
-  --accent: oklch(var(--lch-shade));
-  --accent-foreground: oklch(var(--lch-ink));
-  --destructive: oklch(var(--lch-negative));
-  --border: oklch(var(--lch-border));
-  --input: oklch(var(--lch-border));
-  --ring: oklch(var(--lch-violet));
-  --radius: 0.5rem;
-  --sidebar: oklch(var(--lch-shade));
-  --sidebar-foreground: oklch(var(--lch-ink));
-  --sidebar-primary: oklch(var(--lch-violet));
-  --sidebar-primary-foreground: oklch(var(--lch-violet-foreground));
-  /* Distinct from --sidebar so menu hover/active is visible */
-  --sidebar-accent: oklch(94% 0.003 285);
-  --sidebar-accent-foreground: oklch(var(--lch-ink));
-  --sidebar-border: oklch(var(--lch-border));
-  --sidebar-ring: oklch(var(--lch-violet));
+  --background: var(--color-ground);
+  --foreground: var(--color-ink);
+  --card: var(--color-ground);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-ground);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-solid);
+  --primary-foreground: var(--color-solid-ink);
+  --secondary: var(--color-wash);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-wash);
+  --muted-foreground: var(--color-gray);
+  --accent: var(--color-wash);
+  --accent-foreground: var(--color-ink);
+  --destructive: #e11d48;
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-solid);
+  --radius: 0;
+  --sidebar: var(--color-ground);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-solid);
+  --sidebar-primary-foreground: var(--color-solid-ink);
+  --sidebar-accent: var(--color-wash);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-line);
+  --sidebar-ring: var(--color-solid);
+
+  color-scheme: light;
 }
 
 .dark {
-  --lch-canvas: 14% 0.005 285;
-  --lch-shade: 20% 0.006 285;
-  --lch-ink: 97% 0.002 285;
-  --lch-ink-dark: 72% 0.004 285;
-  --lch-ink-medium: 55% 0.004 285;
-  --lch-border: 26% 0.006 285;
-  --lch-violet: 72% 0.14 285;
-  --lch-violet-dark: 78% 0.12 285;
-  --lch-violet-foreground: 14% 0.005 285;
-  --lch-negative: 68% 0.19 25;
+  --color-ground: #000000;
+  --color-ink: #ffffff;
+  --color-gray: #888888;
+  --color-line: #333333;
+  --color-wash: #111111;
+  --color-solid: #ffffff;
+  --color-solid-ink: #000000;
 
-  --background: oklch(var(--lch-canvas));
-  --foreground: oklch(var(--lch-ink));
-  --card: oklch(20% 0.006 285);
-  --card-foreground: oklch(var(--lch-ink));
-  --popover: oklch(20% 0.006 285);
-  --popover-foreground: oklch(var(--lch-ink));
-  --primary: oklch(var(--lch-violet));
-  --primary-foreground: oklch(var(--lch-violet-foreground));
-  --secondary: oklch(var(--lch-shade));
-  --secondary-foreground: oklch(var(--lch-ink));
-  --muted: oklch(var(--lch-shade));
-  --muted-foreground: oklch(var(--lch-ink-dark));
-  --accent: oklch(var(--lch-shade));
-  --accent-foreground: oklch(var(--lch-ink));
-  --destructive: oklch(var(--lch-negative));
-  --border: oklch(var(--lch-border));
-  --input: oklch(var(--lch-border));
-  --ring: oklch(var(--lch-violet));
-  --sidebar: oklch(20% 0.006 285);
-  --sidebar-foreground: oklch(var(--lch-ink));
-  --sidebar-primary: oklch(var(--lch-violet));
-  --sidebar-primary-foreground: oklch(var(--lch-violet-foreground));
-  /* Distinct from --sidebar so menu hover/active is visible */
-  --sidebar-accent: oklch(26% 0.006 285);
-  --sidebar-accent-foreground: oklch(var(--lch-ink));
-  --sidebar-border: oklch(var(--lch-border));
-  --sidebar-ring: oklch(var(--lch-violet));
+  --background: var(--color-ground);
+  --foreground: var(--color-ink);
+  --card: var(--color-ground);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-ground);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-solid);
+  --primary-foreground: var(--color-solid-ink);
+  --secondary: var(--color-wash);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-wash);
+  --muted-foreground: var(--color-gray);
+  --accent: var(--color-wash);
+  --accent-foreground: var(--color-ink);
+  --destructive: #f43f5e;
+  --border: var(--color-line);
+  --input: var(--color-line);
+  --ring: var(--color-solid);
+  --sidebar: var(--color-ground);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-solid);
+  --sidebar-primary-foreground: var(--color-solid-ink);
+  --sidebar-accent: var(--color-wash);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-line);
+  --sidebar-ring: var(--color-solid);
+
+  color-scheme: dark;
 }
 
 @theme inline {
   --font-sans: "Geist Variable", sans-serif;
   --font-heading: var(--font-sans);
+  --color-ground: var(--color-ground);
+  --color-ink: var(--color-ink);
+  --color-gray: var(--color-gray);
+  --color-line: var(--color-line);
+  --color-wash: var(--color-wash);
+  --color-solid: var(--color-solid);
+  --color-solid-ink: var(--color-solid-ink);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -131,6 +135,14 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* 全站严格直角规范 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0 !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -158,10 +170,6 @@
   .dark :is([data-slot="button"], .group\/button) {
     --btn-hover-brightness: 1.12;
   }
-}
-
-* {
-  box-sizing: border-box;
 }
 
 html,
