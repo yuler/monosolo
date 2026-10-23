@@ -10,8 +10,6 @@ export function ThemeToggle({
 }: ComponentProps<typeof ThemeWipeButton>) {
 	return (
 		<ThemeWipeButton
-			aria-label="Toggle color theme"
-			title="Toggle color theme"
 			className={cn(
 				buttonVariants({ variant: "outline", size: "icon" }),
 				"rounded-none border-line",

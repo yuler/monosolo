@@ -8,6 +8,8 @@ export function ThemeWipeButton({
 	className,
 	children,
 	onClick,
+	"aria-label": ariaLabel = "Toggle color theme",
+	title = ariaLabel,
 	...props
 }: ComponentProps<"button">) {
 	useEffect(() => {
@@ -24,8 +26,8 @@ export function ThemeWipeButton({
 
 	return (
 		<button
-			aria-label="切换主题"
-			title="切换主题"
+			aria-label={ariaLabel}
+			title={title}
 			{...props}
 			type="button"
 			data-theme-toggle
