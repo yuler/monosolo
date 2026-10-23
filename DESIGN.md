@@ -1,184 +1,120 @@
 # Design System
 
-A minimal, modern styling system for the Rails core app. Vanilla CSS, no build
-step — inspired by Basecamp's [Fizzy](https://github.com/basecamp/fizzy) and the
-[Modern CSS patterns in Campfire](https://dev.37signals.com/modern-css-patterns-and-techniques-in-campfire/)
-write-up (and its [notes](https://yuler.dev/posts/modern-css-design/)). Linear/Geist
-flavor: near-neutral grays plus a single indigo/violet accent, in light and dark
-modes.
+MonoSolo design system: minimalist black-and-white theme with strict square corners (Scheme A).
+
+UI copy defaults to Chinese. Code, tokens, typography, and component names use English.
 
 ## Principles
 
-- **oklch over hex/rgb.** Colors are defined as `Lightness Chroma Hue` so you can
-  adjust shade without shifting hue, and add alpha trivially.
-- **Two layers of tokens.** Raw `--lch-*` values feed semantic `--color-*` tokens.
-  Components and utilities only ever consume the semantic layer.
-- **Theme via one attribute.** `[data-theme]` on `<html>` switches everything.
-  Default follows the OS; the user can override and the choice is remembered.
-- **No Tailwind, no Sass.** Styles are hand-written CSS organized into cascade
-  layers, shipped through Propshaft's no-build asset pipeline.
+- **Black-and-white minimalism**: Colors are reduced to pure black and white. Dividers use 1px solid lines, with a minimal neutral gray scale rather than an expansive full palette or colored accents.
+- **Symmetric inversion**: Dark and light modes share the same semantic token names, merely inverting background and text colors.
+- **Strict square radius**: All corners use strict square edges (`border-radius: 0`); rounded corners are eliminated across the system.
+- **Accessible contrast**: Muted gray text satisfies WCAG AA contrast requirements (body text contrast ≥ 4.5:1).
 
-## Pipeline (no build step)
+---
 
-`core/app/assets/stylesheets/application.css` declares the layer order and
-`@import`s every partial:
+## Color Tokens
 
+The color palette is streamlined to 7 foundational semantic tokens, plus an auxiliary status color (`destructive`):
+
+| Token       | Dark      | Light     | Usage                                                  |
+| :---------- | :-------- | :-------- | :----------------------------------------------------- |
+| `ground`    | `#000000` | `#ffffff` | Global page background                                 |
+| `ink`       | `#ffffff` | `#000000` | Primary body text, headings, emphasized borders        |
+| `gray`      | `#888888` | `#666666` | Secondary text, meta, descriptive copy (WCAG AA)       |
+| `line`      | `#333333` | `#e5e5e5` | Hairline dividers, card borders, input borders         |
+| `wash`      | `#111111` | `#f2f2f2` | Recessed background, secondary container, hover states |
+| `solid`     | `#ffffff` | `#000000` | Solid button background, active highlight background   |
+| `solid-ink` | `#000000` | `#ffffff` | Solid button label color, active highlight foreground  |
+
+> [!NOTE]
+> In light mode, `gray` is set to `#666666`, providing a contrast ratio > 5:1 on both `#ffffff` and `#f2f2f2` backgrounds to satisfy WCAG AA contrast standards.
+
+---
+
+## Strict Square Radius
+
+All component corners are strictly square without rounded borders:
+
+- Global `--radius` is set to `0`, and derived tokens (`--radius-sm` through `--radius-4xl`) all compute to `0`.
+- Enforce strict square corners globally across all elements and pseudo-elements:
+  ```css
+  :where(*):not([data-rounded], [data-rounded] *),
+  :where(*):not([data-rounded], [data-rounded] *)::before,
+  :where(*):not([data-rounded], [data-rounded] *)::after {
+    border-radius: 0 !important;
+  }
+  ```
+- Rare exceptions that require rounded shapes (such as blinking indicator dots or status beacons) explicitly opt out via the `data-rounded` attribute.
+
+---
+
+## Web Frontend Token Architecture (Tailwind v4)
+
+Structured into three layers in `apps/web/src/styles.css`:
+
+### 1. Raw Value Layer (`:root` and `.dark`)
+Defines raw unlayered variables with a `--k41-` prefix to avoid conflicts with third-party or component-scoped variables:
 ```css
-@layer reset, base, components, utilities;
-
-@import url("reset.css");
-@import url("theme.css");
-@import url("base.css");
-/* …buttons, forms, tables, components, prose, header, footer, flash… */
+:root {
+  --k41-ground: #ffffff;
+  --k41-ink: #000000;
+  --k41-gray: #666666;
+  --k41-line: #e5e5e5;
+  --k41-wash: #f2f2f2;
+  --k41-solid: #000000;
+  --k41-solid-ink: #ffffff;
+  ...
+}
 ```
 
-Propshaft rewrites each `@import url("…")` to a fingerprinted, digested path at
-request time, so there is no compile step and nothing to watch. The layout links
-the single entry file:
-
-```erb
-<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-```
-
-## Cascade layers
-
-Order is fixed in `application.css`; import order does not affect precedence:
-
-1. `reset` — modern CSS reset (`.reset` file, sits in `@layer reset`).
-2. `base` — element defaults (`body`, `a`, `h1`–`h6`, `code`, focus rings…).
-3. `components` — reusable component classes (`.btn`, `.card`, `.alert`,
-   `.table`, `.field`, `.menu`, `.header`, `.footer`…).
-4. `utilities` — single-purpose helpers (`.flex`, `.gap`, `.txt-*`, `.pad`,
-   `.margin-*`, `.stack`, spacing and color utilities).
-
-Utilities win over components when both apply.
-
-## Token architecture
-
-### 1. Raw scale — `--lch-*`
-
-Just the three oklch channels, no color function. Readable and easy to tweak.
-
+### 2. Tailwind v4 Theme Mapping (`@theme inline`)
+Maps utility classes to underlying raw tokens (e.g. `--color-ground: var(--k41-ground)`), completely eliminating self-referencing cyclic `var()` risks in CSS cascade layers:
 ```css
---lch-gray-100: 98% 0.003 285;
---lch-violet:   285 80% 60%;
---lch-green:    145 60% 45%;
+@theme inline {
+  --color-ground: var(--k41-ground);
+  --color-ink: var(--k41-ink);
+  --color-gray: var(--k41-gray);
+  --color-line: var(--k41-line);
+  --color-wash: var(--k41-wash);
+  --color-solid: var(--k41-solid);
+  --color-solid-ink: var(--k41-solid-ink);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+}
 ```
 
-Grays sit at hue `285`, the accent at hue `285` too — same family, so the UI
-reads as one coherent palette. Accent is a Linear-style indigo/violet.
+### 3. Component Semantic Alignment Layer (shadcn / Base UI)
+Keeps existing UI components working seamlessly by mapping common semantic tokens to the black-and-white theme:
+- `--primary`: mapped to `var(--k41-solid)`
+- `--primary-foreground`: mapped to `var(--k41-solid-ink)`
+- `--background`: mapped to `var(--k41-ground)`
+- `--foreground`: mapped to `var(--k41-ink)`
+- `--border` / `--input`: mapped to `var(--k41-line)`
+- `--muted` / `--secondary` / `--accent`: mapped to `var(--k41-wash)`
+- `--muted-foreground`: mapped to `var(--k41-gray)`
+- `--card` / `--popover` / `--sidebar`: mapped to `var(--k41-ground)`
 
-### 2. Semantic tokens — `--color-*`
+---
 
-Raw values wrapped in `oklch()`. This is the API you use.
+## Component Guidelines
 
-| Token | Purpose |
-| --- | --- |
-| `--color-canvas` | Page background |
-| `--color-shade` | Slightly recessed background |
-| `--color-ink` | Primary text |
-| `--color-ink-dark` | Secondary text |
-| `--color-ink-medium` | Tertiary text, placeholders |
-| `--color-ink-inverted` | Text on a dark/accent fill |
-| `--color-border` | Default hairline borders |
-| `--color-border-strong` | Emphasized borders |
-| `--color-accent` | Primary accent (links, active, focus) |
-| `--color-accent-hover` | Accent hover/active |
-| `--color-white` | Solid white (text on accent) |
-| `--color-link` | Inline link color |
-| `--color-selected` | Selection / highlight |
-| `--color-positive` | Success status |
-| `--color-negative` | Destructive / error status |
-| `--color-info` | Informational status |
+### 1. Button
+- **Solid Button (`ButtonSolid` / `default`)**: `solid` fill, `solid-ink` text, 1px `solid` border, strictly square.
+- **Ghost / Outline Button (`ButtonGhost` / `outline`)**: Transparent or `ground` fill, `ink` text, 1px `line` border, hover `wash` background.
+- **Disabled State**: Opacity reduced to 50%, pointer events disabled.
 
-Alpha is trivial with oklch:
+### 2. Card & Containers
+- `ground` background, 1px `line` border, strictly square.
+- Avoid large drop shadows and gradients; rely on 1px `line` borders for hierarchy.
 
-```css
---color-accent-subtle: oklch(var(--lch-violet) / 0.12);
-```
+### 3. Input & Form Controls
+- `ground` background, 1px `line` border, `ink` text.
+- Focus outline uses 1px `solid`, strictly square.
+- Mobile font size defaults to no less than 16px to prevent iOS Safari auto-zoom on focus.
 
-## Light & dark
-
-- **Light** is the default, defined on `:root`.
-- **Dark** is defined on `:root[data-theme="dark"]`.
-- **No-JS fallback:** when `<html>` has no `data-theme`, `@media
-  (prefers-color-scheme: dark)` applies the dark values, so the OS preference is
-  honored even before any script runs.
-
-Only the semantic `--color-*` values change between themes; component CSS never
-needs color overrides for dark mode — it reads the tokens.
-
-Files:
-
-- `core/app/assets/stylesheets/theme.css` — all `--lch-*` and `--color-*` tokens
-  and the light/dark blocks.
-
-## Theme switching
-
-1. **No-flash script** (`_head.html.erb`): runs before first paint. If
-   `localStorage.theme` holds `light`/`dark` it sets `data-theme` on `<html>`;
-   otherwise it leaves the attribute unset so the OS preference drives the theme
-   live (via the `:not([data-theme])` media block in `theme.css`).
-2. **Toggle** (`theme_controller.js`, button `.theme-toggle` in `_header.html.erb`):
-   flips light ⇄ dark, persists to `localStorage`, and swaps the sun/moon icon.
-3. **First visit** (nothing stored): follows `prefers-color-scheme`, and keeps
-   following it if the OS changes.
-
-## Components & utilities
-
-Component classes live in their own partials and are documented by their class
-names:
-
-- `.btn` with variants `.btn--primary`, `.btn--reversed`, `.btn--negative`,
-  `.btn--ghost`, `.btn--outline`, `.btn--plain`, sizes `.btn--small` /
-  `.btn--large`, `.btn--block`; circular icon buttons are automatic when the
-  label is visually hidden.
-- `.card` / `.card--raised` with `.card__body` and `.card__title`.
-- `.alert` with `.alert--success`, `.alert--error`, `.alert--info`.
-- `.table` / `.table--zebra`, `.table-scroll`.
-- `.field` (`.field__label`, `.field__hint`, `.field--with-icon`) + `.input`,
-  `.textarea`, `.select` (`.input--code`).
-- `.menu` dropdown (`.menu__trigger`, `.menu__content`, `.menu__title`,
-  `.menu__item`) — opens on `:focus-within`, no JS required.
-- `.header` / `.header__bar` / `.header__logo` / `.header__actions`,
-  `.theme-toggle`, `.footer` / `.footer__meta`.
-- `.page` width variants (`.page--sm/md/lg/xl`) and `.stage` for centered auth
-  screens.
-- Utilities: `.flex`, `.grid`, `.stack`, `.gap*`, `.items-*`, `.justify-*`,
-  `.txt-*` (size/color/weight), `.pad*`, `.margin-*`, `.fill*`, `.border*`,
-  `.visually-hidden`, etc.
-
-## Modern CSS conventions
-
-- **Custom properties as a mini-API.** Expose component knobs with fallback
-  values, e.g. `color: var(--btn-color, var(--color-ink));`, and declare variants
-  by overriding the custom property, not the property.
-- **`:has()` instead of state classes.** Query content rather than adding
-  server- or JS-managed modifier classes.
-- **Capability queries.** Use `@media (any-hover: hover)` for hover affordances.
-- **Logical properties.** Prefer `inline-size`/`block-size`, `padding-inline`,
-  `margin-block-start` over physical `width`/`height`, `padding-left`, etc.
-
-## Usage examples
-
-```html
-<!-- Card -->
-<article class="card">
-  <div class="card__body">
-    <h3 class="card__title">Title</h3>
-    <p class="txt-muted">Supporting copy.</p>
-  </div>
-</article>
-
-<!-- Primary button -->
-<button class="btn btn--primary">Continue</button>
-
-<!-- Field -->
-<div class="field">
-  <label class="field__label" for="email">Email</label>
-  <input id="email" class="input" type="email">
-</div>
-
-<!-- Status -->
-<span class="txt-negative">Something went wrong</span>
-```
+### 4. Theme Wipe
+- Theme toggles trigger native circular expansion masks driven by View Transitions.
+- Gracefully falls back without animation if the browser lacks support or if `prefers-reduced-motion` is enabled.
