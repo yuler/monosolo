@@ -6,8 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — 黑白直角规范 (Theme Wipe)
- * Aligned with yuler/k41 design system
+ * Design tokens — black-and-white theme and strict square radius (Theme Wipe)
  */
 
 :root {
@@ -135,7 +134,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* 全站严格直角规范 */
+/* Strict square border radius across all elements */
 *,
 *::before,
 *::after {
