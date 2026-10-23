@@ -123,6 +123,7 @@ export function toggleTheme(anchor?: ThemeAnchor): Theme {
 
 	let timeout = 0;
 	let finished = false;
+	let updated = false;
 	let transition: ThemeViewTransition | undefined;
 	const finish = (skip = false) => {
 		if (finished) return;
@@ -140,12 +141,15 @@ export function toggleTheme(anchor?: ThemeAnchor): Theme {
 		root.style.removeProperty("--vt-y");
 		root.style.removeProperty("--vt-r");
 		root.style.removeProperty("--vt-bg");
-		setTheme(next);
+		if (!updated) {
+			setTheme(next);
+		}
 	};
 	timeout = window.setTimeout(() => finish(true), 800);
 
 	try {
 		transition = startViewTransition(() => {
+			updated = true;
 			applyTheme(next, false);
 			// Native controls follow color-scheme, not author classes. The
 			// incoming snapshot has to be captured with the new scheme.

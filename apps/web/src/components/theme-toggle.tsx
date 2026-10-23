@@ -14,11 +14,10 @@ export function ThemeToggle({
 			title="Toggle color theme"
 			className={cn(
 				buttonVariants({ variant: "outline", size: "icon" }),
+				"rounded-none border-line",
 				className,
 			)}
 			{...props}
 		/>
 	);
 }
-
-export { ThemeWipeButton };
