@@ -88,14 +88,14 @@ MonoSolo 的界面设计规范：黑白极简主义与严格直角风格（Schem
 
 ### 3. 组件语义对齐层 (shadcn / Base UI)
 保持既有组件体系无缝工作，将通用语义映射到底层黑白规范：
-- `--primary`: 映射至 `var(--solid)`
-- `--primary-foreground`: 映射至 `var(--solid-ink)`
-- `--background`: 映射至 `var(--ground)`
-- `--foreground`: 映射至 `var(--ink)`
-- `--border` / `--input`: 映射至 `var(--line)`
-- `--muted` / `--secondary` / `--accent`: 映射至 `var(--wash)`
-- `--muted-foreground`: 映射至 `var(--gray)`
-- `--card` / `--popover` / `--sidebar`: 映射至 `var(--ground)`
+- `--primary`: 映射至 `var(--k41-solid)`
+- `--primary-foreground`: 映射至 `var(--k41-solid-ink)`
+- `--background`: 映射至 `var(--k41-ground)`
+- `--foreground`: 映射至 `var(--k41-ink)`
+- `--border` / `--input`: 映射至 `var(--k41-line)`
+- `--muted` / `--secondary` / `--accent`: 映射至 `var(--k41-wash)`
+- `--muted-foreground`: 映射至 `var(--k41-gray)`
+- `--card` / `--popover` / `--sidebar`: 映射至 `var(--k41-ground)`
 
 ---
 
