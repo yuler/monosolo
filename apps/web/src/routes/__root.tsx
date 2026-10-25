@@ -7,6 +7,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { type ReactNode, useEffect } from "react";
 
+import { DevRibbon } from "@/components/dev-ribbon";
 import { NotFound } from "@/components/not-found";
 import { VersionUpdateDialog } from "@/components/version-update-dialog";
 import { fetchMeOrNull } from "@/lib/api/session";
@@ -69,7 +70,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 			<body suppressHydrationWarning>
 				{children}
 				{import.meta.env.DEV ? (
-					<TanStackRouterDevtools position="bottom-right" />
+					<>
+						<DevRibbon />
+						<TanStackRouterDevtools position="bottom-right" />
+					</>
 				) : null}
 				<Scripts />
 			</body>
