@@ -19,6 +19,7 @@ COPY apps/web/package.json ./apps/web/
 
 RUN pnpm install --filter web... --frozen-lockfile
 
+COPY VERSION ./
 COPY apps/web ./apps/web
 
 # Empty string → same-origin `/api/v1` (Mode B). Do not omit the ARG or Vite
@@ -29,6 +30,12 @@ ENV VITE_CORE_URL=$VITE_CORE_URL
 # Rails origin for Nitro /api proxy + SSR fetches (Compose service name).
 ARG CORE_INTERNAL_URL=http://core:80
 ENV CORE_INTERNAL_URL=$CORE_INTERNAL_URL
+
+# Inlined into the bundle as build info for `logBuildInfo()`.
+ARG APP_VERSION
+ARG GIT_REVISION
+ENV APP_VERSION=$APP_VERSION
+ENV GIT_REVISION=$GIT_REVISION
 
 RUN pnpm --filter web build
 
@@ -45,6 +52,8 @@ COPY --from=build /app/apps/web/.output ./.output
 
 ARG APP_VERSION
 ARG GIT_REVISION
+ENV APP_VERSION=$APP_VERSION
+ENV GIT_REVISION=$GIT_REVISION
 LABEL org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.revision="${GIT_REVISION}"
 

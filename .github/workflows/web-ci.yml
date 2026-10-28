@@ -7,6 +7,7 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "package.json"
+      - "VERSION"
       - ".github/workflows/web-ci.yml"
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "package.json"
+      - "VERSION"
       - ".github/workflows/web-ci.yml"
 
 jobs:
@@ -89,3 +91,6 @@ jobs:
 
       - name: Production build
         run: pnpm --filter web build
+
+      - name: Assert version.json shipped
+        run: bash scripts/assert-web-version-json.sh

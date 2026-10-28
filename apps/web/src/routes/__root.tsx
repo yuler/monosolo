@@ -5,10 +5,12 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { NotFound } from "@/components/not-found";
+import { VersionUpdateDialog } from "@/components/version-update-dialog";
 import { fetchMeOrNull } from "@/lib/api/session";
+import { logBuildInfo } from "@/lib/build-info";
 
 import appCss from "../styles.css?url";
 
@@ -45,7 +47,16 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-	return <Outlet />;
+	useEffect(() => {
+		logBuildInfo();
+	}, []);
+
+	return (
+		<>
+			<Outlet />
+			<VersionUpdateDialog />
+		</>
+	);
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
