@@ -150,7 +150,7 @@ confirm_prompt() {
   fi
   if [ ! -t 0 ]; then
     err "Non-interactive environment detected. Pass -y/--yes to confirm database overwrite."
-    return 1
+    return 2
   fi
   if command -v gum >/dev/null 2>&1; then
     gum confirm "$prompt"
@@ -235,7 +235,15 @@ if [ "$EXPORT_ONLY" = true ]; then
   exit 0
 fi
 
-if ! confirm_prompt "Overwrite local database ($(basename "$LOCAL_DB")) with imported data?"; then
+set +e
+confirm_prompt "Overwrite local database ($(basename "$LOCAL_DB")) with imported data?"
+confirm_code=$?
+set -e
+
+if [ "$confirm_code" -eq 2 ]; then
+  err "Import aborted: confirmation required in non-interactive environment. SQL dump remains saved at $DUMP_FILE"
+  exit 1
+elif [ "$confirm_code" -ne 0 ]; then
   warn "Import aborted by user. SQL dump remains saved at $DUMP_FILE"
   exit 0
 fi
