@@ -16,8 +16,9 @@ export function DevRibbon() {
 		>
 			<div
 				className={cn(
-					"absolute top-[14px] -right-10 w-36 border border-line bg-wash/80 py-0.5 text-center",
-					"text-[10px] font-medium tracking-[0.22em] text-gray uppercase",
+					"absolute top-[14px] -right-10 w-36 border border-line bg-wash/80 py-0.5 text-center shadow-xs backdrop-blur-sm",
+					"text-[10px] font-semibold tracking-[0.22em] text-gray uppercase",
+					"dark:border-white/20 dark:bg-zinc-800/90 dark:text-white",
 					"rotate-45",
 				)}
 			>
