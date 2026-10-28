@@ -8,8 +8,10 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { type ReactNode, useEffect } from "react";
 
 import { DevRibbon } from "@/components/dev-ribbon";
+import { LoadingBar } from "@/components/loading-bar";
 import { NotFound } from "@/components/not-found";
 import { VersionUpdateDialog } from "@/components/version-update-dialog";
+import { WeChatOverlay } from "@/components/wechat-overlay";
 import { fetchMeOrNull } from "@/lib/api/session";
 import { logBuildInfo } from "@/lib/build-info";
 
@@ -68,6 +70,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 				<HeadContent />
 			</head>
 			<body suppressHydrationWarning>
+				<LoadingBar />
 				{children}
 				{import.meta.env.DEV ? (
 					<>
@@ -75,6 +78,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 						<TanStackRouterDevtools position="bottom-right" />
 					</>
 				) : null}
+				<WeChatOverlay />
 				<Scripts />
 			</body>
 		</html>

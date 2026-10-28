@@ -246,3 +246,24 @@ html.theme-transitioning * {
   transition: none !important;
 }
 
+/* Continuous flowing light across loading bar */
+@keyframes progress-flow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: progress-flow 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-loading-bar {
+    animation: none;
+  }
+}
+
+
