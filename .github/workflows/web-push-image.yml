@@ -18,6 +18,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'VERSION'
       - '.dockerignore'
       - '.github/workflows/web-push-image.yml'
 
@@ -96,7 +97,7 @@ jobs:
 
       - name: Extract package version
         id: pkg
-        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
 
       - name: Build and push (${{ matrix.platform }})
         id: build
