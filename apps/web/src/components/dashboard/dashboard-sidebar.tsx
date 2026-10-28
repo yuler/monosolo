@@ -103,24 +103,22 @@ export function DashboardSidebar({
 										<span>Letters</span>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
-								{studioUrl ? (
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											tooltip="Studio"
-											render={
-												<a
-													href={studioUrl}
-													target="_blank"
-													rel="noreferrer"
-													onClick={closeMobileSidebar}
-												>
-													<ExternalLink />
-													<span>Studio</span>
-												</a>
-											}
-										/>
-									</SidebarMenuItem>
-								) : null}
+								<SidebarMenuItem>
+									<SidebarMenuButton
+										tooltip="Studio"
+										render={
+											<a
+												href={studioUrl}
+												target="_blank"
+												rel="noreferrer"
+												onClick={closeMobileSidebar}
+											>
+												<ExternalLink />
+												<span>Studio</span>
+											</a>
+										}
+									/>
+								</SidebarMenuItem>
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>

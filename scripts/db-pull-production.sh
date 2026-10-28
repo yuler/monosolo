@@ -5,6 +5,17 @@
 # Dump files contain production data (including potentially PII/secrets).
 # Dumps MUST stay local under core/storage/ (gitignored) and must NEVER be committed.
 #
+# SECURITY / SSH NOTE:
+# By default, StrictHostKeyChecking=accept-new is used for initial setup convenience.
+# For production environments, operators should pin known host keys in ~/.ssh/known_hosts
+# or pass custom flags via PRODUCTION_SSH_OPTS (e.g. -o StrictHostKeyChecking=yes).
+#
+# SCOPE / SECONDARY DATABASES NOTE:
+# This script pulls only the primary application database (DB_NAME / storage/production.sqlite3).
+# Transient operational databases (DB_NAME_QUEUE, DB_NAME_CABLE, DB_NAME_CACHE) contain
+# background jobs, websockets, and temporary cache data that are not needed locally.
+# Running `bin/rails db:prepare` after import ensures schemas for all databases are up to date.
+#
 # Connects to the Dokploy server over SSH, finds the running core container by
 # its <project>-<service> names, dumps SQLite SQL from production, saves it locally,
 # and imports it into core/storage/development.sqlite3.
@@ -16,6 +27,10 @@
 #   bash scripts/db-pull-production.sh --import-only <file.sql> # Only import an existing SQL file
 #   bash scripts/db-pull-production.sh [output.sql]  # Custom dump file path
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/dokploy.sh
+source "$SCRIPT_DIR/lib/dokploy.sh"
 
 # Output helpers
 log()   { gum style --foreground 212 "✦ $*"; }
@@ -40,35 +55,33 @@ Usage:
 Options:
   --export-only             Only export SQLite SQL from production to local file
   --import-only <file.sql>  Only import specified SQL file into local database
-  -y, --yes                 Skip confirmation prompts
+  -y, --yes                 Skip confirmation prompts (required for non-interactive shells)
   -h, --help                Show this help message
 
 Environment Variables:
-  PRODUCTION_HOST           SSH host (default: monosolo.example.com)
+  PRODUCTION_HOST           SSH host (required for export; set in .env.local or env)
   PRODUCTION_USER           SSH user (default: root)
   PRODUCTION_PROJECT        Dokploy project name (default: monosolo)
   PRODUCTION_SERVICE        Dokploy service name (default: core)
   PRODUCTION_SSH_OPTS       Extra options passed to ssh
   TARGET_DB                 Local SQLite database path (default: core/storage/development.sqlite3)
+
+Note on databases:
+  Only the primary application database is exported. Queue, cable, and cache
+  databases are excluded as they hold transient runtime data.
 EOF
 }
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 DEFAULT_DUMP_FILE="$ROOT_DIR/core/storage/production_dump_${TIMESTAMP}.sql"
 LATEST_SYMLINK="$ROOT_DIR/core/storage/production_dump.sql"
 LOCAL_DB="${TARGET_DB:-$ROOT_DIR/core/storage/development.sqlite3}"
 RAILS_DIR="$ROOT_DIR/core"
 
-HOST="${PRODUCTION_HOST:-monosolo.example.com}"
 USER="${PRODUCTION_USER:-root}"
 PROJECT_NAME="${PRODUCTION_PROJECT:-monosolo}"
 SERVICE_NAME="${PRODUCTION_SERVICE:-core}"
-
-if [ "$HOST" = "monosolo.example.com" ] && [ -z "${PRODUCTION_HOST:-}" ]; then
-  warn "PRODUCTION_HOST is not set. Defaulting to $HOST."
-  log "Set PRODUCTION_HOST in your environment or .env.local to target your Dokploy server."
-fi
 
 EXPORT_ONLY=false
 IMPORT_ONLY=false
@@ -132,8 +145,12 @@ fi
 
 confirm_prompt() {
   local prompt="$1"
-  if [ "$ASSUME_YES" = true ] || [ ! -t 0 ]; then
+  if [ "$ASSUME_YES" = true ]; then
     return 0
+  fi
+  if [ ! -t 0 ]; then
+    err "Non-interactive environment detected. Pass -y/--yes to confirm database overwrite."
+    return 1
   fi
   if command -v gum >/dev/null 2>&1; then
     gum confirm "$prompt"
@@ -150,6 +167,12 @@ fi
 
 # ── 1. Export from production ────────────────────────────────────────────────
 if [ "$IMPORT_ONLY" = false ]; then
+  if [ -z "${PRODUCTION_HOST:-}" ]; then
+    err "PRODUCTION_HOST is not set. Specify your Dokploy server host via PRODUCTION_HOST in .env.local or environment."
+    exit 1
+  fi
+  HOST="$PRODUCTION_HOST"
+
   mkdir -p "$(dirname "$DUMP_FILE")"
   TEMP_DUMP_FILE="${DUMP_FILE}.tmp.$$"
 
@@ -160,29 +183,26 @@ if [ "$IMPORT_ONLY" = false ]; then
   fi
 
   step "Locating '$PROJECT_NAME-$SERVICE_NAME' container on $HOST..."
-  CONTAINER_ID=$(
-    ssh "${SSH_OPTS[@]}" "$USER@$HOST" \
-      "docker ps --format '{{.ID}}\t{{.Names}}' | awk -F'\t' -v proj=\"${PROJECT_NAME}\" -v svc=\"${SERVICE_NAME}\" '\$2 ~ proj \"-.*-\" svc \"-[0-9]+\$\" {print \$1; exit}'"
-  )
+  CONTAINER_ID=$(find_dokploy_container "$HOST" "$USER" "$PROJECT_NAME" "$SERVICE_NAME" "${SSH_OPTS[@]}")
 
   if [ -z "$CONTAINER_ID" ]; then
     err "No container found matching '${PROJECT_NAME}-*-${SERVICE_NAME}' on $HOST"
     echo "Available containers:"
-    ssh "${SSH_OPTS[@]}" "$USER@$HOST" "docker ps --format '{{.Names}}'"
+    list_dokploy_containers "$HOST" "$USER" "${SSH_OPTS[@]}"
     exit 1
   fi
   ok "Found core container: $CONTAINER_ID"
 
-  step "Resolving remote SQLite database path..."
+  step "Resolving remote primary SQLite database path..."
   REMOTE_DB_PATH=$(
     ssh "${SSH_OPTS[@]}" "$USER@$HOST" \
-      "docker exec $CONTAINER_ID sh -c 'echo \"\${DB_NAME:-storage/production.sqlite3}\"'"
+      "docker exec \"$CONTAINER_ID\" sh -c 'echo \"\${DB_NAME:-storage/production.sqlite3}\"'"
   )
-  log "Remote database: $REMOTE_DB_PATH"
+  log "Remote primary database: $REMOTE_DB_PATH"
 
   step "Exporting SQL statements from production container..."
   ssh "${SSH_OPTS[@]}" "$USER@$HOST" \
-    "docker exec $CONTAINER_ID sqlite3 \"$REMOTE_DB_PATH\" .dump" > "$TEMP_DUMP_FILE"
+    "docker exec \"$CONTAINER_ID\" sqlite3 \"$REMOTE_DB_PATH\" .dump" > "$TEMP_DUMP_FILE"
 
   if [ ! -s "$TEMP_DUMP_FILE" ]; then
     err "Exported SQL dump is empty."

@@ -3,7 +3,16 @@
 #
 # Connects to the Dokploy server over SSH, finds the running core container by
 # its <project>-<service> names, and runs `./bin/rails console` inside it.
+#
+# SECURITY / SSH NOTE:
+# By default, StrictHostKeyChecking=accept-new is used for initial setup convenience.
+# For production environments, operators should pin known host keys in ~/.ssh/known_hosts
+# or pass custom flags via PRODUCTION_SSH_OPTS (e.g. -o StrictHostKeyChecking=yes).
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/dokploy.sh
+source "$SCRIPT_DIR/lib/dokploy.sh"
 
 print_help() {
   cat << 'EOF'
@@ -14,7 +23,7 @@ Options:
   -h, --help                Show this help message
 
 Environment Variables:
-  PRODUCTION_HOST           SSH host (default: monosolo.example.com)
+  PRODUCTION_HOST           SSH host (required; set in .env.local or env)
   PRODUCTION_USER           SSH user (default: root)
   PRODUCTION_PROJECT        Dokploy project name (default: monosolo)
   PRODUCTION_SERVICE        Dokploy service name (default: core)
@@ -36,15 +45,17 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-HOST="${PRODUCTION_HOST:-monosolo.example.com}"
+if [ -z "${PRODUCTION_HOST:-}" ]; then
+  echo "Error: PRODUCTION_HOST is not set." >&2
+  echo "Specify your Dokploy server host via the PRODUCTION_HOST environment variable or in .env.local." >&2
+  echo "Example: PRODUCTION_HOST=monosolo.example.com mise run core:console:production" >&2
+  exit 1
+fi
+
+HOST="$PRODUCTION_HOST"
 USER="${PRODUCTION_USER:-root}"
 PROJECT_NAME="${PRODUCTION_PROJECT:-monosolo}"
 SERVICE_NAME="${PRODUCTION_SERVICE:-core}"
-
-if [ "$HOST" = "monosolo.example.com" ] && [ -z "${PRODUCTION_HOST:-}" ]; then
-  echo "Notice: PRODUCTION_HOST is not set. Defaulting to $HOST." >&2
-  echo "Set PRODUCTION_HOST in your environment or .env.local to target your Dokploy server." >&2
-fi
 
 SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
 if [ -n "${PRODUCTION_SSH_OPTS:-}" ]; then
@@ -53,15 +64,12 @@ if [ -n "${PRODUCTION_SSH_OPTS:-}" ]; then
 fi
 
 # SSH to server and find the core container
-# Match Dokploy names like <stack>-<project>-<id>-<service>-<replica>, e.g. sides-monosolo-hhjmh1-core-1
-CONTAINER_ID=$(
-  ssh "${SSH_OPTS[@]}" "$USER@$HOST" "docker ps --format '{{.ID}}\t{{.Names}}' | awk -F'\t' -v proj=\"${PROJECT_NAME}\" -v svc=\"${SERVICE_NAME}\" '\$2 ~ proj \"-.*-\" svc \"-[0-9]+\$\" {print \$1; exit}'"
-)
+CONTAINER_ID=$(find_dokploy_container "$HOST" "$USER" "$PROJECT_NAME" "$SERVICE_NAME" "${SSH_OPTS[@]}")
 
 if [ -z "$CONTAINER_ID" ]; then
   echo "Error: No container found matching '${PROJECT_NAME}-*-${SERVICE_NAME}' on $HOST" >&2
   echo "Available containers:" >&2
-  ssh "${SSH_OPTS[@]}" "$USER@$HOST" "docker ps --format '{{.Names}}'"
+  list_dokploy_containers "$HOST" "$USER" "${SSH_OPTS[@]}"
   exit 1
 fi
 
@@ -69,4 +77,4 @@ echo "Found container: $CONTAINER_ID"
 echo "Connecting to container..."
 
 # Connect to container
-ssh -t "${SSH_OPTS[@]}" "$USER@$HOST" "docker exec -it $CONTAINER_ID ./bin/rails console"
+ssh -t "${SSH_OPTS[@]}" "$USER@$HOST" "docker exec -it \"$CONTAINER_ID\" ./bin/rails console"
