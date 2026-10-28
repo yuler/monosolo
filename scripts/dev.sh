@@ -17,12 +17,28 @@ listening_pids() {
 }
 
 stop_overmind() {
-  if [ -S .overmind.sock ]; then
+  local sock="${OVERMIND_SOCKET:-.overmind.sock}"
+  if [ -e "$sock" ]; then
     overmind quit 2>/dev/null || overmind kill 2>/dev/null || true
-    rm -f .overmind.sock
+    rm -f "$sock"
   fi
   # Overmind's tmux session defaults to the app directory basename
   tmux kill-session -t "$(basename "$PWD")" 2>/dev/null || true
+}
+
+ensure_overmind_clean() {
+  local sock="${OVERMIND_SOCKET:-.overmind.sock}"
+  if [ -e "$sock" ]; then
+    if overmind status >/dev/null 2>&1; then
+      warn "Overmind is already running."
+      gum confirm "Stop existing Overmind session and restart?" || { warn "Aborting."; exit 1; }
+      stop_overmind
+      ok "Stopped existing Overmind session"
+    else
+      warn "Found stale ${sock} — cleaning up"
+      stop_overmind
+    fi
+  fi
 }
 
 ensure_ports_free() {
@@ -63,6 +79,13 @@ if [ -f .env ]; then
   set +a
 fi
 
+if [ -f .env.local ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env.local
+  set +a
+fi
+
 CORE_PORT="${CORE_PORT:-3001}"
 WEB_PORT="${WEB_PORT:-3000}"
 
@@ -74,6 +97,8 @@ ok "core  ${CORE_URL}"
 ok "web   ${WEB_URL}"
 log "Also: http://localhost:${CORE_PORT}  ·  http://localhost:${WEB_PORT}"
 echo
+
+ensure_overmind_clean
 
 step "Checking ports ${WEB_PORT} (web) and ${CORE_PORT} (core)…"
 ensure_ports_free "$WEB_PORT" "$CORE_PORT"

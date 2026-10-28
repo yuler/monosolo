@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	Activity,
 	BriefcaseBusiness,
+	ExternalLink,
 	LayoutDashboard,
 	Mail,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { coreAppUrl } from "@/config";
 import type { MeResponse } from "@/lib/api/session";
 
 type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -45,6 +47,7 @@ export function DashboardSidebar({
 
 	const homePath = `/${slug}`;
 	const lettersPath = "/dev/letters";
+	const studioUrl = coreAppUrl("/rails_studio");
 	const jobsPath = "/admin/jobs";
 	const statsPath = "/admin/stats";
 
@@ -100,6 +103,24 @@ export function DashboardSidebar({
 										<span>Letters</span>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
+								{studioUrl ? (
+									<SidebarMenuItem>
+										<SidebarMenuButton
+											tooltip="Studio"
+											render={
+												<a
+													href={studioUrl}
+													target="_blank"
+													rel="noreferrer"
+													onClick={closeMobileSidebar}
+												>
+													<ExternalLink />
+													<span>Studio</span>
+												</a>
+											}
+										/>
+									</SidebarMenuItem>
+								) : null}
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
