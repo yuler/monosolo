@@ -7,7 +7,10 @@ overmind = "2.5.1"
 tmux = "3.7b"
 
 [env]
-_.file = ".env"
+# `.env` then `.env.local` (later file wins).
+_.file = [".env", ".env.local"]
+# Overmind Overload()'s `.env` and would wipe `.env.local` (empty VITE_CORE_URL=).
+OVERMIND_SKIP_ENV = "1"
 
 [tasks.setup]
 description = "Set up the development environment (gems, deps, db)"
@@ -26,6 +29,20 @@ description = "Start the Rails development server"
 dir = "core"
 env = { RUBY_DEBUG_OPEN = "true", RUBY_DEBUG_LAZY = "true" }
 run = "bin/rails server -p ${CORE_PORT:-3001}"
+
+[tasks."core:console"]
+description = "Open the Rails console"
+dir = "core"
+run = "bin/rails console"
+
+[tasks."core:console:production"]
+description = "Open the Rails console in the production container"
+run = "bash scripts/rails-console-production.sh"
+
+[tasks."core:db:pull:production"]
+description = "Export SQLite SQL from production and import into local development"
+alias = ["core:db:pull"]
+run = "bash scripts/db-pull-production.sh"
 
 [tasks."web:dev"]
 description = "Start the Vite development server"

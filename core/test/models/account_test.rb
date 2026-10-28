@@ -66,6 +66,12 @@ class AccountTest < ActiveSupport::TestCase
     assert_includes other.errors[:slug], "is unavailable"
   end
 
+  test "rejects reserved slug rails_studio" do
+    account = Account.new(name: "Studio", slug: "rails_studio", personal: false)
+    assert_not account.valid?
+    assert_includes account.errors[:slug], "is reserved"
+  end
+
   test "account can reclaim its own held slug" do
     account = accounts(:john_account)
     old_slug = account.slug
