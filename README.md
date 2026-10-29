@@ -64,3 +64,7 @@ Compose forces Mode B (host-only cookies; Nitro proxies `/api` → core), so a M
 - Core: http://localhost:3001 (optional direct access)
 
 Images: `ghcr.io/yuler/monosolo` and `ghcr.io/yuler/monosolo-web` (see `core-push-image.yml` / `web-push-image.yml`).
+
+## Production Deployment (Dokploy & Cloudflare)
+
+For production deployment using Dokploy and Cloudflare edge caching (Mode B), see [`docs/deploy-to-dokploy.md`](docs/deploy-to-dokploy.md).
