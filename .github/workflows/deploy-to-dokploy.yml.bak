@@ -1,0 +1,112 @@
+name: deploy-to-dokploy
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Core Publish Docker image
+      - Web Publish Docker image
+    types:
+      - completed
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+
+# Never run two deploys at once; a newer commit waits for the current deploy.
+concurrency:
+  group: deploy-to-dokploy
+  cancel-in-progress: false
+
+jobs:
+  # Deploy a commit only when every image build triggered for it has succeeded.
+  # Builds are path-filtered, so a workflow with no run for this commit is fine
+  # (its existing image is reused). If the other build is still running, skip
+  # here; its own completion will re-trigger this workflow.
+  gate:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - name: Check core and web image builds for this commit
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            # Manual trigger serves as an operator override and redeploys immediately,
+            # bypassing image checks even if the latest automated image build runs failed.
+            echo "Manual dispatch: deploying."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          deploy=true
+          failed=false
+          for wf in core-push-image.yml web-push-image.yml; do
+            run=$(gh api "repos/$REPO/actions/workflows/$wf/runs?head_sha=$HEAD_SHA&event=push&per_page=1" \
+              --jq '.workflow_runs[0] // empty | "\(.status) \(.conclusion)"')
+            if [ -z "$run" ]; then
+              echo "$wf: no run for $HEAD_SHA (not triggered), OK"
+              continue
+            fi
+            read -r status conclusion <<< "$run"
+            echo "$wf: status=$status conclusion=$conclusion"
+            if [ "$status" != "completed" ]; then
+              echo "::notice::$wf still running for $HEAD_SHA; its completion will trigger the deploy."
+              deploy=false
+            elif [ "$conclusion" != "success" ]; then
+              echo "::error::$wf did not succeed for $HEAD_SHA ($conclusion); aborting deploy."
+              failed=true
+            fi
+          done
+
+          if [ "$failed" = "true" ]; then
+            echo "One or more image build workflows failed for $HEAD_SHA." >&2
+            exit 1
+          fi
+
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+  trigger-dokploy-deployment:
+    needs: gate
+    if: ${{ needs.gate.outputs.deploy == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dokploy Compose Deployment
+        uses: benbristow/dokploy-deploy-action@3a2a16f0158b41377adf300c9dd6d3d396aa7586 # 0.2.2
+        with:
+          api_token: ${{ secrets.DOKPLOY_API_KEY }}
+          dokploy_url: ${{ secrets.DOKPLOY_URL }}
+          application_id: ${{ secrets.DOKPLOY_COMPOSE_APPLICATION_ID }}
+          service_type: compose
+
+      - name: Purge Cloudflare landing page cache
+        env:
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_TOKEN }}
+          SITE_DOMAIN: ${{ vars.SITE_DOMAIN || secrets.SITE_DOMAIN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_ZONE_ID:-}" ] || [ -z "${CF_API_TOKEN:-}" ]; then
+            echo "::notice::CLOUDFLARE_ZONE_ID / CLOUDFLARE_PURGE_TOKEN not set; skipping edge cache purge."
+            exit 0
+          fi
+          TARGET_URL="${SITE_DOMAIN:-}"
+          if [ -z "$TARGET_URL" ]; then
+            echo "::notice::SITE_DOMAIN variable or secret not set; skipping edge cache purge."
+            exit 0
+          fi
+          [[ "$TARGET_URL" != http* ]] && TARGET_URL="https://$TARGET_URL"
+          [[ "$TARGET_URL" != */ ]] && TARGET_URL="$TARGET_URL/"
+          echo "Purging Cloudflare cache for: $TARGET_URL"
+          curl -fsSL -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -cn --arg url "$TARGET_URL" '{files: [$url]}')"
