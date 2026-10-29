@@ -36,6 +36,9 @@ On push to `main` (and `v*` tags), GitHub Actions publish multi-arch images tagg
 - `core` rebuilds when `core/**` or dependency files change.
 - `web` rebuilds when `apps/web/**` or workspace files change.
 
+> [!TIP]
+> Because container builds are path-filtered, a per-commit `sha-<short>` tag only exists for services modified by that commit. For continuous deployment, use `IMAGE_TAG=main` or synchronized git release tags (`v*`).
+
 If your GitHub repository is private, the container images on GHCR are also private. Dokploy must be granted access via **Server / Project Settings → Registry**:
 
 - **Registry Provider:** `ghcr.io`
@@ -74,7 +77,7 @@ Minimum required variables in Dokploy:
 ```bash
 SITE_DOMAIN=monosolo.example.com
 SITE_NAME=MonoSolo
-IMAGE_TAG=main
+IMAGE_TAG=main            # main for CD, or a synchronized release tag (e.g. v0.1.0)
 SECRET_KEY_BASE=          # Generate with: cd core && bin/rails secret
 ```
 

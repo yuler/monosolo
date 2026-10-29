@@ -40,12 +40,15 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$EVENT" = "workflow_dispatch" ]; then
+            # Manual trigger serves as an operator override and redeploys immediately,
+            # bypassing image checks even if the latest automated image build runs failed.
             echo "Manual dispatch: deploying."
             echo "deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           deploy=true
+          failed=false
           for wf in core-push-image.yml web-push-image.yml; do
             run=$(gh api "repos/$REPO/actions/workflows/$wf/runs?head_sha=$HEAD_SHA&event=push&per_page=1" \
               --jq '.workflow_runs[0] // empty | "\(.status) \(.conclusion)"')
@@ -59,10 +62,16 @@ jobs:
               echo "::notice::$wf still running for $HEAD_SHA; its completion will trigger the deploy."
               deploy=false
             elif [ "$conclusion" != "success" ]; then
-              echo "::error::$wf did not succeed for $HEAD_SHA ($conclusion); not deploying."
-              deploy=false
+              echo "::error::$wf did not succeed for $HEAD_SHA ($conclusion); aborting deploy."
+              failed=true
             fi
           done
+
+          if [ "$failed" = "true" ]; then
+            echo "One or more image build workflows failed for $HEAD_SHA." >&2
+            exit 1
+          fi
+
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
 
   trigger-dokploy-deployment:
@@ -71,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Dokploy Compose Deployment
-        uses: benbristow/dokploy-deploy-action@0.2.2
+        uses: benbristow/dokploy-deploy-action@3a2a16f0158b41377adf300c9dd6d3d396aa7586 # v0.2.2
         with:
           api_token: ${{ secrets.DOKPLOY_API_KEY }}
           dokploy_url: ${{ secrets.DOKPLOY_URL }}
@@ -100,4 +109,4 @@ jobs:
           curl -fsSL -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data "{\"files\":[\"${TARGET_URL}\"]}"
+            --data "$(jq -cn --arg url "$TARGET_URL" '{files: [$url]}')"
